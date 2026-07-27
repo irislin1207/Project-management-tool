@@ -538,7 +538,7 @@
     <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
     <div class="topbar-user">
       <div class="info">
-        <span class="name" id="topbarUser" contenteditable="true" spellcheck="false" title="點擊即可修改名稱">Iris</span>
+        <span class="name" id="topbarUser">Iris</span>
         <span class="time" id="topbarTime">更新於 --:--</span>
       </div>
       <div class="avatar" id="topbarAvatar">I</div>
@@ -759,21 +759,18 @@ function ensureClient(name){
   }
 }
 
-const USERNAME_KEY = 'pm-username';
-async function loadUsername(){
-  try{
-    const r = await fbStorageGet(USERNAME_KEY);
-    return (r && r.value) ? r.value : 'Iris';
-  }catch(e){ return 'Iris'; }
-}
-async function saveUsername(name){
-  try{ await fbStorageSet(USERNAME_KEY, name); }catch(e){ console.error(e); }
-}
-function applyUsername(name){
+function applyGoogleIdentity(user){
+  const name = user.displayName || user.email || 'User';
   const nameEl = document.getElementById('topbarUser');
   const avatarEl = document.getElementById('topbarAvatar');
   if(nameEl) nameEl.textContent = name;
-  if(avatarEl) avatarEl.textContent = (name||'?').trim().charAt(0).toUpperCase() || '?';
+  if(avatarEl){
+    if(user.photoURL){
+      avatarEl.innerHTML = `<img src="${user.photoURL}" alt="">`;
+    } else {
+      avatarEl.textContent = name.trim().charAt(0).toUpperCase() || '?';
+    }
+  }
 }
 
 const WORKSPACE_KEY = 'pm-workspace';
@@ -2678,25 +2675,6 @@ async function init(){
   const signOutBtn = document.getElementById('signOutBtn');
   if(signOutBtn) signOutBtn.addEventListener('click', ()=> fbAuth.signOut());
 
-  const savedName = await loadUsername();
-  applyUsername(savedName);
-  let lastSavedName = savedName;
-  const nameEl = document.getElementById('topbarUser');
-  if(nameEl){
-    nameEl.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){ e.preventDefault(); nameEl.blur(); }
-    });
-    nameEl.addEventListener('blur', ()=>{
-      let val = nameEl.textContent.replace(/\s+/g,' ').trim();
-      if(!val) val = 'Iris';
-      applyUsername(val);
-      if(val!==lastSavedName){
-        lastSavedName = val;
-        saveUsername(val);
-        toast('已更新使用者名稱');
-      }
-    });
-  }
 }
 
 /* ============================================================
@@ -2704,14 +2682,34 @@ async function init(){
    ============================================================ */
 let appInitialized = false;
 
+function isMobileBrowser(){
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
 document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
   const errEl = document.getElementById('loginGateError');
   errEl.textContent = '';
   const provider = new firebase.auth.GoogleAuthProvider();
-  fbAuth.signInWithPopup(provider).catch(err=>{
-    console.error(err);
-    errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
-  });
+  if(isMobileBrowser()){
+    // 手機瀏覽器：用整頁跳轉方式登入（相容性較好，避免 sessionStorage / popup 被瀏覽器限制的問題）
+    fbAuth.signInWithRedirect(provider).catch(err=>{
+      console.error(err);
+      errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+    });
+  } else {
+    // 電腦瀏覽器：用彈出視窗方式登入（不用整頁跳轉，體驗較順）
+    fbAuth.signInWithPopup(provider).catch(err=>{
+      console.error(err);
+      errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+    });
+  }
+});
+
+// 處理手機整頁跳轉登入完成後、跳回頁面時的結果
+fbAuth.getRedirectResult().catch(err=>{
+  console.error('redirect result error:', err);
+  const errEl = document.getElementById('loginGateError');
+  if(errEl) errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
 });
 
 fbAuth.onAuthStateChanged(async (user)=>{
@@ -2721,10 +2719,7 @@ fbAuth.onAuthStateChanged(async (user)=>{
     currentUid = user.uid;
     gate.style.display = 'none';
     root.style.display = '';
-    const avatarEl = document.getElementById('topbarAvatar');
-    if(avatarEl && user.photoURL){
-      avatarEl.innerHTML = `<img src="${user.photoURL}" alt="">`;
-    }
+    applyGoogleIdentity(user);
     const loggedInLabel = document.getElementById('loggedInAsLabel');
     if(loggedInLabel) loggedInLabel.textContent = '已登入：' + (user.email || user.displayName || '');
     if(!appInitialized){
