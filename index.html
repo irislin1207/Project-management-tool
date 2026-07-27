@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>專案管理工作台</title>
+<style>
+  :root{
+    --navy:#2F4156;
+    --teal:#567C8D;
+    --sky:#C8D9E6;
+    --beige:#F5EFEB;
+    --white:#FFFFFF;
+
+    --bg:var(--beige);
+    --sidebar-bg:var(--beige);
+    --card:var(--white);
+    --blue-900:var(--navy);
+    --blue-800:var(--navy);
+    --blue-700:var(--teal);
+    --blue-500:var(--teal);
+    --blue-300:var(--sky);
+    --blue-200:var(--sky);
+    --blue-100:rgba(86,124,141,0.16);
+    --blue-050:rgba(86,124,141,0.08);
+    --red:#B15C52;
+    --red-soft:#E3C6BF;
+    --red-bg:#F7EAE7;
+    --text:var(--navy);
+    --text-muted:rgba(47,65,86,0.65);
+    --text-faint:rgba(47,65,86,0.42);
+    --border:var(--sky);
+    --ok:var(--teal);
+    --sidebar-w:196px;
+    --topbar-h:64px;
+    --shadow: 0 2px 10px rgba(47,65,86,0.08), 0 1px 2px rgba(47,65,86,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  ::selection{background:var(--blue-200);}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--blue-300);border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------- Top Title Bar ---------- */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; height:var(--topbar-h); z-index:60;
+    background:linear-gradient(92deg, var(--blue-900) 0%, var(--blue-800) 55%, var(--blue-700) 100%);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 28px 0 18px;
+    box-shadow:0 3px 16px rgba(51,82,107,0.3);
+  }
+  .topbar-brand{ display:flex; align-items:center; gap:13px; }
+  .topbar-logo{
+    width:40px;height:40px;border-radius:12px; flex:none;
+    background:linear-gradient(150deg, var(--white), var(--blue-100) 120%);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:var(--blue-900);letter-spacing:.5px;
+    box-shadow:0 3px 10px rgba(20,35,45,0.28);
+    font-family:'Georgia','Noto Serif TC',serif;
+  }
+  .topbar-title{ display:flex; flex-direction:column; line-height:1.18; }
+  .topbar-title .main{ font-size:21px; font-weight:800; color:#fff; letter-spacing:2px; }
+  .topbar-title .sub{ font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:3.5px; text-transform:uppercase; margin-top:3px; }
+  .topbar-right{ display:flex; align-items:center; gap:16px; }
+  .sidenav-add-btn{
+    width:100%; margin-top:10px; flex:none;
+    appearance:none; border:none; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:800; font-size:14px; color:#fff; background:var(--blue-700);
+    padding:12px 14px; border-radius:12px; box-shadow:0 4px 14px rgba(51,82,107,0.25);
+    transition:.15s ease;
+  }
+  .sidenav-add-btn:hover{ background:var(--blue-900); transform:translateY(-1px); }
+  .sidenav-add-btn svg{ width:16px;height:16px; }
+  .hamburger-wrap{ position:relative; }
+  .hamburger-btn{
+    width:36px;height:36px;border-radius:10px; flex:none; cursor:pointer;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);
+    display:flex; align-items:center; justify-content:center; transition:.15s ease;
+  }
+  .hamburger-btn:hover{ background:rgba(255,255,255,0.22); }
+  .hamburger-btn svg{ width:17px;height:17px; color:#fff; }
+  .hamburger-menu{
+    position:absolute; top:calc(100% + 10px); right:0; min-width:200px;
+    background:#fff; border-radius:14px; box-shadow:0 16px 40px rgba(30,45,55,0.28);
+    border:1px solid var(--border); padding:8px; z-index:120;
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .16s ease, transform .16s ease, visibility .16s;
+  }
+  .hamburger-wrap:hover .hamburger-menu,
+  .hamburger-menu.force-open{
+    opacity:1; visibility:visible; transform:translateY(0);
+  }
+  .hamburger-menu::before{
+    content:''; position:absolute; top:-6px; right:14px; width:12px;height:12px;
+    background:#fff; transform:rotate(45deg); border-left:1px solid var(--border); border-top:1px solid var(--border);
+  }
+  .hmenu-item{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
+    font-size:13.5px; font-weight:600; color:var(--blue-900); padding:10px 12px; border-radius:9px;
+  }
+  .hmenu-item:hover{ background:var(--blue-050); }
+  .hmenu-item svg{ width:16px;height:16px; color:var(--blue-700); flex:none; }
+  .hmenu-item:disabled{ color:var(--text-faint); cursor:not-allowed; }
+  .hmenu-item:disabled svg{ color:var(--text-faint); }
+  .hmenu-item:disabled:hover{ background:transparent; }
+  .hmenu-item.danger{ color:var(--red); }
+  .hmenu-item.danger svg{ color:var(--red); }
+  .hmenu-item.danger:hover{ background:var(--red-bg); }
+  .hmenu-sep{ height:1px; background:var(--border); margin:6px 4px; }
+  .hmenu-label{ font-size:11.5px; font-weight:800; color:var(--text-muted); padding:8px 12px 2px; }
+  .notif-badge{
+    position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; padding:0 4px;
+    border-radius:20px; background:var(--red); color:#fff; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+    box-shadow:0 0 0 2px var(--blue-800);
+  }
+  .notif-menu{ min-width:300px; max-height:360px; overflow-y:auto; }
+  .notif-menu-title{ font-size:12.5px; font-weight:800; color:var(--blue-900); padding:6px 10px 10px; }
+  .notif-item{
+    display:flex; flex-direction:column; gap:2px; width:100%; text-align:left;
+    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
+    padding:9px 12px; border-radius:9px;
+  }
+  .notif-item:hover{ background:var(--blue-050); }
+  .notif-item .nt{ font-size:13px; font-weight:700; color:var(--blue-900); }
+  .notif-item .nm{ font-size:11.5px; color:var(--text-muted); }
+  .notif-item.is-overdue .nt{ color:var(--red); }
+  .notif-item.is-overdue .nm{ color:var(--red); }
+  .notif-empty{ padding:22px 10px; text-align:center; color:var(--text-muted); font-size:12.5px; }
+  .topbar-user{ display:flex; align-items:center; gap:12px; }
+  .topbar-user .avatar{
+    width:34px;height:34px;border-radius:50%; flex:none;
+    background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.25);
+    display:flex;align-items:center;justify-content:center; font-weight:700; font-size:13.5px; color:#fff;
+  }
+  .topbar-user .info{ display:flex; flex-direction:column; line-height:1.35; text-align:right; }
+  .topbar-user .name{ font-size:13.5px; font-weight:700; color:#fff; outline:none; cursor:text; border-radius:5px; padding:1px 4px; margin:-1px -4px; }
+  .topbar-user .name:hover{ background:rgba(255,255,255,0.12); }
+  .topbar-user .name:focus{ background:rgba(255,255,255,0.18); box-shadow:0 0 0 1.5px rgba(255,255,255,0.4); }
+  .topbar-user .time{ font-size:11px; color:rgba(255,255,255,0.62); }
+
+  /* ---------- Sidebar Nav ---------- */
+  .sidenav{
+    position:fixed; left:0; top:var(--topbar-h); bottom:0; width:var(--sidebar-w); z-index:50;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--blue-200);
+    display:flex; flex-direction:column;
+    padding:18px 12px;
+    transition:width .2s ease;
+  }
+  .nav-collapse-btn{
+    appearance:none; border:none; cursor:pointer; width:100%;
+    background:transparent; color:var(--blue-800);
+    font-family:inherit; font-size:13px; font-weight:700;
+    padding:9px 14px; border-radius:11px; margin-bottom:10px;
+    transition:.18s ease;
+    display:flex; flex-direction:row; align-items:center; gap:11px;
+    text-align:left; white-space:nowrap;
+  }
+  .nav-collapse-btn:hover{ background:rgba(255,255,255,0.55); }
+  .nav-collapse-btn svg{ width:16px;height:16px; flex:none; transition:transform .2s ease; }
+  .nav-tabs{ display:flex; flex-direction:column; gap:4px; flex:1; padding-left:12px; border-left:2px solid var(--blue-100); margin-left:6px; }
+  .nav-tab{
+    appearance:none; border:none; cursor:pointer; width:100%;
+    background:transparent; color:var(--blue-900);
+    font-family:inherit; font-size:13.5px; font-weight:700;
+    padding:11px 12px; border-radius:11px;
+    transition:.18s ease;
+    display:flex; flex-direction:row; align-items:center; gap:9px;
+    text-align:left; white-space:nowrap;
+  }
+  .nav-tab:not(.active):hover{ background:var(--sky); }
+  .nav-tab.active:hover{ filter:brightness(1.06); }
+  .nav-tab.active{ box-shadow:0 4px 12px rgba(47,65,86,0.3); }
+  .nav-tab svg{width:18px;height:18px;flex:none;}
+  .nav-tab span.label{ writing-mode:horizontal-tb; display:inline-block; }
+  .nav-meta{ font-size:11.5px; color:var(--text-muted); white-space:nowrap; padding:10px 12px 4px; display:flex; align-items:center; }
+  .workspace-switcher{ position:relative; margin-bottom:12px; }
+  .ws-trigger{
+    width:100%; appearance:none; border:none; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; gap:8px; text-align:left;
+    background:var(--navy);
+    color:#fff; border-radius:11px; padding:0 12px; height:42px;
+    box-shadow:0 4px 12px rgba(154,111,46,0.35);
+    transition:filter .15s ease;
+  }
+  .ws-trigger:hover{ filter:brightness(1.08); }
+  .ws-trigger .ws-pin{ width:17px;height:17px; flex:none; }
+  .ws-trigger .ws-label{ flex:1; font-size:13px; font-weight:800; letter-spacing:.3px; white-space:nowrap; }
+  .ws-trigger .ws-arrow{ width:15px;height:15px; flex:none; transition:transform .15s ease; }
+  .workspace-switcher.open .ws-arrow{ transform:rotate(180deg); }
+  .ws-menu{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:70;
+    background:#fff; border-radius:12px; box-shadow:0 14px 34px rgba(30,45,55,0.24);
+    border:1px solid var(--border); padding:6px;
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .15s ease, transform .15s ease, visibility .15s;
+  }
+  .workspace-switcher.open .ws-menu{ opacity:1; visibility:visible; transform:translateY(0); }
+  .ws-menu-item{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
+    font-size:13px; font-weight:700; color:var(--blue-900); padding:9px 10px; border-radius:9px;
+  }
+  .ws-menu-item:hover{ background:var(--blue-050); }
+  .ws-menu-item.active{ background:var(--sky); color:var(--navy); }
+  .sync-dot{
+    width:7px;height:7px;border-radius:50%; display:inline-block; margin-right:6px; flex:none;
+    background:var(--teal); box-shadow:0 0 0 3px rgba(86,124,141,0.2);
+  }
+
+  /* ---------- Sidebar collapse ---------- */
+  #pages{ transition:margin-left .2s ease; }
+  body.sidebar-collapsed{ --sidebar-w:76px; }
+  body.sidebar-collapsed .page{ max-width:1620px; }
+  body.sidebar-collapsed .nav-tab span.label,
+  body.sidebar-collapsed .nav-collapse-btn span.label,
+  body.sidebar-collapsed .nav-meta span.label,
+  body.sidebar-collapsed .workspace-switcher,
+  body.sidebar-collapsed .sidenav-add-btn span.label{ display:none; }
+  body.sidebar-collapsed .nav-tab{ justify-content:center; padding:11px 8px; }
+  body.sidebar-collapsed .nav-tabs{ padding-left:0; border-left:none; margin-left:0; }
+  .home-tab{ border:1px solid var(--blue-200); }
+  body.sidebar-collapsed .nav-collapse-btn{ justify-content:center; }
+  body.sidebar-collapsed .nav-collapse-btn svg{ transform:rotate(180deg); }
+  body.sidebar-collapsed .nav-meta{ justify-content:center; padding:10px 0 4px; }
+  body.sidebar-collapsed .nav-meta .sync-dot{ margin-right:0; }
+
+  /* ---------- Layout ---------- */
+  #pages{ margin-left:var(--sidebar-w); margin-top:var(--topbar-h); min-height:calc(100vh - var(--topbar-h)); overflow-x:hidden; }
+  .page{ max-width:1320px; margin:0 auto; padding:28px 28px 80px; display:none; }
+  .page.active{ display:block; animation:slidein .32s cubic-bezier(.22,.61,.36,1); }
+  @keyframes slidein{ from{opacity:0; transform:translateX(22px);} to{opacity:1; transform:translateX(0);} }
+
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; flex-wrap:wrap; gap:12px;}
+  .page-title{ font-size:21px; font-weight:800; color:var(--blue-900); display:flex; align-items:center; gap:12px; white-space:nowrap; }
+  .page-title-icon{ width:38px;height:38px;border-radius:11px; display:flex; align-items:center; justify-content:center; flex:none; }
+  .page-title-icon svg{ width:19px; height:19px; display:block; }
+  .page-sub{ font-size:13px; color:var(--text-muted); margin-top:5px; font-weight:400; white-space:nowrap;}
+
+  .btn{
+    appearance:none; border:none; cursor:pointer; font-family:inherit;
+    font-weight:700; font-size:14px; border-radius:10px; padding:10px 18px;
+    display:inline-flex; align-items:center; gap:6px; white-space:nowrap; flex:none;
+    transition:.15s ease;
+  }
+  .btn-primary{ background:var(--blue-700); color:#fff; }
+  .btn-primary:hover{ background:var(--blue-900); }
+  .btn-ghost{ background:var(--blue-050); color:var(--blue-800); border:1px solid var(--border); }
+  .btn-ghost:hover{ background:var(--blue-100); }
+  .btn-danger{ background:var(--red-bg); color:var(--red); }
+  .btn-danger:hover{ background:var(--red-soft); }
+  .btn-sm{ padding:6px 12px; font-size:12.5px; border-radius:8px; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--card); border-radius:16px; box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
+  }
+  .stat-card{
+    padding:16px 18px 15px; position:relative; overflow:hidden; cursor:pointer;
+    transition:.18s ease;
+  }
+  .stat-card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(62,90,112,0.14); }
+  .stat-card .stat-icon{
+    width:30px;height:30px;border-radius:9px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:10px;
+  }
+  .stat-card .stat-icon svg{width:16px;height:16px;}
+  .stat-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .stat-label{ font-size:12.5px; color:var(--text-muted); font-weight:600; white-space:nowrap; }
+  .stat-value{ font-size:30px; font-weight:800; color:var(--blue-900); line-height:1.1;}
+  .stat-value small{ font-size:14px; font-weight:700; color:var(--text-muted); margin-left:2px;}
+  .stat-accent-bar{ position:absolute; left:0; top:0; bottom:0; width:4px; }
+
+  .stat-card.is-active{ box-shadow:0 0 0 2px var(--blue-700) inset, 0 8px 20px rgba(62,90,112,0.14); }
+  .mini-stat-row{ display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 0 4px; }
+  .mini-stat-num{ font-size:38px; font-weight:800; color:var(--blue-900); line-height:1; }
+  .mini-stat-suffix{ font-size:14px; font-weight:700; color:var(--text-muted); }
+  .mini-stat-link{ text-align:center; font-size:12px; font-weight:700; color:var(--blue-700); margin-top:8px; }
+  .mini-stat-sub{ text-align:center; font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+  .chart-row{ display:grid; grid-template-columns:1.1fr 1.4fr; gap:16px; margin-bottom:16px; }
+  .panel{ padding:20px 20px 14px; }
+  .panel-title{ font-size:14.5px; font-weight:700; color:var(--blue-900); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;}
+  .panel-title .tag{ font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--blue-050); padding:3px 9px; border-radius:20px;}
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* ---------- Table ---------- */
+  .table-wrap{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  thead th{
+    text-align:left; padding:10px 12px; color:var(--text-muted); font-weight:700;
+    font-size:12.5px; border-bottom:1px solid var(--border); white-space:nowrap;
+    background:var(--blue-050);
+  }
+  thead th:first-child{ border-top-left-radius:10px; }
+  thead th:last-child{ border-top-right-radius:10px; }
+  tbody td{ padding:11px 12px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text); white-space:nowrap; }
+  tbody tr:hover{ background:var(--blue-050); }
+  tbody tr.row-clickable{ cursor:pointer; }
+  tbody tr:last-child td{ border-bottom:none; }
+  .cell-muted{ color:var(--text-muted); font-size:12.5px;}
+  .cell-amount{ font-variant-numeric:tabular-nums; font-weight:700; color:var(--blue-900); }
+  .cell-wrap{ white-space:normal; }
+  .cell-clamp3{
+    white-space:normal; display:-webkit-box; -webkit-box-orient:vertical;
+    -webkit-line-clamp:3; overflow:hidden; text-overflow:ellipsis;
+  }
+  .row-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    width:28px;height:28px; border-radius:8px; border:1px solid var(--border); background:#fff;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted);
+    transition:.15s;
+  }
+  .icon-btn:hover{ background:var(--blue-100); color:var(--blue-800); }
+  .icon-btn.danger:hover{ background:var(--red-bg); color:var(--red); border-color:var(--red-soft); }
+  .icon-btn svg{ width:14px; height:14px; }
+
+  /* badges */
+  .badge{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .badge-blue{ background:var(--blue-100); color:var(--blue-900); }
+  .badge-red{ background:var(--red-bg); color:var(--red); }
+  .badge-green{ background:rgba(86,124,141,0.14); color:var(--ok); }
+  .badge-gray{ background:var(--beige); color:var(--text-muted); }
+  .badge-dot{ width:6px;height:6px;border-radius:50%; background:currentColor; }
+
+  /* ---------- Filter bar ---------- */
+  .filter-bar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow);
+  }
+  .filter-bar input[type=text], .filter-bar select{
+    font-family:inherit; font-size:13.5px; padding:8px 12px; border-radius:9px;
+    border:1px solid var(--border); background:var(--blue-050); color:var(--text); outline:none;
+  }
+  .filter-bar input[type=text]{ min-width:180px; }
+  .filter-bar select{ cursor:pointer; }
+  .filter-bar input:focus, .filter-bar select:focus{ border-color:var(--blue-500); background:#fff; }
+  .filter-spacer{ flex:1; }
+  .seg{ display:flex; background:var(--blue-050); border-radius:10px; padding:3px; gap:2px; }
+  .seg button{
+    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
+    font-size:12.5px; font-weight:700; color:var(--text-muted); padding:7px 13px; border-radius:8px;
+  }
+  .seg button.active{ background:#fff; color:var(--blue-900); box-shadow:0 1px 3px rgba(62,90,112,0.18); }
+
+  /* ---------- Empty state ---------- */
+  .empty-state{ padding:50px 20px; text-align:center; color:var(--text-muted); }
+  .empty-state svg{ width:48px;height:48px; color:var(--blue-300); margin-bottom:10px; }
+  .empty-state .t{ font-weight:700; color:var(--blue-800); margin-bottom:4px; }
+  .empty-state .s{ font-size:12.5px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(51,69,78,0.45); backdrop-filter:blur(2px);
+    display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal{
+    background:#fff; border-radius:18px; width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
+    box-shadow:0 20px 60px rgba(30,45,55,0.3); animation:pop .18s ease;
+  }
+  .modal.wide{ max-width:720px; }
+  @keyframes pop{ from{ transform:scale(.96) translateY(6px); opacity:0;} to{transform:scale(1) translateY(0); opacity:1;} }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border); position:sticky; top:0; background:#fff; border-radius:18px 18px 0 0;}
+  .modal-title{ font-size:16.5px; font-weight:800; color:var(--blue-900); }
+  .modal-close{ width:30px;height:30px; border-radius:9px; border:none; background:var(--blue-050); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .modal-close:hover{ background:var(--red-bg); color:var(--red); }
+  .modal-body{ padding:20px 22px; }
+  .modal-foot{ display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--border); }
+
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 16px; }
+  .form-field{ display:flex; flex-direction:column; gap:6px; }
+  .form-field.full{ grid-column:1 / -1; }
+  .form-field label{ font-size:12.5px; font-weight:700; color:var(--blue-800); }
+  .form-field input, .form-field select, .form-field textarea{
+    font-family:inherit; font-size:14px; padding:9px 12px; border-radius:9px;
+    border:1px solid var(--border); background:var(--blue-050); color:var(--text); outline:none; width:100%;
+  }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ border-color:var(--blue-500); background:#fff; }
+  .form-field textarea{ resize:vertical; min-height:60px; font-family:inherit; }
+  .preview-value{ font-size:14px; color:var(--text); padding:9px 12px; background:var(--blue-050); border-radius:9px; min-height:20px; line-height:1.5; word-break:break-word; }
+  .preview-value.empty{ color:var(--text-faint); }
+  .form-hint{ font-size:11.5px; color:var(--text-faint); }
+
+  .installment-box{ background:var(--blue-050); border:1px solid var(--border); border-radius:12px; padding:14px; grid-column:1/-1; }
+  .installment-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .installment-head .lbl{ font-size:12.5px; font-weight:700; color:var(--blue-800); }
+  .checkbox-row{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); font-weight:600; cursor:pointer; user-select:none;}
+  .checkbox-row input{ width:15px;height:15px; accent-color:var(--blue-700); cursor:pointer;}
+  .install-rows{ display:flex; flex-direction:column; gap:8px; }
+  .install-row{ display:grid; grid-template-columns:24px 84px 84px 1fr 32px; gap:8px; align-items:center; }
+  .install-row .idx{ font-size:12px; font-weight:800; color:var(--blue-500); text-align:center; }
+  .install-row input{ font-family:inherit; font-size:13px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:#fff; }
+  .install-row input:disabled{ background:var(--blue-100); color:var(--text-muted); }
+  .install-row .inst-del{ width:28px; height:28px; }
+  .install-total{ margin-top:8px; font-size:12.5px; color:var(--text-muted); text-align:right; }
+  .install-total b{ color:var(--blue-900); }
+
+  /* contacts */
+  .contact-group{ margin-bottom:24px; }
+  .contact-group-title{ font-size:13.5px; font-weight:800; color:var(--blue-900); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .contact-group-title .n{ font-size:11.5px; font-weight:700; color:var(--text-muted); background:var(--blue-100); padding:2px 9px; border-radius:20px;}
+  .contact-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .contact-card{ padding:15px 16px; position:relative; }
+  .contact-name{ font-size:14.5px; font-weight:800; color:var(--blue-900); }
+  .contact-role{ font-size:12px; color:var(--text-muted); margin-top:1px; }
+  .contact-line{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); margin-top:8px; }
+  .contact-line svg{ width:13px;height:13px; color:var(--blue-500); flex:none; }
+  .contact-actions{ position:absolute; top:14px; right:14px; display:flex; gap:5px; }
+
+  /* ---------- Add Wizard ---------- */
+  .add-wizard-group{ display:flex; gap:10px; margin-bottom:16px; }
+  .add-wizard-option{
+    flex:1; border:1.5px solid var(--border); background:var(--blue-050); border-radius:12px;
+    padding:14px 12px; cursor:pointer; text-align:center; transition:.15s ease;
+  }
+  .add-wizard-option:hover{ border-color:var(--blue-300); }
+  .add-wizard-option.selected{ border-color:var(--blue-700); background:var(--blue-100); box-shadow:0 0 0 1px var(--blue-700) inset; }
+  .add-wizard-option .icon{ width:26px;height:26px; margin:0 auto 8px; color:var(--blue-700); }
+  .add-wizard-option .icon svg{ width:100%;height:100%; }
+  .add-wizard-option .lbl{ font-size:13px; font-weight:700; color:var(--blue-900); }
+  .add-wizard-option .sub{ font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--blue-900); color:#fff; padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:600;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:.25s ease; z-index:400;
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width: 980px){
+    .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    .chart-row, .two-col, .form-grid, .contact-grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width: 760px){
+    :root{ --sidebar-w:64px; --topbar-h:56px; }
+    .nav-tab span.label, .nav-meta{ display:none; }
+    .nav-tab{ justify-content:center; padding:11px; }
+    .page{ padding:20px 14px 80px; }
+    .topbar-title .sub{ display:none; }
+    .topbar-user .info{ display:none; }
+    .sidenav-add-btn span{ display:none; }
+  }
+  @media (max-width: 600px){
+    .stat-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">PM</div>
+    <div class="topbar-title">
+      <span class="main">專案管理工作台</span>
+      <span class="sub">Project Console</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
+    <div class="topbar-user">
+      <div class="info">
+        <span class="name" id="topbarUser" contenteditable="true" spellcheck="false" title="點擊即可修改名稱">Iris</span>
+        <span class="time" id="topbarTime">更新於 --:--</span>
+      </div>
+      <div class="avatar" id="topbarAvatar">I</div>
+    </div>
+    <div class="hamburger-wrap" id="notifWrap">
+      <button class="hamburger-btn" id="notifBtn" aria-label="通知">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+      </button>
+      <div class="hamburger-menu notif-menu" id="notifMenu">
+        <div class="notif-menu-title">通知</div>
+        <div id="notifList"></div>
+      </div>
+    </div>
+    <div class="hamburger-wrap" id="hamburgerWrap">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="更多選單">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="hamburger-menu" id="hamburgerMenu">
+        <button class="hmenu-item" id="exportBackupBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+          匯出備份檔
+        </button>
+        <button class="hmenu-item" id="importBackupBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V8"/><path d="m6 14 6-6 6 6"/><path d="M4 4h16"/></svg>
+          還原備份檔
+        </button>
+        <div class="hmenu-sep"></div>
+        <button class="hmenu-item" id="settingsBtn" disabled title="即將推出">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          設定（即將推出）
+        </button>
+        <div class="hmenu-sep"></div>
+        <button class="hmenu-item danger" id="clearAllBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+          清除所有資料
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sidenav">
+  <button class="nav-collapse-btn" id="collapseBtn" title="收合側邊欄">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>
+    <span class="label">收合選單</span>
+  </button>
+  <button type="button" class="nav-tab home-tab" id="homeDashboardBtn" style="margin-bottom:10px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    <span class="label">儀表板</span>
+  </button>
+  <div class="workspace-switcher" id="workspaceSwitcher">
+    <button type="button" class="ws-trigger" id="workspaceTriggerBtn">
+      <svg class="ws-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="ws-label" id="workspaceLabel">業務執行</span>
+      <svg class="ws-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="ws-menu" id="workspaceMenu">
+      <button type="button" class="ws-menu-item" data-ws="sales">業務執行</button>
+      <button type="button" class="ws-menu-item" data-ws="pm">專案管理</button>
+    </div>
+  </div>
+  <div class="nav-tabs" id="navTabs"></div>
+  <div class="nav-meta"><span class="sync-dot"></span><span class="label" id="syncStatus">已同步</span></div>
+  <button class="sidenav-add-btn" id="globalAddBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span class="label">新增</span>
+  </button>
+</div>
+
+<div id="pages"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   專案管理工作台 — 前端邏輯
+   資料以 window.storage（個人雲端儲存）持久化，跨裝置同步
+   ============================================================ */
+
+/* ---------------- Icons ---------------- */
+const ICONS = {
+  dashboard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`,
+  projects:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
+  todos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 7 2 2 3-3"/><path d="M11 6h9"/><path d="m4 15 2 2 3-3"/><path d="M11 14h9"/></svg>`,
+  contacts:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16.5 4.5c1.6.4 2.8 1.9 2.8 3.6 0 1.7-1.2 3.2-2.8 3.6"/><path d="M20 20c0-2.7-1.7-5-4-5.8"/></svg>`,
+  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  edit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>`,
+  close:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+  calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>`,
+  money:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 6v0M18 18v0"/></svg>`,
+  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.3 3.9 1.8 18a1.8 1.8 0 0 0 1.6 2.7h17.2a1.8 1.8 0 0 0 1.6-2.7L13.7 3.9a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 17h.01"/></svg>`,
+  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c0 8.3 6.7 15 15 15l3-4-6-3-2 2c-2.5-1.3-4.7-3.5-6-6l2-2-3-6Z"/></svg>`,
+  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>`,
+  briefcase:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8 7.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/></svg>`,
+  empty:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4z"/><path d="M4 7l3-4h10l3 4"/><path d="M9 12h6"/></svg>`,
+  upload:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>`,
+  inbox:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-7Z"/></svg>`,
+  single:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
+  batch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="3" y="16" width="14" height="4" rx="1"/></svg>`,
+};
+
+/* ---------------- State & Storage ---------------- */
+const STORE_KEYS = { projects:'pm-projects', todos:'pm-todos', contacts:'pm-contacts', clients:'pm-clients' };
+let DATA = { projects:[], todos:[], contacts:[], clients:[] };
+let currentPage = 'dashboard';
+let currentWorkspace = 'sales'; // 'sales' (業務執行) | 'pm' (專案管理)
+let charts = {};
+let todoFilter = { priority:'all', q:'' };
+let projFilter = { q:'', pm:'', sales:'', status:'' };
+let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案：開發中／保固中)
+let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
+
+const uid = () => 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const money = (n) => '$' + (Math.round(Number(n)||0)).toLocaleString('zh-TW');
+const pad2 = n => String(n).padStart(2,'0');
+const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+function parseAmountStr(s){
+  if(s==null) return 0;
+  s = String(s).trim();
+  if(!s || s==='-') return 0;
+  s = s.replace(/[$,\s]/g,'');
+  const n = Number(s);
+  return isNaN(n) ? 0 : n;
+}
+function parseSlashDate(s){
+  if(!s) return '';
+  s = String(s).trim();
+  if(!s) return '';
+  const m = s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  if(!m) return s;
+  return `${m[1]}-${pad2(Number(m[2]))}-${pad2(Number(m[3]))}`;
+}
+function derivePriorityFromDueDate(isoDate){
+  if(!isoDate) return '待處理';
+  const d = new Date(isoDate+'T12:00:00');
+  if(isNaN(d.getTime())) return '待處理';
+  const [wStart,wEnd] = weekRange();
+  if(d>=wStart && d<=wEnd) return '本週';
+  const [mStart,mEnd] = monthRange();
+  if(d>=mStart && d<=mEnd) return '本月';
+  return '待處理';
+}
+
+function setSync(status){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  el.textContent = status;
+}
+
+function updateTopbarTime(){
+  const el = document.getElementById('topbarTime');
+  if(!el) return;
+  const d = new Date();
+  el.textContent = `更新於 ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+async function loadAll(){
+  setSync('同步中…');
+  const results = await Promise.all(Object.entries(STORE_KEYS).map(async ([k,key])=>{
+    try{
+      const r = await window.storage.get(key,false);
+      return [k, r ? JSON.parse(r.value) : []];
+    }catch(e){ return [k, []]; }
+  }));
+  results.forEach(([k,v])=> DATA[k]=v||[]);
+  const migrated = migrateLegacyInstallmentData();
+  setSync('已同步');
+  updateTopbarTime();
+  if(migrated) persist('projects');
+}
+
+/* 舊資料相容：把沒有年度概念的 installmentReceived 陣列，歸到「合約起始年」，
+   轉成 installmentReceivedByYear = { "2026": [...], ... }，讓每個年度的收款狀態分開記錄。 */
+function migrateLegacyInstallmentData(){
+  let changed = false;
+  (DATA.projects||[]).forEach(p=>{
+    if(Array.isArray(p.installmentReceived) && p.installmentReceived.length && !p.installmentReceivedByYear){
+      const startYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
+      p.installmentReceivedByYear = { [String(startYear)]: p.installmentReceived.slice() };
+      delete p.installmentReceived;
+      changed = true;
+    }
+  });
+  /* 再把「每年重複套用同一組月份」的舊模式，展開成逐筆「年度＋月份＋金額」的明確清單，
+     這樣才能處理跨年度金額或月份不同的情況（例如三年期、每年一月各繳一次，金額不必然均分）。 */
+  (DATA.projects||[]).forEach(p=>{
+    if(!isMaintenanceProject(p)) return;
+    if(Array.isArray(p.installments)) return; // 已是新格式
+    const months = p.installmentMonths || [];
+    if(!months.length){ p.installments = []; changed = true; return; }
+    const startYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
+    const endYear = p.endDate ? new Date(normDate(p.endDate)+'T00:00:00').getFullYear() : startYear;
+    const auto = p.autoSplit !== false;
+    const contractAmt = Number(p.contractAmount)||0;
+    const evenAmt = contractAmt/(months.length||1);
+    const built = [];
+    for(let y=startYear; y<=endYear; y++){
+      const receivedArr = (p.installmentReceivedByYear && p.installmentReceivedByYear[String(y)]) || [];
+      months.forEach((m, idx)=>{
+        built.push({
+          id: uid(), year:y, month:Number(m)||1,
+          amount: auto ? evenAmt : (Number((p.installmentAmounts||[])[idx])||0),
+          received: !!receivedArr[idx],
+        });
+      });
+    }
+    built.sort((a,b)=> a.year-b.year || a.month-b.month);
+    p.installments = built;
+    delete p.installmentMonths;
+    delete p.installmentAmounts;
+    delete p.installmentReceivedByYear;
+    delete p.autoSplit;
+    changed = true;
+  });
+  return changed;
+}
+
+async function persist(key){
+  try{
+    await window.storage.set(STORE_KEYS[key], JSON.stringify(DATA[key]), false);
+    setSync('已同步');
+    updateTopbarTime();
+    if(key==='todos') renderNotifications();
+  }catch(e){
+    setSync('儲存失敗，稍後重試');
+    console.error(e);
+  }
+}
+
+function ensureClient(name){
+  if(!name) return;
+  name = name.trim();
+  if(name && !DATA.clients.includes(name)){
+    DATA.clients.push(name);
+    persist('clients');
+  }
+}
+
+const USERNAME_KEY = 'pm-username';
+async function loadUsername(){
+  try{
+    const r = await window.storage.get(USERNAME_KEY, false);
+    return (r && r.value) ? r.value : 'Iris';
+  }catch(e){ return 'Iris'; }
+}
+async function saveUsername(name){
+  try{ await window.storage.set(USERNAME_KEY, name, false); }catch(e){ console.error(e); }
+}
+function applyUsername(name){
+  const nameEl = document.getElementById('topbarUser');
+  const avatarEl = document.getElementById('topbarAvatar');
+  if(nameEl) nameEl.textContent = name;
+  if(avatarEl) avatarEl.textContent = (name||'?').trim().charAt(0).toUpperCase() || '?';
+}
+
+const WORKSPACE_KEY = 'pm-workspace';
+async function loadWorkspace(){
+  try{
+    const r = await window.storage.get(WORKSPACE_KEY, false);
+    return (r && r.value==='pm') ? 'pm' : 'sales';
+  }catch(e){ return 'sales'; }
+}
+async function saveWorkspace(ws){
+  try{ await window.storage.set(WORKSPACE_KEY, ws, false); }catch(e){ console.error(e); }
+}
+function updateWorkspaceMenuUI(){
+  const label = document.getElementById('workspaceLabel');
+  if(label) label.textContent = currentWorkspace==='pm' ? '專案管理' : '業務執行';
+  document.querySelectorAll('.ws-menu-item').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.ws===currentWorkspace);
+  });
+}
+function toggleWorkspaceMenu(forceState){
+  const wrap = document.getElementById('workspaceSwitcher');
+  if(!wrap) return;
+  const next = typeof forceState==='boolean' ? forceState : !wrap.classList.contains('open');
+  wrap.classList.toggle('open', next);
+}
+async function switchWorkspace(ws){
+  if(ws===currentWorkspace) return;
+  currentWorkspace = ws;
+  saveWorkspace(ws);
+  updateWorkspaceMenuUI();
+  const validIds = getCurrentNav().map(n=>n.id);
+  if(!validIds.includes(currentPage)) currentPage = 'dashboard';
+  renderNav();
+  renderPage();
+  toast(ws==='pm' ? '已切換至「專案管理」工作區' : '已切換至「業務執行」工作區');
+}
+
+/* ---------------- Toast ---------------- */
+let toastTimer=null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), 2200);
+}
+
+/* ---------------- Nav ---------------- */
+const NAV_SALES = [
+  {id:'todos', label:'待辦事項', icon:ICONS.todos},
+  {id:'contacts', label:'聯絡清單', icon:ICONS.contacts},
+  {id:'quotes', label:'報價處理', icon:ICONS.money},
+  {id:'contracts', label:'合約處理', icon:ICONS.briefcase},
+];
+const NAV_PM = [
+  {id:'projects', label:'專案總覽', icon:ICONS.projects},
+  {id:'receivables', label:'應收帳款', icon:ICONS.money},
+  {id:'expiring', label:'即將到期專案', icon:ICONS.calendar},
+];
+function getCurrentNav(){
+  return currentWorkspace==='pm' ? NAV_PM : NAV_SALES;
+}
+function pageWorkspace(pageId){
+  if(NAV_PM.some(n=>n.id===pageId)) return 'pm';
+  if(NAV_SALES.some(n=>n.id===pageId)) return 'sales';
+  return null;
+}
+/* Blue-family shades (light -> dark) so tabs read as one cohesive
+   palette instead of unrelated hues, while still being visually distinct. */
+function renderNav(){
+  const el = document.getElementById('navTabs');
+  const navList = getCurrentNav();
+  el.innerHTML = navList.map(n=>{
+    const active = currentPage===n.id;
+    const styleAttr = active
+      ? `style="background:var(--teal);color:#fff;"`
+      : '';
+    return `<button class="nav-tab ${active?'active':''}" ${styleAttr} data-page="${n.id}">
+      ${n.icon}<span class="label">${n.label}</span>
+    </button>`;
+  }).join('');
+  el.querySelectorAll('.nav-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=> goPage(btn.dataset.page));
+  });
+  const homeBtn = document.getElementById('homeDashboardBtn');
+  if(homeBtn){
+    const homeActive = currentPage==='dashboard';
+    homeBtn.classList.toggle('active', homeActive);
+    homeBtn.style.background = homeActive ? 'var(--teal)' : '';
+    homeBtn.style.color = homeActive ? '#fff' : '';
+  }
+  updateWorkspaceMenuUI();
+}
+
+function toggleSidebar(){
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
+  const btn = document.getElementById('collapseBtn');
+  if(btn) btn.title = collapsed ? '展開側邊欄' : '收合側邊欄';
+}
+
+/* ---------------- Notifications (bell) ---------------- */
+function getNotificationItems(){
+  const now = new Date();
+  const soon = new Date(now); soon.setDate(soon.getDate()+3);
+  const items = [];
+  DATA.todos.forEach(t=>{
+    if(t.done || !t.dueDate) return;
+    const d = new Date(t.dueDate+'T23:59:59');
+    if(d < now) items.push({...t, kind:'overdue'});
+    else if(d <= soon) items.push({...t, kind:'soon'});
+  });
+  items.sort((a,b)=> (a.dueDate||'').localeCompare(b.dueDate||''));
+  return items;
+}
+
+function renderNotifications(){
+  const items = getNotificationItems();
+  const badge = document.getElementById('notifBadge');
+  if(badge){
+    if(items.length){
+      badge.style.display = 'flex';
+      badge.textContent = items.length>9 ? '9+' : String(items.length);
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  const list = document.getElementById('notifList');
+  if(!list) return;
+  if(!items.length){
+    list.innerHTML = `<div class="notif-empty">目前沒有即將到期或逾期的待辦事項</div>`;
+    return;
+  }
+  list.innerHTML = items.map(t=>{
+    const tag = t.kind==='overdue' ? '已逾期' : '即將到期';
+    const meta = [t.client, `${tag}・${t.dueDate}`].filter(Boolean).join('・');
+    return `<button class="notif-item ${t.kind==='overdue'?'is-overdue':''}" data-id="${esc(t.id)}">
+      <span class="nt">${esc(t.title||'-')}</span>
+      <span class="nm">${esc(meta)}</span>
+    </button>`;
+  }).join('');
+  list.querySelectorAll('.notif-item').forEach(btn=>{
+    btn.addEventListener('click', ()=> goPage('todos','all'));
+  });
+}
+
+function goPage(id, extra){
+  currentPage = id;
+  renderNav();
+  renderPage(extra);
+}
+
+function renderPage(extra){
+  const root = document.getElementById('pages');
+  if(currentPage==='dashboard') root.innerHTML = dashboardTpl();
+  else if(currentPage==='projects') root.innerHTML = projectsTpl();
+  else if(currentPage==='receivables') root.innerHTML = receivablesTpl();
+  else if(currentPage==='expiring') root.innerHTML = expiringTpl();
+  else if(currentPage==='todos') root.innerHTML = todosTpl();
+  else if(currentPage==='contacts') root.innerHTML = contactsTpl();
+  else if(currentPage==='quotes') root.innerHTML = quotesTpl();
+  else if(currentPage==='contracts') root.innerHTML = contractsTpl();
+  root.querySelector('.page').classList.add('active');
+  const theme = PAGE_THEME[currentPage] || PAGE_THEME.dashboard;
+  root.style.background = theme.pageBg || 'var(--bg)';
+
+  if(currentPage==='dashboard') afterDashboardRender(extra);
+  if(currentPage==='projects') afterProjectsRender();
+  if(currentPage==='receivables') afterReceivablesRender();
+  if(currentPage==='expiring') afterExpiringRender();
+  if(currentPage==='todos') afterTodosRender(extra);
+  if(currentPage==='contacts') afterContactsRender();
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function weekRange(d=new Date()){
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const diffToMon = (day===0? -6 : 1-day);
+  const mon = new Date(d); mon.setDate(d.getDate()+diffToMon); mon.setHours(0,0,0,0);
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+  return [mon, sun];
+}
+function monthRange(d=new Date()){
+  const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0);
+  const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59);
+  return [start,end];
+}
+function inRange(dateStr, start, end){
+  if(!dateStr) return false;
+  const t = new Date(dateStr+'T12:00:00').getTime();
+  return t>=start.getTime() && t<=end.getTime();
+}
+
+function isMaintenanceProject(p){ return (p.projType||'maintenance')==='maintenance'; }
+
+function getAllInstallments(){
+  // 應收帳款只抓「維護專案」分頁的資料，且只顯示「今年」的收款項目
+  const list = [];
+  const thisYear = new Date().getFullYear();
+  DATA.projects.forEach(p=>{
+    if(!isMaintenanceProject(p)) return;
+    const yearInsts = (p.installments||[]).filter(i=>i.year===thisYear).sort((a,b)=>a.month-b.month);
+    yearInsts.forEach((inst, idx)=>{
+      list.push({ projectId:p.id, instId:inst.id, year:thisYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales, status:p.status,
+        period:idx+1, total:yearInsts.length, month:Number(inst.month), amount:Number(inst.amount)||0, received: !!inst.received });
+    });
+  });
+  return list;
+}
+
+/* 逾期未收款：本年度已經過了開款月份、卻尚未勾選已收的款項，不受月份篩選影響 */
+function computeOverdueReceivables(){
+  const now = new Date();
+  const curMonth = now.getMonth()+1;
+  return getAllInstallments()
+    .filter(r=> !r.received && r.month < curMonth)
+    .sort((a,b)=> a.month - b.month);
+}
+
+function toggleInstallmentReceived(projectId, instId, checked){
+  const p = DATA.projects.find(x=>x.id===projectId);
+  if(!p || !Array.isArray(p.installments)) return;
+  const inst = p.installments.find(i=>i.id===instId);
+  if(!inst) return;
+  inst.received = checked;
+  persist('projects');
+}
+
+/* 容錯日期正規化：把 20260531 / 2026/05/31 等格式統一轉成 2026-05-31，
+   避免日期比較（逾期／到期判斷）因格式不同而被誤判為 Invalid Date。 */
+function normDate(s){
+  if(!s) return '';
+  s = String(s).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  let m = s.match(/^(\d{4})[\/.](\d{1,2})[\/.](\d{1,2})$/);
+  if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  m = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+  const d = new Date(s);
+  if(!isNaN(d.getTime())) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return '';
+}
+
+/* 即將到期專案：維護專案看「合約到期日」，進行中專案（保固中）看「保固到期」。
+   進行中專案在開發中階段尚無保固到期日，因此不會出現在到期清單，等驗收後填入保固到期日才會被追蹤。 */
+function getProjectExpiryInfo(p){
+  if(!isMaintenanceProject(p)){
+    return { date: normDate(p.warrantyEndDate), label: '保固到期' };
+  }
+  return { date: normDate(p.endDate), label: '合約到期' };
+}
+
+function computeUpcomingExpiring(monthsAhead=3){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const future = new Date(now); future.setMonth(future.getMonth()+monthsAhead);
+  return DATA.projects.map(p=>{
+    const info = getProjectExpiryInfo(p);
+    return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
+  }).filter(p=>{
+    if(!p._expiryDate || p.status==='已終止') return false;
+    const d = new Date(p._expiryDate+'T00:00:00');
+    return d>=now && d<=future;
+  }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
+}
+
+/* 已逾期但尚未標記完成的到期／保固項目：不受 3 個月時間窗限制，避免拖久了從清單消失 */
+function computeOverdueExpiring(){
+  const now = new Date(); now.setHours(0,0,0,0);
+  return DATA.projects.map(p=>{
+    const info = getProjectExpiryInfo(p);
+    return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
+  }).filter(p=>{
+    if(!p._expiryDate || p.status==='已終止' || p.renewalDone) return false;
+    const d = new Date(p._expiryDate+'T00:00:00');
+    return d < now;
+  }).sort((a,b)=> (a._expiryDate||'').localeCompare(b._expiryDate||''));
+}
+
+/* 即將到期專案頁面實際顯示的清單：已逾期（不限時間窗）＋ 未來 monthsAhead 個月內到期（含已標記完成的項目，供對照） */
+function computeExpiringPageList(monthsAhead=3){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const overdue = computeOverdueExpiring();
+  const upcoming = computeUpcomingExpiring(monthsAhead);
+  const map = new Map();
+  overdue.forEach(p=> map.set(p.id, Object.assign({}, p, { _isOverdue:true })));
+  upcoming.forEach(p=>{
+    if(map.has(p.id)) return;
+    const d = new Date(p._expiryDate+'T00:00:00');
+    map.set(p.id, Object.assign({}, p, { _isOverdue: d < now }));
+  });
+  return Array.from(map.values());
+}
+
+function computeStats(){
+  const now = new Date();
+  const [wStart,wEnd] = weekRange(now);
+  const [mStart,mEnd] = monthRange(now);
+  const todos = DATA.todos;
+
+  const totalOpen = todos.filter(t=>!t.done).length;
+
+  const weekTodos = todos.filter(t=> inRange(t.dueDate, wStart, wEnd));
+  const weekDone = weekTodos.filter(t=>t.done).length;
+  const weekOpen = weekTodos.length - weekDone;
+  const weekRate = weekTodos.length ? Math.round(weekDone/weekTodos.length*100) : 0;
+
+  const monthTodos = todos.filter(t=> inRange(t.dueDate, mStart, mEnd));
+  const monthDone = monthTodos.filter(t=>t.done).length;
+  const monthOpen = monthTodos.length - monthDone;
+  const monthRate = monthTodos.length ? Math.round(monthDone/monthTodos.length*100) : 0;
+
+  const overdue = todos.filter(t=> !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now).length;
+
+  // current month receivables (for dashboard mini card)
+  const curMonth = now.getMonth()+1;
+  const receivables = getAllInstallments().filter(x=>x.month===curMonth);
+  const receivablesTotal = receivables.reduce((s,r)=>s+r.amount,0);
+
+  const upcomingExpiring = computeUpcomingExpiring(3);
+
+  return {totalOpen, weekOpen, weekRate, weekTotal:weekTodos.length, monthOpen, monthRate, monthTotal:monthTodos.length, overdue, receivables, receivablesTotal, upcomingExpiring, activeProjects: DATA.projects.filter(p=>p.status==='進行中').length};
+}
+
+function dashboardTpl(){
+  return `
+  <div class="page active" id="page-dashboard">
+    ${pageHeaderHtml('dashboard', ICONS.dashboard, '儀表板', '即時掌握專案收款、到期與待辦執行狀況')}
+    <div id="statGrid" class="stat-grid"></div>
+
+    <div class="chart-row" style="grid-template-columns:1fr 1fr;">
+      <div class="card panel" style="text-align:center;">
+        <div class="panel-title" style="justify-content:center;">本週完成率</div>
+        <div id="weekGauge"></div>
+        <div class="cell-muted" id="weekGaugeSub" style="margin-top:2px;"></div>
+      </div>
+      <div class="card panel" style="text-align:center;">
+        <div class="panel-title" style="justify-content:center;">本月完成率</div>
+        <div id="monthGauge"></div>
+        <div class="cell-muted" id="monthGaugeSub" style="margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <div class="chart-row" style="grid-template-columns:1fr 1fr;" id="dashboardPmRow">
+      <div class="card panel" data-goto="receivables" style="cursor:pointer;">
+        <div class="panel-title">本月應收款${themedTag('receivables', monthLabel())}</div>
+        <div class="mini-stat-row"><span class="mini-stat-num" id="receivCount">0</span><span class="mini-stat-suffix">筆款項</span></div>
+        <div class="mini-stat-sub" id="receivAmountSub"></div>
+        <div class="mini-stat-link">查看應收帳款明細 →</div>
+      </div>
+      <div class="card panel" data-goto="expiring" style="cursor:pointer;">
+        <div class="panel-title">近三個月即將到期專案</div>
+        <div class="mini-stat-row"><span class="mini-stat-num" id="expiringCount">0</span><span class="mini-stat-suffix">個專案</span></div>
+        <div class="mini-stat-sub" id="expiringSub"></div>
+        <div class="mini-stat-link">查看即將到期專案 →</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function monthLabel(m){
+  const mm = m || (new Date().getMonth()+1);
+  return `${mm}月`;
+}
+
+function statCardHtml({label, value, suffix, icon, color, bg, accent, onClick}){
+  return `<div class="card stat-card" data-goto="${onClick||''}">
+    <div class="stat-accent-bar" style="background:${accent}"></div>
+    <div class="stat-icon" style="background:${bg};color:${color}">${icon}</div>
+    <div class="stat-row">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value">${value}${suffix?`<small>${suffix}</small>`:''}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- lightweight inline SVG chart helper (no external chart library needed) ---------- */
+function gaugeSVG(pct, color, size){
+  size = size || 168;
+  const r = 58, cx = 80, cy = 80, sw = 16;
+  const C = 2*Math.PI*r;
+  const clamped = Math.max(0, Math.min(100, pct));
+  const dash = (clamped/100)*C;
+  return `<svg viewBox="0 0 160 160" width="${size}" height="${size}" style="max-width:100%;">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--blue-100)" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"
+      stroke-dasharray="${dash.toFixed(1)} ${(C-dash).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="30" font-weight="800" fill="var(--blue-900)" font-family="Microsoft JhengHei, sans-serif">${clamped}%</text>
+  </svg>`;
+}
+
+function afterDashboardRender(){
+  const s = computeStats();
+  document.getElementById('statGrid').innerHTML = [
+    statCardHtml({label:'待辦事項總數', value:s.totalOpen, icon:ICONS.inbox, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:all'}),
+    statCardHtml({label:'本週待完成', value:s.weekOpen, icon:ICONS.clock, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:thisWeek'}),
+    statCardHtml({label:'本月待完成', value:s.monthOpen, icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:thisMonth'}),
+    statCardHtml({label:'逾期事項', value:s.overdue, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)', onClick:'todos:overdue'}),
+  ].join('');
+
+  document.querySelectorAll('[data-goto]').forEach(card=>{
+    card.addEventListener('click', async ()=>{
+      const v = card.dataset.goto;
+      if(!v) return;
+      const [page, filter] = v.split(':');
+      const ws = pageWorkspace(page);
+      if(ws && ws!==currentWorkspace){
+        await switchWorkspace(ws);
+      }
+      goPage(page, filter);
+    });
+  });
+
+  // week / month gauges
+  const weekDone = s.weekTotal - s.weekOpen;
+  const monthDone = s.monthTotal - s.monthOpen;
+  document.getElementById('weekGauge').innerHTML = gaugeSVG(s.weekRate, 'var(--red)');
+  document.getElementById('weekGaugeSub').textContent = s.weekTotal ? `本週共 ${s.weekTotal} 筆，已完成 ${weekDone} 筆` : '本週尚無到期待辦';
+  document.getElementById('monthGauge').innerHTML = gaugeSVG(s.monthRate, 'var(--blue-700)');
+  document.getElementById('monthGaugeSub').textContent = s.monthTotal ? `本月共 ${s.monthTotal} 筆，已完成 ${monthDone} 筆` : '本月尚無到期待辦';
+
+  // PM mini cards row (receivables / expiring) — always shown regardless of current workspace
+  document.getElementById('receivCount').textContent = s.receivables.length;
+  document.getElementById('receivAmountSub').textContent = s.receivables.length ? `預計收款 ${money(s.receivablesTotal)}` : '本月無應收款項目';
+
+  document.getElementById('expiringCount').textContent = s.upcomingExpiring.length;
+  const buckets = [0,0,0];
+  const nowRef = new Date();
+  s.upcomingExpiring.forEach(p=>{
+    const d = new Date(normDate(p._expiryDate)+'T00:00:00');
+    const diff = (d.getFullYear()-nowRef.getFullYear())*12+(d.getMonth()-nowRef.getMonth());
+    if(diff>=0 && diff<3) buckets[diff]++;
+  });
+  document.getElementById('expiringSub').textContent = s.upcomingExpiring.length
+    ? `本月 ${buckets[0]}・下月 ${buckets[1]}・後月 ${buckets[2]}`
+    : '近三個月無即將到期專案';
+}
+
+function emptyState(msg, icon){
+  return `<div class="empty-state">${icon||ICONS.empty}<div class="t">${msg}</div></div>`;
+}
+
+/* ---------- unified page header (icon badge + title, consistent size across all pages) ---------- */
+const PAGE_THEME = {
+  dashboard:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  projects:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  receivables:{ bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  expiring:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  todos:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  contacts:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  quotes:     { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  contracts:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  maintenance:{ bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  inprogress: { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+};
+function pageHeaderHtml(pageKey, icon, title, sub, rightHtml){
+  const theme = PAGE_THEME[pageKey] || PAGE_THEME.dashboard;
+  return `
+    <div class="page-head">
+      <div>
+        <div class="page-title"><span class="page-title-icon" style="background:${theme.bg};color:${theme.color};">${icon}</span>${title}</div>
+        <div class="page-sub">${sub}</div>
+      </div>
+      ${rightHtml||''}
+    </div>`;
+}
+function addButtonHtml(id, label, pageKey){
+  const theme = PAGE_THEME[pageKey] || PAGE_THEME.dashboard;
+  return `<button class="btn btn-primary" id="${id}" style="background:${theme.color};"><span style="font-size:17px;font-weight:800;line-height:1;">+</span>${label}</button>`;
+}
+function importButtonHtml(id, pageKey){
+  const theme = PAGE_THEME[pageKey] || PAGE_THEME.dashboard;
+  return `<button class="btn btn-ghost" id="${id}" style="color:${theme.color};border-color:${theme.bg};">${ICONS.upload}批次匯入</button>`;
+}
+function pageActionsHtml(...buttons){
+  return `<div style="display:flex;gap:10px;flex-wrap:wrap;">${buttons.join('')}</div>`;
+}
+function themedTag(pageKey, text){
+  const theme = PAGE_THEME[pageKey] || PAGE_THEME.dashboard;
+  return `<span class="tag" style="background:${theme.bg};color:${theme.color};">${text}</span>`;
+}
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function priorityBadge(p){
+  if(p==='本週') return `<span class="badge badge-red"><span class="badge-dot"></span>本週</span>`;
+  if(p==='本月') return `<span class="badge badge-blue"><span class="badge-dot"></span>本月</span>`;
+  return `<span class="badge badge-gray"><span class="badge-dot"></span>待處理</span>`;
+}
+
+/* ============================================================
+   QUOTES / CONTRACTS (業務執行 — 佔位頁面，功能開發中)
+   ============================================================ */
+function quotesTpl(){
+  return `
+  <div class="page active" id="page-quotes">
+    ${pageHeaderHtml('quotes', ICONS.money, '報價處理', '此功能開發中，敬請期待')}
+    <div class="card panel">${emptyState('報價處理功能即將推出', ICONS.money)}</div>
+  </div>`;
+}
+function contractsTpl(){
+  return `
+  <div class="page active" id="page-contracts">
+    ${pageHeaderHtml('contracts', ICONS.briefcase, '合約處理', '此功能開發中，敬請期待')}
+    <div class="card panel">${emptyState('合約處理功能即將推出', ICONS.briefcase)}</div>
+  </div>`;
+}
+
+/* ============================================================
+   RECEIVABLES PAGE (應收帳款)
+   ============================================================ */
+function receivablesTpl(){
+  const opts = Array.from({length:12}, (_,i)=>i+1);
+  const thisYear = new Date().getFullYear();
+  return `
+  <div class="page active" id="page-receivables">
+    ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', `${thisYear} 年度・依開款月份查詢各專案收款期數明細`)}
+    <div class="filter-bar">
+      <div class="seg" id="rvStatusSeg">
+        <button data-v="overdue" class="${receivFilter.status==='overdue'?'active':''}">已逾期</button>
+        <button data-v="month" class="${receivFilter.status==='month'?'active':''}">依月份</button>
+      </div>
+      <label style="font-size:12.5px;font-weight:700;color:var(--blue-800);">查詢月份</label>
+      <select id="rvMonth">
+        ${opts.map(m=>`<option value="${m}" ${receivFilter.month===m?'selected':''}>${m} 月</option>`).join('')}
+      </select>
+      <div class="filter-spacer"></div>
+      <span class="badge badge-blue" id="rvCountBadge"></span>
+    </div>
+    <div class="card panel">
+      <div class="panel-title" id="rvPanelTitle"></div>
+      <div id="rvList"></div>
+    </div>
+  </div>`;
+}
+
+function afterReceivablesRender(){
+  renderReceivablesAll();
+  document.getElementById('rvMonth').addEventListener('change', e=>{
+    receivFilter.month = Number(e.target.value);
+    receivFilter.status = 'month';
+    updateRvSegUI();
+    renderReceivablesAll();
+  });
+  document.querySelectorAll('#rvStatusSeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      receivFilter.status = btn.dataset.v;
+      updateRvSegUI();
+      renderReceivablesAll();
+    });
+  });
+}
+
+function updateRvSegUI(){
+  document.querySelectorAll('#rvStatusSeg button').forEach(b=> b.classList.toggle('active', b.dataset.v===receivFilter.status));
+}
+
+function renderReceivablesAll(){
+  if(receivFilter.status==='overdue') renderReceivablesOverdueList();
+  else renderReceivablesMonthList();
+}
+
+function renderReceivablesOverdueList(){
+  const titleEl = document.getElementById('rvPanelTitle');
+  const list = computeOverdueReceivables();
+  const total = list.reduce((s,r)=>s+r.amount,0);
+  titleEl.innerHTML = `逾期未收款（不受月份篩選影響）<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
+  document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆`;
+  const el = document.getElementById('rvList');
+  if(!list.length){
+    el.innerHTML = emptyState('目前沒有逾期未收款項目', ICONS.money);
+  } else {
+    el.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>應開款月份</th><th>期數</th><th>金額</th></tr></thead><tbody>
+      ${list.map(r=>`<tr>
+        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></td>
+        <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
+        <td>${esc(r.pm)}</td>
+        <td class="cell-muted" style="color:var(--red);font-weight:700;">${r.month} 月 ⚠</td>
+        <td class="cell-muted">第${r.period}/${r.total}期</td>
+        <td class="cell-amount">${money(r.amount)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+  el.querySelectorAll('.rv-check').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      toggleInstallmentReceived(e.target.dataset.pid, e.target.dataset.instid, e.target.checked);
+      renderReceivablesAll();
+    });
+  });
+}
+
+function renderReceivablesMonthList(){
+  const titleEl = document.getElementById('rvPanelTitle');
+  const list = getAllInstallments().filter(x=>x.month===receivFilter.month)
+    .sort((a,b)=>{
+      if(a.received!==b.received) return a.received?1:-1;
+      return (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'});
+    });
+  const total = list.reduce((s,r)=>s+r.amount,0);
+  const receivedCount = list.filter(r=>r.received).length;
+  titleEl.innerHTML = `合計金額<span class="tag" style="background:${PAGE_THEME.receivables.bg};color:${PAGE_THEME.receivables.color};">${money(total)}</span>`;
+  document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆・已收 ${receivedCount} 筆`;
+  const rl = document.getElementById('rvList');
+  if(!list.length){
+    rl.innerHTML = emptyState(`${receivFilter.month} 月無應收款項目`, ICONS.money);
+  } else {
+    rl.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>期數</th><th>金額</th></tr></thead><tbody>
+      ${list.map(r=>`<tr style="${r.received?'opacity:.55;':''}">
+        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" ${r.received?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.receivables.color};cursor:pointer;"></td>
+        <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
+        <td>${esc(r.pm)}</td>
+        <td class="cell-muted">第${r.period}/${r.total}期</td>
+        <td class="cell-amount">${money(r.amount)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+  rl.querySelectorAll('.rv-check').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      toggleInstallmentReceived(e.target.dataset.pid, e.target.dataset.instid, e.target.checked);
+      renderReceivablesAll();
+    });
+  });
+}
+
+/* ============================================================
+   EXPIRING PROJECTS PAGE (即將到期專案)
+   ============================================================ */
+function expiringTpl(){
+  return `
+  <div class="page active" id="page-expiring">
+    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理，以及近三個月內即將到期（結案）的專案')}
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
+    <div class="card panel">
+      <div class="panel-title">即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></div>
+      <div id="expiringList"></div>
+    </div>
+  </div>`;
+}
+
+let expiringFilter = 'all';
+
+function afterExpiringRender(){
+  expiringFilter = 'all';
+  renderExpiringContent();
+}
+
+function renderExpiringContent(){
+  const combined = computeExpiringPageList(3); // 已逾期（不限時間窗）＋ 未來3個月到期，各項目帶有 _isOverdue 旗標
+  const now = new Date(); now.setHours(0,0,0,0);
+  const bucketLabels = [];
+  for(let i=0;i<3;i++){
+    const ref = new Date(now.getFullYear(), now.getMonth()+i, 1);
+    bucketLabels.push(`${ref.getMonth()+1}月`);
+  }
+  const overdueCount = combined.filter(p=>p._isOverdue).length;
+  const buckets = [0,0,0];
+  combined.forEach(p=>{
+    if(p._isOverdue) return;
+    const d = new Date(p._expiryDate+'T00:00:00');
+    const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
+    if(diff>=0 && diff<3) buckets[diff]++;
+  });
+
+  const cardDefs = [
+    {bucket:'overdue', label:'已逾期', value:overdueCount, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
+    {bucket:0, label:`${bucketLabels[0]}到期`, value:buckets[0], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:1, label:`${bucketLabels[1]}到期`, value:buckets[1], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:2, label:`${bucketLabels[2]}到期`, value:buckets[2], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
+  ];
+  document.getElementById('expiringStatGrid').innerHTML = cardDefs.map(c=>{
+    const isActive = expiringFilter===c.bucket;
+    const html = statCardHtml({label:c.label, value:c.value, icon:c.icon, color:c.color, bg:c.bg, accent:c.accent});
+    return html.replace('class="card stat-card"', `class="card stat-card${isActive?' is-active':''}" data-bucket="${c.bucket}"`);
+  }).join('');
+  document.querySelectorAll('#expiringStatGrid [data-bucket]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const b = card.dataset.bucket;
+      const nextFilter = (b==='overdue') ? 'overdue' : Number(b);
+      expiringFilter = (expiringFilter===nextFilter) ? 'all' : nextFilter;
+      renderExpiringContent();
+    });
+  });
+
+  const filtered = expiringFilter==='all' ? combined
+    : expiringFilter==='overdue' ? combined.filter(p=>p._isOverdue)
+    : combined.filter(p=>{
+        if(p._isOverdue) return false;
+        const d = new Date(p._expiryDate+'T00:00:00');
+        const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
+        return diff===expiringFilter;
+      });
+
+  document.getElementById('expiringTotalTag').textContent = `共 ${filtered.length} 個專案`;
+  const el = document.getElementById('expiringList');
+  if(!filtered.length){
+    el.innerHTML = emptyState('此範圍內沒有即將到期或逾期的專案', ICONS.calendar);
+  } else {
+    const sortedFiltered = filtered.slice().sort((a,b)=>{
+      if(!!a._isOverdue !== !!b._isOverdue) return a._isOverdue ? -1 : 1;
+      if(!!a.renewalDone !== !!b.renewalDone) return a.renewalDone ? 1 : -1;
+      return (a._expiryDate||'').localeCompare(b._expiryDate||'');
+    });
+    el.innerHTML = `<table><thead><tr><th></th><th>來源</th><th>客戶</th><th>合約名稱</th><th>專案代碼</th><th>專案經理</th><th>到期日</th><th></th></tr></thead><tbody>
+      ${sortedFiltered.map(p=>{
+        const srcBadge = isMaintenanceProject(p)
+          ? `<span class="badge badge-gray">維護專案</span>`
+          : `<span class="badge badge-blue">進行中專案</span>`;
+        return `<tr style="${p.renewalDone?'opacity:.55;':''}">
+        <td><input type="checkbox" class="exp-check" data-pid="${p.id}" ${p.renewalDone?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成"></td>
+        <td>${srcBadge}</td>
+        <td>${esc(p.client)}</td><td><b>${esc(p.name)}</b></td><td class="cell-muted">${esc(p.code)}</td>
+        <td>${esc(p.pm)}</td>
+        <td class="cell-muted" style="${p._isOverdue?'color:var(--red);font-weight:700;':''}">${esc(p._expiryDate)}${p._isOverdue?' ⚠':''}</td>
+        <td><button class="icon-btn" data-addtodo="${p.id}" title="加入待辦事項">${ICONS.plus}</button></td>
+      </tr>`;}).join('')}
+    </tbody></table>`;
+    el.querySelectorAll('.exp-check').forEach(cb=>{
+      cb.addEventListener('change', e=>{
+        const proj = DATA.projects.find(x=>x.id===e.target.dataset.pid);
+        if(!proj) return;
+        proj.renewalDone = e.target.checked;
+        persist('projects');
+        if(e.target.checked) openExpiringRenewalDialog(proj);
+        renderExpiringContent();
+      });
+    });
+    el.querySelectorAll('[data-addtodo]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const proj = DATA.projects.find(x=>x.id===b.dataset.addtodo);
+        if(!proj) return;
+        const info = getProjectExpiryInfo(proj);
+        openTodoModal(null, {
+          client: proj.client, category:'合約', title: proj.name,
+          dueDate: info.date || todayISO(),
+          priority: derivePriorityFromDueDate(info.date||''),
+          note: `${info.label}提醒${proj.code?'（'+proj.code+'）':''}`,
+        });
+      });
+    });
+  }
+}
+
+/* 標記已完成後的後續詢問：
+   - 維護專案（合約到期）：多數情況是續約，因此只給「續約：直接更新這筆專案」（開啟同一筆專案編輯，不會產生重複專案）或「不用，謝謝」。
+   - 進行中專案（保固到期）：本來就沒有既有維護合約可更新，因此提供「建立維護專案」（新建）或「不用，謝謝」。 */
+function openExpiringRenewalDialog(proj){
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+
+  if(isMaintenanceProject(proj)){
+    box.innerHTML = `
+      <div class="modal-head">
+        <div class="modal-title">已標記為完成</div>
+        <button class="modal-close" id="mClose">${ICONS.close}</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
+          已將「<b>${esc(proj.name)}</b>」標記為完成。這份維護合約是否要續約？選擇續約會直接開啟這筆專案的編輯視窗，方便您更新金額、代碼與新的起訖日，<b>不會另外產生新的專案</b>。
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
+        <button class="btn btn-primary" id="mRenew">續約：直接更新這筆專案</button>
+      </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('show');
+    document.getElementById('mClose').addEventListener('click', closeModal);
+    document.getElementById('mNo').addEventListener('click', closeModal);
+    document.getElementById('mRenew').addEventListener('click', ()=>{
+      closeModal();
+      // 進入續約流程即視為已在處理中，先解除完成標記，避免使用者取消編輯後這筆仍被誤判為已處理完成
+      proj.renewalDone = false;
+      persist('projects');
+      if(currentPage==='expiring') renderExpiringContent();
+      openMaintenanceProjectModal(proj, true);
+    });
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">已標記為完成</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
+        已將「<b>${esc(proj.name)}</b>」標記為完成，是否需要為這個專案建立「維護專案」合約？
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
+      <button class="btn btn-primary" id="mYes">建立維護專案</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mNo').addEventListener('click', closeModal);
+  document.getElementById('mYes').addEventListener('click', ()=>{
+    closeModal();
+    const prefill = {
+      id: uid(), projType:'maintenance', client:proj.client, code:'', name:proj.name, contractAmount:0,
+      maintenanceRate:proj.maintenanceRate||'', startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
+      pm:proj.pm||'', sales:proj.sales||'', status:'進行中', note:'', installments:[],
+      department:proj.department||'', contractNo:'', contact:proj.contact||'', invoiceNote:'',
+      renewalDone:false,
+    };
+    openMaintenanceProjectModal(prefill, false);
+  });
+}
+
+/* ============================================================
+   PROJECTS PAGE
+   ============================================================ */
+function projectsTpl(){
+  const list = DATA.projects.filter(p=> (p.projType||'maintenance')===projSubTab);
+  const pms = [...new Set(list.map(p=>p.pm).filter(Boolean))];
+  const salesList = [...new Set(list.map(p=>p.sales).filter(Boolean))];
+  const subTitle = projSubTab==='maintenance'
+    ? `維護專案・共 ${list.length} 個`
+    : `進行中專案（開發中／保固中）・共 ${list.length} 個`;
+  return `
+  <div class="page active" id="page-projects">
+    ${pageHeaderHtml('projects', ICONS.projects, '專案總覽', subTitle)}
+    <div class="seg" id="projSubTabSeg" style="margin-bottom:14px;">
+      <button data-v="maintenance" class="${projSubTab==='maintenance'?'active':''}">維護專案</button>
+      <button data-v="inprogress" class="${projSubTab==='inprogress'?'active':''}">進行中專案（開發中／保固中）</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="pjSearch" placeholder="搜尋客戶／合約名稱／代碼" value="${esc(projFilter.q)}">
+      <select id="pjPmFilter"><option value="">全部專案經理</option>${pms.map(x=>`<option ${projFilter.pm===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
+      <select id="pjSalesFilter"><option value="">全部業務</option>${salesList.map(x=>`<option ${projFilter.sales===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
+      <select id="pjStatusFilter">
+        <option value="">全部狀態</option>
+        ${['進行中','已終止','暫停','待處理'].map(x=>`<option ${projFilter.status===x?'selected':''}>${x}</option>`).join('')}
+      </select>
+      <div class="filter-spacer"></div>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead id="projectsThead"></thead>
+        <tbody id="projectsTbody"></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function filteredProjects(){
+  return DATA.projects.filter(p=>{
+    if((p.projType||'maintenance')!==projSubTab) return false;
+    if(projFilter.q){
+      const q = projFilter.q.toLowerCase();
+      const hit = [p.client,p.name,p.code].some(v=>(v||'').toLowerCase().includes(q));
+      if(!hit) return false;
+    }
+    if(projFilter.pm && p.pm!==projFilter.pm) return false;
+    if(projFilter.sales && p.sales!==projFilter.sales) return false;
+    if(projFilter.status && p.status!==projFilter.status) return false;
+    return true;
+  }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
+}
+
+function statusBadge(status){
+  const map = {'進行中':'badge-blue','已終止':'badge-gray','暫停':'badge-red','待處理':'badge-green'};
+  return `<span class="badge ${map[status]||'badge-gray'}"><span class="badge-dot"></span>${status||'-'}</span>`;
+}
+
+function afterProjectsRender(){
+  renderProjectsTable();
+  document.getElementById('pjSearch').addEventListener('input', e=>{ projFilter.q=e.target.value; renderProjectsTable(); });
+  document.getElementById('pjPmFilter').addEventListener('change', e=>{ projFilter.pm=e.target.value; renderProjectsTable(); });
+  document.getElementById('pjSalesFilter').addEventListener('change', e=>{ projFilter.sales=e.target.value; renderProjectsTable(); });
+  document.getElementById('pjStatusFilter').addEventListener('change', e=>{ projFilter.status=e.target.value; renderProjectsTable(); });
+  document.querySelectorAll('#projSubTabSeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(btn.dataset.v===projSubTab) return;
+      projSubTab = btn.dataset.v;
+      projFilter = { q:'', pm:'', sales:'', status:'' };
+      renderPage();
+    });
+  });
+}
+
+function renderProjectsTable(){
+  if(projSubTab==='inprogress') renderInProgressTable();
+  else renderMaintenanceTable();
+}
+
+function renderMaintenanceTable(){
+  document.getElementById('projectsThead').innerHTML = `<tr>
+    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>合約起始日</th><th>合約到期日</th><th>發票期數</th><th>聯絡人</th><th></th>
+  </tr>`;
+  const tbody = document.getElementById('projectsTbody');
+  const list = filteredProjects();
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的維護專案', ICONS.projects)}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(p=>{
+    const insts = p.installments || [];
+    const periodLabel = insts.length
+      ? `共${insts.length}期<br>（${[...new Set(insts.map(i=>i.month))].sort((a,b)=>a-b).join('、')}月）`
+      : (p.invoiceNote ? esc(p.invoiceNote) : '-');
+    return `<tr class="row-clickable" data-preview="${p.id}">
+      <td>${esc(p.sales)}</td>
+      <td>${esc(p.client)}</td>
+      <td class="cell-muted">${esc(p.code)}</td>
+      <td class="cell-wrap" style="max-width:170px;"><b>${esc(p.name)}</b></td>
+      <td>${esc(p.pm)}</td>
+      <td class="cell-muted">${esc(p.department||'')}</td>
+      <td class="cell-amount">${money(p.contractAmount)}</td>
+      <td class="cell-muted">${esc(p.startDate)}</td>
+      <td class="cell-muted">${esc(p.endDate)}</td>
+      <td class="cell-muted cell-wrap" style="max-width:150px;">${periodLabel}</td>
+      <td class="cell-muted">${esc(p.contact||'')}</td>
+      <td><div class="row-actions">
+        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('[data-preview]').forEach(tr=> tr.addEventListener('click', ()=> openProjectPreviewModal(tr.dataset.preview)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteProject(b.dataset.del); }));
+}
+
+function renderInProgressTable(){
+  document.getElementById('projectsThead').innerHTML = `<tr>
+    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>階段</th><th>驗收日期</th><th>保固到期</th><th>保固期限</th><th></th>
+  </tr>`;
+  const tbody = document.getElementById('projectsTbody');
+  const list = filteredProjects();
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的進行中專案', ICONS.projects)}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(p=>{
+    const phaseBadge = p.acceptanceDate
+      ? `<span class="badge badge-green"><span class="badge-dot"></span>保固中</span>`
+      : `<span class="badge badge-blue"><span class="badge-dot"></span>開發中</span>`;
+    return `<tr class="row-clickable" data-preview="${p.id}">
+      <td>${esc(p.sales)}</td>
+      <td>${esc(p.client)}</td>
+      <td class="cell-muted">${esc(p.code)}</td>
+      <td class="cell-wrap" style="max-width:170px;"><b>${esc(p.name)}</b></td>
+      <td>${esc(p.pm)}</td>
+      <td class="cell-muted">${esc(p.department||'')}</td>
+      <td class="cell-amount">${money(p.contractAmount)}</td>
+      <td>${phaseBadge}</td>
+      <td class="cell-muted">${esc(p.acceptanceDate||'-')}</td>
+      <td class="cell-muted">${esc(p.warrantyEndDate||'-')}</td>
+      <td class="cell-muted">${esc(p.warrantyPeriod||'')}</td>
+      <td><div class="row-actions">
+        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('[data-preview]').forEach(tr=> tr.addEventListener('click', ()=> openProjectPreviewModal(tr.dataset.preview)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteProject(b.dataset.del); }));
+}
+
+function confirmDeleteProject(id){
+  const p = DATA.projects.find(x=>x.id===id);
+  if(!p) return;
+  if(confirm(`確定要刪除專案「${p.name}」嗎？此動作無法復原。`)){
+    DATA.projects = DATA.projects.filter(x=>x.id!==id);
+    persist('projects');
+    renderProjectsTable();
+    toast('已刪除專案');
+  }
+}
+
+/* ---------- Project Preview Modal ---------- */
+function pvField(label, value, full){
+  const hasVal = value!==undefined && value!==null && String(value).trim()!=='';
+  return `<div class="form-field${full?' full':''}">
+    <label>${label}</label>
+    <div class="preview-value${hasVal?'':' empty'}">${hasVal?value:'—'}</div>
+  </div>`;
+}
+
+function pvInstallmentsTable(p){
+  const insts = (p.installments||[]).slice().sort((a,b)=> a.year-b.year || a.month-b.month);
+  if(!insts.length) return `<div class="form-field full"><label>收款設定</label><div class="preview-value empty">—</div></div>`;
+  const total = insts.reduce((s,i)=>s+(Number(i.amount)||0),0);
+  const rows = insts.map((inst,i)=>`<tr><td>第 ${i+1} 期</td><td>${inst.year} 年</td><td>${esc(inst.month)} 月</td><td class="cell-amount">${money(inst.amount||0)}</td></tr>`).join('');
+  return `<div class="form-field full">
+    <label>收款設定</label>
+    <div class="preview-value" style="padding:10px;">
+      <table><thead><tr><th>期別</th><th>年度</th><th>月份</th><th>金額</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="cell-muted" style="margin-top:8px;">＊共 ${insts.length} 期，合計 ${money(total)}</div>
+    </div>
+  </div>`;
+}
+
+function openProjectPreviewModal(id){
+  const p = DATA.projects.find(x=>x.id===id);
+  if(!p) return;
+  const isMaint = (p.projType||'maintenance')==='maintenance';
+
+  let fieldsHtml = '';
+  if(isMaint){
+    fieldsHtml = `
+      ${pvField('客戶名稱', esc(p.client))}
+      ${pvField('專案代碼', esc(p.code))}
+      ${pvField('合約名稱', esc(p.name), true)}
+      ${pvField('專案經理', esc(p.pm))}
+      ${pvField('部門', esc(p.department))}
+      ${pvField('業務', esc(p.sales))}
+      ${pvField('合約編號', esc(p.contractNo))}
+      ${pvField('合約金額(含稅)', p.contractAmount?money(p.contractAmount):'')}
+      ${pvField('維護費率', esc(p.maintenanceRate))}
+      ${pvField('合約起始日', esc(p.startDate))}
+      ${pvField('合約到期日', esc(p.endDate))}
+      ${pvField('增修時數', p.modHours?String(p.modHours):'')}
+      ${pvField('增修單價(未稅)', p.modUnitPrice?money(p.modUnitPrice):'')}
+      ${pvField('Source code', esc(p.sourceCode))}
+      ${pvField('聯絡人', esc(p.contact))}
+      ${pvField('發票期數說明', esc(p.invoiceNote), true)}
+      ${pvInstallmentsTable(p)}
+      ${pvField('備註', esc(p.note), true)}
+    `;
+  } else {
+    fieldsHtml = `
+      ${pvField('客戶名稱', esc(p.client))}
+      ${pvField('專案代碼', esc(p.code))}
+      ${pvField('合約名稱', esc(p.name), true)}
+      ${pvField('專案經理', esc(p.pm))}
+      ${pvField('部門', esc(p.department))}
+      ${pvField('業務', esc(p.sales))}
+      ${pvField('合約編號', esc(p.contractNo))}
+      ${pvField('合約金額(含稅)', p.contractAmount?money(p.contractAmount):'')}
+      ${pvField('維護費率', esc(p.maintenanceRate))}
+      ${pvField('驗收日期', esc(p.acceptanceDate))}
+      ${pvField('保固到期', esc(p.warrantyEndDate))}
+      ${pvField('保固期限', esc(p.warrantyPeriod))}
+      ${pvField('聯絡人', esc(p.contact))}
+      ${pvField('備註', esc(p.note), true)}
+    `;
+  }
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">專案細節預覽</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">${fieldsHtml}</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCloseBtn">關閉視窗</button>
+      <button class="btn btn-primary" id="mEdit">編輯專案</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('mEdit').addEventListener('click', ()=> openProjectModal(p.id));
+}
+
+/* ---------- Project Modal ---------- */
+function openProjectModal(id, forcedType){
+  const editing = !!id;
+  const existing = editing ? DATA.projects.find(x=>x.id===id) : null;
+  const type = editing ? (existing.projType||'maintenance') : (forcedType || projSubTab || 'maintenance');
+  if(type==='inprogress') openInProgressProjectModal(existing, editing);
+  else openMaintenanceProjectModal(existing, editing);
+}
+
+function openMaintenanceProjectModal(existing, editing){
+  const p = existing || {
+    id: uid(), projType:'maintenance', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
+    startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
+    pm:'', sales:'', status:'進行中', note:'', installments:[],
+    department:'', contractNo:'', contact:'', invoiceNote:'',
+  };
+  const clientList = DATA.clients;
+  const existingInstallments = p.installments || [];
+  const initialAuto = !existingInstallments.length || existingInstallments.every(i=> Math.abs((i.amount||0)-(existingInstallments[0].amount||0)) < 0.01);
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${editing?'編輯維護專案':'新增維護專案'}</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>業務</label>
+          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
+        </div>
+        <div class="form-field">
+          <label>客戶名稱</label>
+          <input list="clientList" id="f_client" value="${esc(p.client)}" placeholder="輸入或選擇客戶">
+          <datalist id="clientList">${clientList.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>專案代碼</label>
+          <input id="f_code" value="${esc(p.code)}" placeholder="例如 PJ-2026-001">
+        </div>
+        <div class="form-field full">
+          <label>合約名稱</label>
+          <input id="f_name" value="${esc(p.name)}" placeholder="合約名稱">
+        </div>
+        <div class="form-field">
+          <label>專案經理</label>
+          <input id="f_pm" value="${esc(p.pm)}" placeholder="專案負責 PM">
+        </div>
+        <div class="form-field">
+          <label>部門</label>
+          <input list="deptList" id="f_department" value="${esc(p.department||'')}" placeholder="WM／AM">
+          <datalist id="deptList"><option value="WM"><option value="AM"></datalist>
+        </div>
+        <div class="form-field">
+          <label>合約金額(含稅)</label>
+          <input id="f_amount" type="number" min="0" step="1" value="${p.contractAmount||0}">
+        </div>
+        <div class="form-field">
+          <label>維護費率</label>
+          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如：15%">
+        </div>
+        <div class="form-field">
+          <label>合約起始日</label>
+          <input id="f_start" type="date" value="${p.startDate||''}">
+        </div>
+        <div class="form-field">
+          <label>合約到期日</label>
+          <input id="f_end" type="date" value="${p.endDate||''}">
+        </div>
+        <div class="form-field">
+          <label>增修時數</label>
+          <input id="f_modHours" type="number" min="0" step="0.5" value="${p.modHours||0}">
+        </div>
+        <div class="form-field">
+          <label>增修單價(未稅)</label>
+          <input id="f_modUnitPrice" type="number" min="0" step="1" value="${p.modUnitPrice||0}">
+        </div>
+        <div class="form-field">
+          <label>合約編號</label>
+          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
+        </div>
+        <div class="form-field">
+          <label>Source code</label>
+          <input id="f_sourceCode" value="${esc(p.sourceCode||'')}" placeholder="例如：Git 連結或有／無">
+        </div>
+        <div class="form-field">
+          <label>聯絡人</label>
+          <input list="contactPersonList" id="f_contact" value="${esc(p.contact||'')}" placeholder="輸入或選擇聯絡人">
+          <datalist id="contactPersonList">${[...new Set(DATA.contacts.map(c=>c.name).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>專案狀態</label>
+          <select id="f_status">
+            ${['進行中','已終止','暫停','待處理'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>發票期數說明</label>
+          <input id="f_invoiceNote" value="${esc(p.invoiceNote||'')}" placeholder="例如：分四期(期初)，1月、4月、7月、10月">
+        </div>
+
+        <div class="installment-box">
+          <div class="installment-head">
+            <div class="lbl">收款期數設定（可跨年度，每期各自設定年度／月份／金額）</div>
+            <label class="checkbox-row"><input type="checkbox" id="f_auto" ${initialAuto?'checked':''}>平均分配金額（依目前期數合計合約金額）</label>
+          </div>
+          <div id="installRows" class="install-rows"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="f_addRow" style="margin-top:8px;">＋ 新增一期</button>
+          <div class="install-total" id="installTotal"></div>
+        </div>
+
+        <div class="form-field full">
+          <label>備註</label>
+          <textarea id="f_note" placeholder="其他備註說明">${esc(p.note||'')}</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增專案'}</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+
+  const defaultYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
+  let rows = (p.installments && p.installments.length)
+    ? p.installments.map(i=>({ year:i.year, month:i.month, amount:i.amount }))
+    : [{ year:defaultYear, month:1, amount:0 }];
+
+  function renderInstallRows(){
+    const auto = document.getElementById('f_auto').checked;
+    const contractAmt = Number(document.getElementById('f_amount').value)||0;
+    const count = rows.length;
+    const evenAmt = auto ? Math.round((contractAmt/count)*100)/100 : null;
+
+    const rowsEl = document.getElementById('installRows');
+    rowsEl.innerHTML = rows.map((r,i)=>`
+      <div class="install-row">
+        <div class="idx">${i+1}</div>
+        <input type="number" placeholder="年度" class="inst-year" data-i="${i}" value="${r.year}">
+        <input type="number" min="1" max="12" placeholder="月份(1-12)" class="inst-month" data-i="${i}" value="${r.month}">
+        <input type="number" min="0" step="1" class="inst-amt" data-i="${i}" value="${auto? evenAmt : (r.amount||0)}" ${auto?'disabled':''}>
+        <button type="button" class="icon-btn danger inst-del" data-i="${i}" title="刪除此期">${ICONS.trash}</button>
+      </div>`).join('');
+
+    rowsEl.querySelectorAll('.inst-year').forEach(inp=>{
+      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].year = Number(e.target.value)||defaultYear; });
+    });
+    rowsEl.querySelectorAll('.inst-month').forEach(inp=>{
+      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].month = e.target.value; });
+    });
+    rowsEl.querySelectorAll('.inst-amt').forEach(inp=>{
+      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].amount = Number(e.target.value)||0; updateTotal(); });
+    });
+    rowsEl.querySelectorAll('.inst-del').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(rows.length<=1){ toast('至少要保留一期'); return; }
+        rows.splice(Number(btn.dataset.i),1);
+        renderInstallRows();
+      });
+    });
+    updateTotal();
+  }
+  function updateTotal(){
+    const auto = document.getElementById('f_auto').checked;
+    const contractAmt = Number(document.getElementById('f_amount').value)||0;
+    const count = rows.length;
+    let sum;
+    if(auto){ sum = contractAmt; }
+    else { sum = rows.reduce((a,r)=>a+(Number(r.amount)||0),0); }
+    const diff = Math.round((contractAmt - sum)*100)/100;
+    document.getElementById('installTotal').innerHTML = auto
+      ? `每期約 <b>${money(contractAmt/count)}</b>，合計 <b>${money(contractAmt)}</b>`
+      : `已分配 <b>${money(sum)}</b> ／ 合約 <b>${money(contractAmt)}</b>${diff!==0?` <span style="color:var(--red)">（尚差 ${money(diff)}）</span>`:''}`;
+  }
+
+  document.getElementById('f_addRow').addEventListener('click', ()=>{
+    const last = rows[rows.length-1];
+    rows.push({ year: last?last.year:defaultYear, month:1, amount:0 });
+    renderInstallRows();
+  });
+  document.getElementById('f_auto').addEventListener('change', renderInstallRows);
+  document.getElementById('f_amount').addEventListener('input', renderInstallRows);
+  renderInstallRows();
+
+  document.getElementById('mSave').addEventListener('click', ()=>{
+    const client = document.getElementById('f_client').value.trim();
+    const name = document.getElementById('f_name').value.trim();
+    if(!client || !name){ toast('請填寫客戶名稱與合約名稱'); return; }
+    const auto = document.getElementById('f_auto').checked;
+    const contractAmt = Number(document.getElementById('f_amount').value)||0;
+    const evenAmt = auto ? contractAmt/(rows.length||1) : null;
+    const oldInstallments = p.installments || [];
+    const finalInstallments = rows
+      .filter(r=> r.month!=='' && r.month!=null)
+      .map((r,i)=>{
+        const prev = oldInstallments[i]; // 盡量沿用同一列原本的已收狀態與 id
+        return {
+          id: (prev && prev.id) || uid(),
+          year: Number(r.year)||defaultYear,
+          month: Number(r.month)||1,
+          amount: auto ? evenAmt : (Number(r.amount)||0),
+          received: prev ? !!prev.received : false,
+        };
+      })
+      .sort((a,b)=> a.year-b.year || a.month-b.month);
+
+    const rec = {
+      id: p.id, projType:'maintenance', client, code: document.getElementById('f_code').value.trim(),
+      name, contractAmount: contractAmt,
+      startDate: document.getElementById('f_start').value, endDate: document.getElementById('f_end').value,
+      pm: document.getElementById('f_pm').value.trim(), sales: document.getElementById('f_sales').value.trim(),
+      status: document.getElementById('f_status').value, note: document.getElementById('f_note').value.trim(),
+      department: document.getElementById('f_department').value.trim(),
+      maintenanceRate: document.getElementById('f_maintRate').value.trim(),
+      modHours: Number(document.getElementById('f_modHours').value)||0,
+      modUnitPrice: Number(document.getElementById('f_modUnitPrice').value)||0,
+      sourceCode: document.getElementById('f_sourceCode').value.trim(),
+      contractNo: document.getElementById('f_contractNo').value.trim(), contact: document.getElementById('f_contact').value.trim(),
+      invoiceNote: document.getElementById('f_invoiceNote').value.trim(),
+      installments: finalInstallments,
+      renewalDone: p.renewalDone || false,
+    };
+    ensureClient(client);
+    const idx = DATA.projects.findIndex(x=>x.id===p.id);
+    if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
+    persist('projects');
+    closeModal();
+    if(currentPage==='projects') renderProjectsTable();
+    toast(editing?'已儲存變更':'已新增維護專案');
+  });
+}
+
+function openInProgressProjectModal(existing, editing){
+  const p = existing || {
+    id: uid(), projType:'inprogress', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
+    acceptanceDate:'', warrantyEndDate:'', warrantyPeriod:'',
+    pm:'', sales:'', status:'進行中', note:'', department:'', contractNo:'', contact:'',
+  };
+  const clientList = DATA.clients;
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${editing?'編輯進行中專案':'新增進行中專案'}</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>業務</label>
+          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
+        </div>
+        <div class="form-field">
+          <label>客戶名稱</label>
+          <input list="clientListIp" id="f_client" value="${esc(p.client)}" placeholder="輸入或選擇客戶">
+          <datalist id="clientListIp">${clientList.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>專案代碼</label>
+          <input id="f_code" value="${esc(p.code)}" placeholder="例如 PJ-2026-001">
+        </div>
+        <div class="form-field full">
+          <label>合約名稱</label>
+          <input id="f_name" value="${esc(p.name)}" placeholder="合約名稱">
+        </div>
+        <div class="form-field">
+          <label>專案經理</label>
+          <input id="f_pm" value="${esc(p.pm)}" placeholder="專案負責 PM">
+        </div>
+        <div class="form-field">
+          <label>部門</label>
+          <input list="deptListIp" id="f_department" value="${esc(p.department||'')}" placeholder="WM／AM">
+          <datalist id="deptListIp"><option value="WM"><option value="AM"></datalist>
+        </div>
+        <div class="form-field">
+          <label>合約金額(含稅)</label>
+          <input id="f_amount" type="number" min="0" step="1" value="${p.contractAmount||0}">
+        </div>
+        <div class="form-field">
+          <label>維護費率</label>
+          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如：15%（保固後續約用）">
+        </div>
+        <div class="form-field">
+          <label>驗收日期</label>
+          <input id="f_acceptance" type="date" value="${p.acceptanceDate||''}">
+        </div>
+        <div class="form-field">
+          <label>保固期限</label>
+          <input id="f_warrantyPeriod" value="${esc(p.warrantyPeriod||'')}" placeholder="例如：1年 或 12個月">
+        </div>
+        <div class="form-field">
+          <label>保固到期</label>
+          <input id="f_warrantyEnd" type="date" value="${p.warrantyEndDate||''}">
+        </div>
+        <div class="form-field" style="justify-content:flex-end;">
+          <button type="button" class="btn btn-ghost btn-sm" id="f_calcWarranty">依驗收日＋保固期限自動帶入到期日</button>
+        </div>
+        <div class="form-field">
+          <label>合約編號</label>
+          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
+        </div>
+        <div class="form-field">
+          <label>聯絡人</label>
+          <input id="f_contact" value="${esc(p.contact||'')}" placeholder="客戶端聯絡窗口">
+        </div>
+        <div class="form-field">
+          <label>專案狀態</label>
+          <select id="f_status">
+            ${['進行中','已終止','暫停','待處理'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field full">
+          <div class="form-hint">提示：開發中專案通常尚無驗收日期／保固到期日；驗收後填入即可自動出現在「即將到期專案」的保固追蹤中。</div>
+        </div>
+        <div class="form-field full">
+          <label>備註</label>
+          <textarea id="f_note" placeholder="其他備註說明">${esc(p.note||'')}</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增專案'}</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+
+  document.getElementById('f_calcWarranty').addEventListener('click', ()=>{
+    const accept = document.getElementById('f_acceptance').value;
+    const periodStr = document.getElementById('f_warrantyPeriod').value.trim();
+    if(!accept){ toast('請先填寫驗收日期'); return; }
+    if(!periodStr){ toast('請先填寫保固期限'); return; }
+    const yearMatch = periodStr.match(/(\d+(?:\.\d+)?)\s*年/);
+    const monthMatch = periodStr.match(/(\d+(?:\.\d+)?)\s*(?:個)?月/);
+    let monthsTotal = 0;
+    if(yearMatch) monthsTotal += Number(yearMatch[1])*12;
+    if(monthMatch) monthsTotal += Number(monthMatch[1]);
+    if(!yearMatch && !monthMatch){
+      const n = Number(periodStr);
+      if(!isNaN(n)) monthsTotal = n;
+    }
+    if(!monthsTotal){ toast('無法解析保固期限，請確認格式（例如：1年、12個月）'); return; }
+    const d = new Date(accept+'T12:00:00');
+    d.setMonth(d.getMonth()+Math.round(monthsTotal));
+    const iso = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    document.getElementById('f_warrantyEnd').value = iso;
+    toast('已自動帶入保固到期日');
+  });
+
+  document.getElementById('mSave').addEventListener('click', ()=>{
+    const client = document.getElementById('f_client').value.trim();
+    const name = document.getElementById('f_name').value.trim();
+    if(!client || !name){ toast('請填寫客戶名稱與合約名稱'); return; }
+    const rec = {
+      id: p.id, projType:'inprogress', client, code: document.getElementById('f_code').value.trim(),
+      name, contractAmount: Number(document.getElementById('f_amount').value)||0,
+      sales: document.getElementById('f_sales').value.trim(), pm: document.getElementById('f_pm').value.trim(),
+      department: document.getElementById('f_department').value.trim(),
+      maintenanceRate: document.getElementById('f_maintRate').value.trim(),
+      acceptanceDate: document.getElementById('f_acceptance').value,
+      warrantyEndDate: document.getElementById('f_warrantyEnd').value,
+      warrantyPeriod: document.getElementById('f_warrantyPeriod').value.trim(),
+      contractNo: document.getElementById('f_contractNo').value.trim(),
+      contact: document.getElementById('f_contact').value.trim(),
+      status: document.getElementById('f_status').value, note: document.getElementById('f_note').value.trim(),
+      renewalDone: p.renewalDone || false,
+    };
+    ensureClient(client);
+    const idx = DATA.projects.findIndex(x=>x.id===p.id);
+    if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
+    persist('projects');
+    closeModal();
+    if(currentPage==='projects') renderProjectsTable();
+    toast(editing?'已儲存變更':'已新增進行中專案');
+  });
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('modalBox').innerHTML = '';
+}
+
+/* ============================================================
+   BATCH IMPORT (聯絡人 / 專案 / 待辦事項 共用)
+   ============================================================ */
+const IMPORT_CONFIGS = {
+  maintenance: {
+    title:'批次匯入維護專案',
+    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','合約起始日(YYYY/M/D)','合約到期日(YYYY/M/D)','增修時數','發票期數(文字說明，如：分四期(期初)，1月、4月、7月、10月)','合約編號','增修單價(未稅)','Source code','備註','聯絡人'],
+    example:['Dabbie','滙豐投信','D0001-M5','滙豐投信PAM_MO基本維護','陳名乾','AM','$6,391,800','15%','2025/1/1','2027/12/31','40','分三期支付','F202504102','1500','有（GitLab）','範例資料，可直接刪除後貼上您的資料','洪偉峰 Eric'],
+  },
+  inprogress: {
+    title:'批次匯入進行中專案（開發中／保固中）',
+    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','驗收日期(YYYY/M/D)','保固到期(YYYY/M/D)','保固期限','合約編號','備註','聯絡人'],
+    example:['Dabbie','滙豐投信','D0002-N1','滙豐投信新系統開發','陳名乾','AM','$3,200,000','15%','','','1年','F202601088','範例資料，可直接刪除後貼上您的資料，驗收前可留空','洪偉峰 Eric'],
+  },
+  todos: {
+    title:'批次匯入待辦事項',
+    columns:['到期日(YYYY/M/D)','更新日(YYYY/M/D)','客戶','類別','專案','備註說明','進度狀態'],
+    example:['2026/08/31','2026/07/16','富蘭克林華美','合約','EC系統維護','條文待客戶確認','內部進行中'],
+  },
+  contacts: {
+    title:'批次匯入聯絡人',
+    columns:['公司名稱','姓名','部門','職稱','電話','地址','Email','備註'],
+    example:['大眾證券','王小華','資訊部','經理','02-1234-5678','台北市信義區信義路一段1號','wang@example.com','範例資料，可直接刪除後貼上您的資料'],
+  },
+};
+
+function parseImportText(text){
+  if(!text) return [];
+  // strip BOM if present
+  if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
+  const firstLineEnd = text.search(/\r?\n/);
+  const firstLine = firstLineEnd===-1 ? text : text.slice(0, firstLineEnd);
+  const delim = firstLine.includes('\t') ? '\t' : ',';
+
+  // Quote-aware parser: handles delimiters/newlines embedded inside "quoted" fields
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += ch;
+      }
+      continue;
+    }
+    if(ch === '"'){ inQuotes = true; continue; }
+    if(ch === delim){ row.push(field); field=''; continue; }
+    if(ch === '\r'){ continue; }
+    if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=''; continue; }
+    field += ch;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+
+  return rows
+    .map(r=> r.map(c=>c.trim()))
+    .filter(r=> r.some(c=>c.length>0));
+}
+
+function buildImportRecord(type, cells){
+  if(type==='contacts'){
+    const [company,name,department,role,phone,address,email,note] = cells;
+    if(!company || !name) return null;
+    ensureClient(company.trim());
+    return { id:uid(), company:company.trim(), name:name.trim(), department:(department||'').trim(), role:(role||'').trim(), phone:(phone||'').trim(), address:(address||'').trim(), email:(email||'').trim(), note:(note||'').trim() };
+  }
+  if(type==='maintenance'){
+    const [sales, client, code, name, pm, department, amountStr, maintRate, startDate, endDate, modHours, invoiceNote, contractNo, modUnitPrice, sourceCode, note, contact] = cells;
+    if(!client || !name) return null;
+    ensureClient(client.trim());
+    const validDept = ['WM','AM'].includes((department||'').trim()) ? department.trim() : (department||'').trim();
+    // best-effort: pull explicit "N月" mentions out of the free-text invoice schedule description
+    const monthMatches = [...String(invoiceNote||'').matchAll(/(\d{1,2})\s*月/g)].map(m=>Number(m[1])).filter(m=>m>=1&&m<=12);
+    const months = [...new Set(monthMatches)].sort((a,b)=>a-b);
+    const parsedStart = parseSlashDate(startDate);
+    const parsedEnd = parseSlashDate(endDate);
+    const contractAmt = parseAmountStr(amountStr);
+    const startY = parsedStart ? new Date(normDate(parsedStart)+'T00:00:00').getFullYear() : new Date().getFullYear();
+    const endY = parsedEnd ? new Date(normDate(parsedEnd)+'T00:00:00').getFullYear() : startY;
+    // 每年都依這些月份重複收款（如需個別年度不同月份／金額，匯入後可在編輯視窗調整每一期）
+    const installments = [];
+    if(months.length){
+      const evenAmt = contractAmt/(months.length * Math.max(1, endY-startY+1));
+      for(let y=startY; y<=endY; y++){
+        months.forEach(m=> installments.push({ id:uid(), year:y, month:m, amount:evenAmt, received:false }));
+      }
+    }
+    return {
+      id:uid(), projType:'maintenance', client:client.trim(), code:(code||'').trim(), name:name.trim(),
+      department:validDept,
+      contractAmount:contractAmt, maintenanceRate:(maintRate||'').trim(),
+      startDate:parsedStart, endDate:parsedEnd,
+      modHours:parseAmountStr(modHours), modUnitPrice:parseAmountStr(modUnitPrice), sourceCode:(sourceCode||'').trim(),
+      pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
+      contractNo:(contractNo||'').trim(), invoiceNote:(invoiceNote||'').trim(), contact:(contact||'').trim(),
+      note:(note||'').trim(),
+      installments,
+    };
+  }
+  if(type==='inprogress'){
+    const [sales, client, code, name, pm, department, amountStr, maintRate, acceptanceDate, warrantyEnd, warrantyPeriod, contractNo, note, contact] = cells;
+    if(!client || !name) return null;
+    ensureClient(client.trim());
+    const validDept = ['WM','AM'].includes((department||'').trim()) ? department.trim() : (department||'').trim();
+    return {
+      id:uid(), projType:'inprogress', client:client.trim(), code:(code||'').trim(), name:name.trim(),
+      department:validDept,
+      contractAmount:parseAmountStr(amountStr), maintenanceRate:(maintRate||'').trim(),
+      acceptanceDate:parseSlashDate(acceptanceDate), warrantyEndDate:parseSlashDate(warrantyEnd),
+      warrantyPeriod:(warrantyPeriod||'').trim(),
+      pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
+      contractNo:(contractNo||'').trim(), note:(note||'').trim(), contact:(contact||'').trim(),
+    };
+  }
+  if(type==='todos'){
+    const [dueDate, updatedDate, client, category, title, note, progress] = cells;
+    if(!title) return null;
+    ensureClient((client||'').trim());
+    const isoDue = parseSlashDate(dueDate);
+    return {
+      id:uid(), dueDate:isoDue, updatedDate: parseSlashDate(updatedDate) || todayISO(),
+      client:(client||'').trim(), category:(category||'').trim(), title:title.trim(),
+      priority: derivePriorityFromDueDate(isoDue), progress:(progress||'').trim(), note:(note||'').trim(), done:false,
+    };
+  }
+  return null;
+}
+
+function openImportModal(type){
+  const cfg = IMPORT_CONFIGS[type];
+  const theme = PAGE_THEME[type] || PAGE_THEME.dashboard;
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  const placeholderText = cfg.columns.join('\t') + '\n' + cfg.example.join('\t');
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${cfg.title}</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:${theme.bg};color:${theme.color};border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.7;margin-bottom:14px;">
+        欄位順序（依序對應，缺少的欄位留空即可）：<br>
+        <b>${cfg.columns.join('、')}</b>
+        <div style="margin-top:6px;color:var(--text-muted);">
+          可直接從 Excel 選取範圍後複製，貼到下方欄位即可（會自動以 Tab 分隔辨識），也支援逗號分隔的 CSV 內容。
+        </div>
+      </div>
+      <label class="checkbox-row" style="margin-bottom:10px;"><input type="checkbox" id="importSkipHeader" checked>貼上的內容第一列是標題列，匯入時略過</label>
+      <textarea id="importText" rows="10" placeholder="${esc(placeholderText)}" style="width:100%;font-family:inherit;font-size:13px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--blue-050);resize:vertical;"></textarea>
+      <div class="form-hint" style="margin-top:8px;" id="importPreviewInfo">尚未貼上資料</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mImport" style="background:${theme.color};">開始匯入</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+
+  const textArea = document.getElementById('importText');
+  const skipHeaderEl = document.getElementById('importSkipHeader');
+  const infoEl = document.getElementById('importPreviewInfo');
+  const updateInfo = ()=>{
+    const rows = parseImportText(textArea.value);
+    const dataRows = (skipHeaderEl.checked && rows.length) ? rows.slice(1) : rows;
+    infoEl.textContent = dataRows.length ? `偵測到 ${dataRows.length} 筆資料列` : '尚未貼上資料';
+  };
+  textArea.addEventListener('input', updateInfo);
+  skipHeaderEl.addEventListener('change', updateInfo);
+
+  const dataKey = (type==='maintenance'||type==='inprogress') ? 'projects' : type;
+  document.getElementById('mImport').addEventListener('click', ()=>{
+    const rowsAll = parseImportText(textArea.value);
+    const rows = (skipHeaderEl.checked && rowsAll.length) ? rowsAll.slice(1) : rowsAll;
+    if(!rows.length){ toast('請先貼上要匯入的資料'); return; }
+    let added=0, skipped=0;
+    rows.forEach(cells=>{
+      const rec = buildImportRecord(type, cells);
+      if(rec){ DATA[dataKey].push(rec); added++; } else skipped++;
+    });
+    if(added>0) persist(dataKey);
+    closeModal();
+    renderPage();
+    toast(`已匯入 ${added} 筆${skipped?`，略過 ${skipped} 筆（必要欄位缺漏）`:''}`);
+  });
+}
+
+/* ============================================================
+   GLOBAL ADD WIZARD (統一新增入口：選擇類別 + 單筆/批次)
+   ============================================================ */
+const ADD_WIZARD_CATEGORIES = [
+  {id:'projects', label:'專案', icon:ICONS.projects},
+  {id:'todos', label:'待辦事項', icon:ICONS.todos},
+  {id:'contacts', label:'聯絡人', icon:ICONS.contacts},
+];
+
+function openAddWizard(){
+  let selCategory = (['projects','todos','contacts'].includes(currentPage)) ? currentPage : 'projects';
+  let selMode = 'single';
+  let selProjType = (currentPage==='projects') ? projSubTab : 'maintenance';
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">新增資料</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:14px;">
+        <label>選擇類別</label>
+        <div class="add-wizard-group" id="wizCategoryGroup">
+          ${ADD_WIZARD_CATEGORIES.map(c=>`
+            <div class="add-wizard-option" data-cat="${c.id}">
+              <div class="icon">${c.icon}</div>
+              <div class="lbl">${c.label}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="form-field" id="wizProjTypeField" style="margin-bottom:14px;display:none;">
+        <label>專案類型</label>
+        <div class="add-wizard-group" id="wizProjTypeGroup">
+          <div class="add-wizard-option" data-ptype="maintenance">
+            <div class="icon">${ICONS.money}</div>
+            <div class="lbl">維護專案</div>
+          </div>
+          <div class="add-wizard-option" data-ptype="inprogress">
+            <div class="icon">${ICONS.clock}</div>
+            <div class="lbl">進行中專案</div>
+            <div class="sub">開發中／保固中</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>新增方式</label>
+        <div class="add-wizard-group" id="wizModeGroup">
+          <div class="add-wizard-option" data-mode="single">
+            <div class="icon">${ICONS.single}</div>
+            <div class="lbl">單筆新增</div>
+            <div class="sub">逐欄位手動填寫</div>
+          </div>
+          <div class="add-wizard-option" data-mode="batch">
+            <div class="icon">${ICONS.batch}</div>
+            <div class="lbl">批次匯入</div>
+            <div class="sub">貼上多筆資料</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mNext">下一步</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+
+  function refreshSelection(){
+    box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
+      el.classList.toggle('selected', el.dataset.cat===selCategory);
+    });
+    box.querySelectorAll('#wizModeGroup [data-mode]').forEach(el=>{
+      el.classList.toggle('selected', el.dataset.mode===selMode);
+    });
+    box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
+      el.classList.toggle('selected', el.dataset.ptype===selProjType);
+    });
+    document.getElementById('wizProjTypeField').style.display = selCategory==='projects' ? '' : 'none';
+  }
+  box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selCategory = el.dataset.cat; refreshSelection(); });
+  });
+  box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selProjType = el.dataset.ptype; refreshSelection(); });
+  });
+  box.querySelectorAll('#wizModeGroup [data-mode]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selMode = el.dataset.mode; refreshSelection(); });
+  });
+  refreshSelection();
+
+  document.getElementById('mNext').addEventListener('click', ()=>{
+    closeModal();
+    if(selCategory==='projects'){
+      if(selMode==='batch') openImportModal(selProjType);
+      else openProjectModal(null, selProjType);
+      return;
+    }
+    if(selMode==='batch'){
+      openImportModal(selCategory);
+    } else {
+      if(selCategory==='todos') openTodoModal();
+      else if(selCategory==='contacts') openContactModal();
+    }
+  });
+}
+
+/* ============================================================
+   TODOS PAGE
+   ============================================================ */
+function todosTpl(){
+  return `
+  <div class="page active" id="page-todos">
+    ${pageHeaderHtml('todos', ICONS.todos, '待辦事項', `共 ${DATA.todos.filter(t=>!t.done).length} 筆未完成`)}
+    <div class="filter-bar">
+      <div class="seg" id="prioritySeg">
+        ${['all','本週','本月','待處理','已完成','overdue'].map(k=>{
+          const label = k==='all'?'全部':k==='overdue'?'已逾期':k;
+          return `<button data-v="${k}" class="${todoFilter.priority===k?'active':''}">${label}</button>`;
+        }).join('')}
+      </div>
+      <input type="text" id="tdSearch" placeholder="搜尋客戶／項目／備註" value="${esc(todoFilter.q)}">
+      <div class="filter-spacer"></div>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr>
+          <th></th><th>到期日</th><th>更新日</th><th>客戶名稱</th><th>類別</th><th>項目/專案</th><th>優先順序</th><th>進度狀態</th><th>備註說明</th><th></th>
+        </tr></thead>
+        <tbody id="todosTbody"></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function filteredTodos(){
+  const now = new Date();
+  return DATA.todos.filter(t=>{
+    if(todoFilter.q){
+      const q = todoFilter.q.toLowerCase();
+      const hit = [t.client,t.title,t.category,t.note].some(v=>(v||'').toLowerCase().includes(q));
+      if(!hit) return false;
+    }
+    if(todoFilter.priority==='已完成'){
+      return !!t.done;
+    }
+    if(todoFilter.priority==='overdue'){
+      return !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now;
+    }
+    if(t.done) return false;
+    if(todoFilter.priority!=='all' && t.priority!==todoFilter.priority) return false;
+    return true;
+  }).sort((a,b)=>{
+    if(todoFilter.priority==='已完成'){
+      return (b.updatedDate||'').localeCompare(a.updatedDate||'');
+    }
+    return (a.dueDate||'9999').localeCompare(b.dueDate||'9999');
+  });
+}
+
+function afterTodosRender(presetFilter){
+  if(presetFilter==='thisWeek') todoFilter.priority='本週';
+  else if(presetFilter==='thisMonth') todoFilter.priority='本月';
+  else if(presetFilter==='overdue') todoFilter.priority='overdue';
+  else if(presetFilter==='all') todoFilter.priority='all';
+
+  renderTodosTable();
+  document.getElementById('tdSearch').addEventListener('input', e=>{ todoFilter.q=e.target.value; renderTodosTable(); });
+  document.querySelectorAll('#prioritySeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ todoFilter.priority=btn.dataset.v; renderPage(); });
+  });
+}
+
+function renderTodosTable(){
+  const tbody = document.getElementById('todosTbody');
+  const list = filteredTodos();
+  document.querySelectorAll('#prioritySeg button').forEach(b=> b.classList.toggle('active', b.dataset.v===todoFilter.priority));
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="10">${emptyState('沒有符合條件的待辦事項', ICONS.todos)}</td></tr>`;
+    return;
+  }
+  const now = new Date();
+  tbody.innerHTML = list.map(t=>{
+    const overdue = !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now;
+    return `<tr style="${t.done?'opacity:.55;':''}">
+      <td><input type="checkbox" class="todo-check" data-id="${t.id}" ${t.done?'checked':''} style="width:16px;height:16px;accent-color:var(--blue-700);cursor:pointer;"></td>
+      <td class="cell-muted" style="${overdue?'color:var(--red);font-weight:700;':''}">${esc(t.dueDate||'-')}${overdue?' ⚠':''}</td>
+      <td class="cell-muted">${esc(t.updatedDate||'-')}</td>
+      <td>${esc(t.client||'-')}</td>
+      <td><span class="badge badge-gray">${esc(t.category||'-')}</span></td>
+      <td><b>${esc(t.title||'-')}</b></td>
+      <td>${priorityBadge(t.priority)}</td>
+      <td>${t.progress?`<span class="badge badge-blue">${esc(t.progress)}</span>`:''}</td>
+      <td class="cell-muted" style="max-width:200px;white-space:normal;">${esc(t.note||'')}</td>
+      <td><div class="row-actions">
+        <button class="icon-btn" data-edit="${t.id}">${ICONS.edit}</button>
+        <button class="icon-btn danger" data-del="${t.id}">${ICONS.trash}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.todo-check').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const t = DATA.todos.find(x=>x.id===e.target.dataset.id);
+      t.done = e.target.checked;
+      t.updatedDate = todayISO();
+      persist('todos');
+      renderTodosTable();
+      toast(t.done?'已標記完成':'已取消完成');
+    });
+  });
+  tbody.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openTodoModal(b.dataset.edit)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', ()=> confirmDeleteTodo(b.dataset.del)));
+}
+
+function confirmDeleteTodo(id){
+  const t = DATA.todos.find(x=>x.id===id);
+  if(!t) return;
+  if(confirm(`確定要刪除待辦「${t.title}」嗎？`)){
+    DATA.todos = DATA.todos.filter(x=>x.id!==id);
+    persist('todos');
+    renderTodosTable();
+    toast('已刪除待辦事項');
+  }
+}
+
+function openTodoModal(id, prefill){
+  const editing = !!id;
+  const t = editing ? DATA.todos.find(x=>x.id===id) : Object.assign({
+    id: uid(), dueDate: todayISO(), updatedDate: todayISO(), client:'', category:'', title:'',
+    priority:'待處理', progress:'待處理', note:'', done:false, projectId:'',
+  }, prefill||{});
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+  const categories = ['合約','報價','發票','維護紀錄','會議','DD'];
+  const progressOptions = ['待處理','內部進行中','客戶進行中'];
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${editing?'編輯待辦事項':'新增待辦事項'}</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>到期日</label>
+          <input id="f_due" type="date" value="${t.dueDate||''}">
+        </div>
+        <div class="form-field">
+          <label>優先順序</label>
+          <select id="f_priority">
+            ${['本週','本月','待處理'].map(p=>`<option ${t.priority===p?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field">
+          <label>客戶名稱</label>
+          <input list="clientList2" id="f_client" value="${esc(t.client)}" placeholder="輸入或選擇客戶">
+          <datalist id="clientList2">${DATA.clients.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>類別</label>
+          <input list="catList" id="f_category" value="${esc(t.category)}" placeholder="輸入或選擇類別">
+          <datalist id="catList">${categories.map(c=>`<option value="${c}">`).join('')}</datalist>
+        </div>
+        <div class="form-field full">
+          <label>項目/專案</label>
+          <input list="projList" id="f_title" value="${esc(t.title)}" placeholder="輸入項目名稱，或關聯專案總覽中的專案">
+          <datalist id="projList">${DATA.projects.map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field full">
+          <label>進度狀態</label>
+          <select id="f_progress">
+            ${progressOptions.map(p=>`<option ${t.progress===p?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>備註說明</label>
+          <textarea id="f_note" placeholder="補充說明">${esc(t.note||'')}</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增待辦'}</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mSave').addEventListener('click', ()=>{
+    const title = document.getElementById('f_title').value.trim();
+    if(!title){ toast('請填寫項目/專案名稱'); return; }
+    const client = document.getElementById('f_client').value.trim();
+    ensureClient(client);
+    const rec = {
+      id: t.id, dueDate: document.getElementById('f_due').value, updatedDate: todayISO(),
+      client, category: document.getElementById('f_category').value.trim(), title,
+      priority: document.getElementById('f_priority').value, progress: document.getElementById('f_progress').value.trim(),
+      note: document.getElementById('f_note').value.trim(),
+      done: t.done||false,
+    };
+    const idx = DATA.todos.findIndex(x=>x.id===t.id);
+    if(idx>=0) DATA.todos[idx]=rec; else DATA.todos.push(rec);
+    persist('todos');
+    closeModal();
+    if(currentPage==='todos') renderTodosTable();
+    toast(editing?'已儲存變更':'已新增待辦');
+  });
+}
+
+/* ============================================================
+   CONTACTS PAGE
+   ============================================================ */
+function contactsTpl(){
+  return `
+  <div class="page active" id="page-contacts">
+    ${pageHeaderHtml('contacts', ICONS.contacts, '聯絡清單', `共 ${DATA.contacts.length} 位聯絡人`)}
+    <div class="filter-bar">
+      <input type="text" id="ctSearch" placeholder="搜尋客戶／姓名／職稱">
+      <div class="filter-spacer"></div>
+    </div>
+    <div id="contactsRoot"></div>
+  </div>`;
+}
+
+function afterContactsRender(){
+  renderContactsList();
+  document.getElementById('ctSearch').addEventListener('input', e=> renderContactsList(e.target.value));
+}
+
+function renderContactsList(q){
+  q = (q||'').toLowerCase();
+  const root = document.getElementById('contactsRoot');
+  let list = DATA.contacts.filter(c=>{
+    if(!q) return true;
+    return [c.company,c.name,c.role].some(v=>(v||'').toLowerCase().includes(q));
+  });
+  if(!list.length){
+    root.innerHTML = `<div class="card">${emptyState('目前沒有聯絡人資料', ICONS.contacts)}</div>`;
+    return;
+  }
+  const groups = {};
+  list.forEach(c=>{ const k=c.company||'未分類客戶'; (groups[k]=groups[k]||[]).push(c); });
+
+  root.innerHTML = Object.keys(groups).sort().map(company=>{
+    const items = groups[company];
+    const projCount = DATA.projects.filter(p=>p.client===company).length;
+    return `<div class="contact-group">
+      <div class="contact-group-title">${esc(company)} <span class="n">${items.length} 位聯絡人${projCount?` · ${projCount} 個關聯專案`:''}</span></div>
+      <div class="contact-grid">
+        ${items.map(c=>`
+          <div class="card contact-card">
+            <div class="contact-actions">
+              <button class="icon-btn" data-edit="${c.id}">${ICONS.edit}</button>
+              <button class="icon-btn danger" data-del="${c.id}">${ICONS.trash}</button>
+            </div>
+            <div class="contact-name">${esc(c.name)}</div>
+            <div class="contact-role">${esc(c.role||'')}${c.department?`・${esc(c.department)}`:''}</div>
+            ${c.phone?`<div class="contact-line">${ICONS.phone}${esc(c.phone)}</div>`:''}
+            ${c.email?`<div class="contact-line">${ICONS.mail}${esc(c.email)}</div>`:''}
+            ${c.address?`<div class="contact-line">${ICONS.briefcase}${esc(c.address)}</div>`:''}
+            ${c.note?`<div class="contact-line">${ICONS.empty}${esc(c.note)}</div>`:''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  root.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openContactModal(b.dataset.edit)));
+  root.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', ()=> confirmDeleteContact(b.dataset.del)));
+}
+
+function confirmDeleteContact(id){
+  const c = DATA.contacts.find(x=>x.id===id);
+  if(!c) return;
+  if(confirm(`確定要刪除聯絡人「${c.name}」嗎？`)){
+    DATA.contacts = DATA.contacts.filter(x=>x.id!==id);
+    persist('contacts');
+    renderContactsList();
+    toast('已刪除聯絡人');
+  }
+}
+
+function openContactModal(id){
+  const editing = !!id;
+  const c = editing ? DATA.contacts.find(x=>x.id===id) : { id: uid(), company:'', name:'', role:'', department:'', phone:'', email:'', address:'', note:'' };
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${editing?'編輯聯絡人':'新增聯絡人'}</div>
+      <button class="modal-close" id="mClose">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>客戶名稱/公司</label>
+          <input list="clientList3" id="f_company" value="${esc(c.company)}" placeholder="輸入或選擇客戶">
+          <datalist id="clientList3">${DATA.clients.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>聯絡人姓名</label>
+          <input id="f_name" value="${esc(c.name)}">
+        </div>
+        <div class="form-field">
+          <label>部門</label>
+          <input id="f_department" value="${esc(c.department||'')}" placeholder="例如：資訊部">
+        </div>
+        <div class="form-field">
+          <label>職稱</label>
+          <input id="f_role" value="${esc(c.role)}">
+        </div>
+        <div class="form-field">
+          <label>電話</label>
+          <input id="f_phone" value="${esc(c.phone)}">
+        </div>
+        <div class="form-field full">
+          <label>Email</label>
+          <input id="f_email" type="email" value="${esc(c.email)}">
+        </div>
+        <div class="form-field full">
+          <label>聯絡地址</label>
+          <input id="f_address" value="${esc(c.address||'')}" placeholder="公司或通訊地址">
+        </div>
+        <div class="form-field full">
+          <label>備註</label>
+          <textarea id="f_note" placeholder="其他備註">${esc(c.note||'')}</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增聯絡人'}</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mSave').addEventListener('click', ()=>{
+    const company = document.getElementById('f_company').value.trim();
+    const name = document.getElementById('f_name').value.trim();
+    if(!company || !name){ toast('請填寫客戶名稱與聯絡人姓名'); return; }
+    ensureClient(company);
+    const rec = {
+      id: c.id, company, name, role: document.getElementById('f_role').value.trim(),
+      department: document.getElementById('f_department').value.trim(),
+      phone: document.getElementById('f_phone').value.trim(), email: document.getElementById('f_email').value.trim(),
+      address: document.getElementById('f_address').value.trim(),
+      note: document.getElementById('f_note').value.trim(),
+    };
+    const idx = DATA.contacts.findIndex(x=>x.id===c.id);
+    if(idx>=0) DATA.contacts[idx]=rec; else DATA.contacts.push(rec);
+    persist('contacts');
+    closeModal();
+    if(currentPage==='contacts') renderContactsList();
+    toast(editing?'已儲存變更':'已新增聯絡人');
+  });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeModal();
+});
+
+async function clearAllData(){
+  if(!confirm('確定要清空所有專案／待辦／聯絡人資料嗎？此動作無法復原（建議先匯出備份）。')) return;
+  DATA.projects = [];
+  DATA.todos = [];
+  DATA.contacts = [];
+  DATA.clients = [];
+  await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
+  todoFilter = { priority:'all', q:'' };
+  projFilter = { q:'', pm:'', sales:'', status:'' };
+  goPage('dashboard');
+  toast('已清空所有資料');
+}
+
+/* ============================================================
+   BACKUP EXPORT / RESTORE
+   （建議：每次系統更新前先匯出備份，更新後如發現資料被重置，
+   可用「還原備份檔」把資料復原回來）
+   ============================================================ */
+function exportBackup(){
+  try{
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      projects: DATA.projects, todos: DATA.todos, contacts: DATA.contacts, clients: DATA.clients,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    a.href = url;
+    a.download = `專案管理備份_${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 2000);
+    toast('備份檔已下載');
+  }catch(e){
+    console.error(e);
+    toast('匯出失敗，請再試一次');
+  }
+}
+
+function importBackupFromFile(file){
+  const reader = new FileReader();
+  reader.onload = async ()=>{
+    try{
+      const obj = JSON.parse(reader.result);
+      const hasAny = Array.isArray(obj.projects) || Array.isArray(obj.todos) || Array.isArray(obj.contacts) || Array.isArray(obj.clients);
+      if(!hasAny){ toast('這個檔案格式看起來不對，請確認是本系統匯出的備份檔'); return; }
+      if(!confirm('確定要用這個備份檔還原嗎？目前畫面上的所有專案／待辦／聯絡人資料將會被覆蓋。')) return;
+      DATA.projects = Array.isArray(obj.projects) ? obj.projects : [];
+      DATA.todos = Array.isArray(obj.todos) ? obj.todos : [];
+      DATA.contacts = Array.isArray(obj.contacts) ? obj.contacts : [];
+      DATA.clients = Array.isArray(obj.clients) ? obj.clients : [];
+      await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
+      goPage('dashboard');
+      toast('已還原備份資料');
+    }catch(e){
+      console.error(e);
+      toast('讀取備份檔失敗，請確認檔案內容');
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function init(){
+  currentWorkspace = await loadWorkspace();
+  renderNav();
+  await loadAll();
+  renderPage();
+  renderNotifications();
+
+  const collapseBtn = document.getElementById('collapseBtn');
+  if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
+
+  const homeBtn = document.getElementById('homeDashboardBtn');
+  if(homeBtn) homeBtn.addEventListener('click', ()=> goPage('dashboard'));
+
+  const globalAddBtn = document.getElementById('globalAddBtn');
+  if(globalAddBtn) globalAddBtn.addEventListener('click', openAddWizard);
+
+  const wsTrigger = document.getElementById('workspaceTriggerBtn');
+  if(wsTrigger) wsTrigger.addEventListener('click', e=>{ e.stopPropagation(); toggleWorkspaceMenu(); });
+  document.querySelectorAll('.ws-menu-item').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      toggleWorkspaceMenu(false);
+      switchWorkspace(btn.dataset.ws);
+    });
+  });
+  document.addEventListener('click', e=>{
+    const wrap = document.getElementById('workspaceSwitcher');
+    if(wrap && wrap.classList.contains('open') && !wrap.contains(e.target)) toggleWorkspaceMenu(false);
+  });
+  updateWorkspaceMenuUI();
+
+  const exportBtn = document.getElementById('exportBackupBtn');
+  if(exportBtn) exportBtn.addEventListener('click', exportBackup);
+  const importBtn = document.getElementById('importBackupBtn');
+  const importFileInput = document.getElementById('importBackupFile');
+  if(importBtn && importFileInput){
+    importBtn.addEventListener('click', ()=> importFileInput.click());
+    importFileInput.addEventListener('change', e=>{
+      const file = e.target.files && e.target.files[0];
+      if(file) importBackupFromFile(file);
+      importFileInput.value = '';
+    });
+  }
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  if(clearAllBtn) clearAllBtn.addEventListener('click', clearAllData);
+
+  const savedName = await loadUsername();
+  applyUsername(savedName);
+  let lastSavedName = savedName;
+  const nameEl = document.getElementById('topbarUser');
+  if(nameEl){
+    nameEl.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){ e.preventDefault(); nameEl.blur(); }
+    });
+    nameEl.addEventListener('blur', ()=>{
+      let val = nameEl.textContent.replace(/\s+/g,' ').trim();
+      if(!val) val = 'Iris';
+      applyUsername(val);
+      if(val!==lastSavedName){
+        lastSavedName = val;
+        saveUsername(val);
+        toast('已更新使用者名稱');
+      }
+    });
+  }
+}
+init();
+
+</script>
+</body>
+</html>
