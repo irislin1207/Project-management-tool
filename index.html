@@ -48,6 +48,32 @@
   ::-webkit-scrollbar-thumb{background:var(--blue-300);border-radius:8px;}
   ::-webkit-scrollbar-track{background:transparent;}
 
+  /* ---------- Login Gate ---------- */
+  #loginGate{
+    position:fixed; inset:0; z-index:999; background:var(--beige);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    text-align:center; padding:20px;
+  }
+  #loginGate .lg-logo{
+    width:56px;height:56px;border-radius:16px; margin:0 auto 18px;
+    background:linear-gradient(150deg, var(--navy), var(--teal));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:20px;color:#fff;font-family:'Georgia','Noto Serif TC',serif;
+    box-shadow:0 6px 20px rgba(47,65,86,0.25);
+  }
+  #loginGate .lg-title{ font-size:22px; font-weight:800; color:var(--navy); margin-bottom:6px; }
+  #loginGate .lg-sub{ font-size:13.5px; color:var(--text-muted); margin-bottom:26px; }
+  #googleSignInBtn{
+    appearance:none; border:1px solid var(--border); cursor:pointer; font-family:inherit;
+    background:#fff; color:var(--navy); font-weight:700; font-size:14.5px;
+    padding:12px 22px; border-radius:12px; display:inline-flex; align-items:center; gap:10px;
+    box-shadow:0 4px 14px rgba(47,65,86,0.12); transition:.15s ease;
+  }
+  #googleSignInBtn:hover{ background:var(--blue-050); transform:translateY(-1px); }
+  #googleSignInBtn svg{ width:19px;height:19px; }
+  #loginGateError{ margin-top:16px; font-size:12.5px; color:var(--red); max-width:320px; }
+  #loginGateLoading{ font-size:13px; color:var(--text-muted); }
+
   /* ---------- Top Title Bar ---------- */
   .topbar{
     position:fixed; top:0; left:0; right:0; height:var(--topbar-h); z-index:60;
@@ -141,7 +167,9 @@
     width:34px;height:34px;border-radius:50%; flex:none;
     background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.25);
     display:flex;align-items:center;justify-content:center; font-weight:700; font-size:13.5px; color:#fff;
+    overflow:hidden;
   }
+  .topbar-user .avatar img{ width:100%;height:100%;object-fit:cover; }
   .topbar-user .info{ display:flex; flex-direction:column; line-height:1.35; text-align:right; }
   .topbar-user .name{ font-size:13.5px; font-weight:700; color:#fff; outline:none; cursor:text; border-radius:5px; padding:1px 4px; margin:-1px -4px; }
   .topbar-user .name:hover{ background:rgba(255,255,255,0.12); }
@@ -168,7 +196,7 @@
   }
   .nav-collapse-btn:hover{ background:rgba(255,255,255,0.55); }
   .nav-collapse-btn svg{ width:16px;height:16px; flex:none; transition:transform .2s ease; }
-  .nav-tabs{ display:flex; flex-direction:column; gap:4px; flex:1; padding-left:12px; border-left:2px solid var(--blue-100); margin-left:6px; }
+  .nav-tabs{ display:flex; flex-direction:column; gap:4px; flex:1; }
   .nav-tab{
     appearance:none; border:none; cursor:pointer; width:100%;
     background:transparent; color:var(--blue-900);
@@ -228,8 +256,6 @@
   body.sidebar-collapsed .workspace-switcher,
   body.sidebar-collapsed .sidenav-add-btn span.label{ display:none; }
   body.sidebar-collapsed .nav-tab{ justify-content:center; padding:11px 8px; }
-  body.sidebar-collapsed .nav-tabs{ padding-left:0; border-left:none; margin-left:0; }
-  .home-tab{ border:1px solid var(--blue-200); }
   body.sidebar-collapsed .nav-collapse-btn{ justify-content:center; }
   body.sidebar-collapsed .nav-collapse-btn svg{ transform:rotate(180deg); }
   body.sidebar-collapsed .nav-meta{ justify-content:center; padding:10px 0 4px; }
@@ -312,7 +338,6 @@
   thead th:last-child{ border-top-right-radius:10px; }
   tbody td{ padding:11px 12px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text); white-space:nowrap; }
   tbody tr:hover{ background:var(--blue-050); }
-  tbody tr.row-clickable{ cursor:pointer; }
   tbody tr:last-child td{ border-bottom:none; }
   .cell-muted{ color:var(--text-muted); font-size:12.5px;}
   .cell-amount{ font-variant-numeric:tabular-nums; font-weight:700; color:var(--blue-900); }
@@ -367,7 +392,7 @@
 
   /* ---------- Modal ---------- */
   .modal-overlay{
-    position:fixed; inset:0; background:rgba(51,69,78,0.45); backdrop-filter:blur(2px);
+    position:fixed; inset:0; background:rgba(51,69,78,0.45); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
     display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
   }
   .modal-overlay.show{ display:flex; }
@@ -394,8 +419,6 @@
   }
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ border-color:var(--blue-500); background:#fff; }
   .form-field textarea{ resize:vertical; min-height:60px; font-family:inherit; }
-  .preview-value{ font-size:14px; color:var(--text); padding:9px 12px; background:var(--blue-050); border-radius:9px; min-height:20px; line-height:1.5; word-break:break-word; }
-  .preview-value.empty{ color:var(--text-faint); }
   .form-hint{ font-size:11.5px; color:var(--text-faint); }
 
   .installment-box{ background:var(--blue-050); border:1px solid var(--border); border-radius:12px; padding:14px; grid-column:1/-1; }
@@ -404,11 +427,10 @@
   .checkbox-row{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); font-weight:600; cursor:pointer; user-select:none;}
   .checkbox-row input{ width:15px;height:15px; accent-color:var(--blue-700); cursor:pointer;}
   .install-rows{ display:flex; flex-direction:column; gap:8px; }
-  .install-row{ display:grid; grid-template-columns:24px 84px 84px 1fr 32px; gap:8px; align-items:center; }
+  .install-row{ display:grid; grid-template-columns:24px 1fr 1fr; gap:8px; align-items:center; }
   .install-row .idx{ font-size:12px; font-weight:800; color:var(--blue-500); text-align:center; }
   .install-row input{ font-family:inherit; font-size:13px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:#fff; }
   .install-row input:disabled{ background:var(--blue-100); color:var(--text-muted); }
-  .install-row .inst-del{ width:28px; height:28px; }
   .install-total{ margin-top:8px; font-size:12.5px; color:var(--text-muted); text-align:right; }
   .install-total b{ color:var(--blue-900); }
 
@@ -462,8 +484,47 @@
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
   }
 </style>
+
+<!-- ===== Firebase SDK（Google 登入 + Firestore 雲端資料庫）===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  /* ============================================================
+     部署前必看：
+     1. 到 https://console.firebase.google.com 建立一個新專案
+     2. 左側選單「Authentication」→「Sign-in method」→啟用「Google」
+     3. 左側選單「Firestore Database」→「建立資料庫」（正式環境模式即可）
+     4. 左側齒輪「專案設定」→ 拉到最下面「你的應用程式」→ 新增「網頁應用程式」
+        → 會拿到一組設定值，把下面這個物件換成你自己的設定值
+     ============================================================ */
+  const firebaseConfig = {
+    apiKey: "AIzaSyBMShdFxrdIh3hI1Df6IdLwXCIJ8bTJf7Y",
+    authDomain: "project-management-1ae5c.firebaseapp.com",
+    projectId: "project-management-1ae5c",
+    storageBucket: "project-management-1ae5c.firebasestorage.app",
+    messagingSenderId: "435766592955",
+    appId: "1:435766592955:web:9828d77e11584a3ad4709e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbAuth = firebase.auth();
+  const fbDb = firebase.firestore();
+</script>
 </head>
 <body>
+
+<div id="loginGate">
+  <div class="lg-logo">PM</div>
+  <div class="lg-title">專案管理工作台</div>
+  <div class="lg-sub" id="loginGateSub">請使用 Google 帳號登入以繼續</div>
+  <button id="googleSignInBtn">
+    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.4C41.8 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+    使用 Google 登入
+  </button>
+  <div id="loginGateError"></div>
+</div>
+
+<div id="appRoot" style="display:none;">
 
 <div class="topbar">
   <div class="topbar-brand">
@@ -497,6 +558,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="hmenu-label" id="loggedInAsLabel">已登入</div>
         <button class="hmenu-item" id="exportBackupBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
           匯出備份檔
@@ -515,6 +577,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
           清除所有資料
         </button>
+        <div class="hmenu-sep"></div>
+        <button class="hmenu-item danger" id="signOutBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          登出
+        </button>
       </div>
     </div>
   </div>
@@ -524,10 +591,6 @@
   <button class="nav-collapse-btn" id="collapseBtn" title="收合側邊欄">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>
     <span class="label">收合選單</span>
-  </button>
-  <button type="button" class="nav-tab home-tab" id="homeDashboardBtn" style="margin-bottom:10px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-    <span class="label">儀表板</span>
   </button>
   <div class="workspace-switcher" id="workspaceSwitcher">
     <button type="button" class="ws-trigger" id="workspaceTriggerBtn">
@@ -556,10 +619,12 @@
 
 <div class="toast" id="toast"></div>
 
+</div><!-- /#appRoot -->
+
 <script>
 /* ============================================================
    專案管理工作台 — 前端邏輯
-   資料以 window.storage（個人雲端儲存）持久化，跨裝置同步
+   資料透過 Firebase Firestore 持久化（依登入的 Google 帳號區分），跨裝置同步
    ============================================================ */
 
 /* ---------------- Icons ---------------- */
@@ -596,7 +661,25 @@ let charts = {};
 let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'', status:'' };
 let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案：開發中／保固中)
-let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
+let receivFilter = { month: new Date().getMonth()+1 };
+
+/* ---------------- Firebase-backed storage layer ----------------
+   取代原本的 window.storage（Claude artifact 專屬 API）。
+   資料存放路徑：users/{Google帳號UID}/appData/{key}
+   ---------------------------------------------------------------- */
+let currentUid = null;
+async function fbStorageGet(key){
+  if(!currentUid) return null;
+  const snap = await fbDb.collection('users').doc(currentUid).collection('appData').doc(key).get();
+  if(!snap.exists) return null;
+  const data = snap.data();
+  return { key, value: data.value, shared:false };
+}
+async function fbStorageSet(key, value){
+  if(!currentUid) return null;
+  await fbDb.collection('users').doc(currentUid).collection('appData').doc(key).set({ value, updatedAt: Date.now() });
+  return { key, value, shared:false };
+}
 
 const uid = () => 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 const money = (n) => '$' + (Math.round(Number(n)||0)).toLocaleString('zh-TW');
@@ -646,66 +729,18 @@ async function loadAll(){
   setSync('同步中…');
   const results = await Promise.all(Object.entries(STORE_KEYS).map(async ([k,key])=>{
     try{
-      const r = await window.storage.get(key,false);
+      const r = await fbStorageGet(key);
       return [k, r ? JSON.parse(r.value) : []];
     }catch(e){ return [k, []]; }
   }));
   results.forEach(([k,v])=> DATA[k]=v||[]);
-  const migrated = migrateLegacyInstallmentData();
   setSync('已同步');
   updateTopbarTime();
-  if(migrated) persist('projects');
-}
-
-/* 舊資料相容：把沒有年度概念的 installmentReceived 陣列，歸到「合約起始年」，
-   轉成 installmentReceivedByYear = { "2026": [...], ... }，讓每個年度的收款狀態分開記錄。 */
-function migrateLegacyInstallmentData(){
-  let changed = false;
-  (DATA.projects||[]).forEach(p=>{
-    if(Array.isArray(p.installmentReceived) && p.installmentReceived.length && !p.installmentReceivedByYear){
-      const startYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
-      p.installmentReceivedByYear = { [String(startYear)]: p.installmentReceived.slice() };
-      delete p.installmentReceived;
-      changed = true;
-    }
-  });
-  /* 再把「每年重複套用同一組月份」的舊模式，展開成逐筆「年度＋月份＋金額」的明確清單，
-     這樣才能處理跨年度金額或月份不同的情況（例如三年期、每年一月各繳一次，金額不必然均分）。 */
-  (DATA.projects||[]).forEach(p=>{
-    if(!isMaintenanceProject(p)) return;
-    if(Array.isArray(p.installments)) return; // 已是新格式
-    const months = p.installmentMonths || [];
-    if(!months.length){ p.installments = []; changed = true; return; }
-    const startYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
-    const endYear = p.endDate ? new Date(normDate(p.endDate)+'T00:00:00').getFullYear() : startYear;
-    const auto = p.autoSplit !== false;
-    const contractAmt = Number(p.contractAmount)||0;
-    const evenAmt = contractAmt/(months.length||1);
-    const built = [];
-    for(let y=startYear; y<=endYear; y++){
-      const receivedArr = (p.installmentReceivedByYear && p.installmentReceivedByYear[String(y)]) || [];
-      months.forEach((m, idx)=>{
-        built.push({
-          id: uid(), year:y, month:Number(m)||1,
-          amount: auto ? evenAmt : (Number((p.installmentAmounts||[])[idx])||0),
-          received: !!receivedArr[idx],
-        });
-      });
-    }
-    built.sort((a,b)=> a.year-b.year || a.month-b.month);
-    p.installments = built;
-    delete p.installmentMonths;
-    delete p.installmentAmounts;
-    delete p.installmentReceivedByYear;
-    delete p.autoSplit;
-    changed = true;
-  });
-  return changed;
 }
 
 async function persist(key){
   try{
-    await window.storage.set(STORE_KEYS[key], JSON.stringify(DATA[key]), false);
+    await fbStorageSet(STORE_KEYS[key], JSON.stringify(DATA[key]));
     setSync('已同步');
     updateTopbarTime();
     if(key==='todos') renderNotifications();
@@ -727,12 +762,12 @@ function ensureClient(name){
 const USERNAME_KEY = 'pm-username';
 async function loadUsername(){
   try{
-    const r = await window.storage.get(USERNAME_KEY, false);
+    const r = await fbStorageGet(USERNAME_KEY);
     return (r && r.value) ? r.value : 'Iris';
   }catch(e){ return 'Iris'; }
 }
 async function saveUsername(name){
-  try{ await window.storage.set(USERNAME_KEY, name, false); }catch(e){ console.error(e); }
+  try{ await fbStorageSet(USERNAME_KEY, name); }catch(e){ console.error(e); }
 }
 function applyUsername(name){
   const nameEl = document.getElementById('topbarUser');
@@ -744,12 +779,12 @@ function applyUsername(name){
 const WORKSPACE_KEY = 'pm-workspace';
 async function loadWorkspace(){
   try{
-    const r = await window.storage.get(WORKSPACE_KEY, false);
+    const r = await fbStorageGet(WORKSPACE_KEY);
     return (r && r.value==='pm') ? 'pm' : 'sales';
   }catch(e){ return 'sales'; }
 }
 async function saveWorkspace(ws){
-  try{ await window.storage.set(WORKSPACE_KEY, ws, false); }catch(e){ console.error(e); }
+  try{ await fbStorageSet(WORKSPACE_KEY, ws); }catch(e){ console.error(e); }
 }
 function updateWorkspaceMenuUI(){
   const label = document.getElementById('workspaceLabel');
@@ -787,6 +822,9 @@ function toast(msg){
 }
 
 /* ---------------- Nav ---------------- */
+const NAV_COMMON = [
+  {id:'dashboard', label:'儀表板', icon:ICONS.dashboard},
+];
 const NAV_SALES = [
   {id:'todos', label:'待辦事項', icon:ICONS.todos},
   {id:'contacts', label:'聯絡清單', icon:ICONS.contacts},
@@ -799,15 +837,8 @@ const NAV_PM = [
   {id:'expiring', label:'即將到期專案', icon:ICONS.calendar},
 ];
 function getCurrentNav(){
-  return currentWorkspace==='pm' ? NAV_PM : NAV_SALES;
+  return NAV_COMMON.concat(currentWorkspace==='pm' ? NAV_PM : NAV_SALES);
 }
-function pageWorkspace(pageId){
-  if(NAV_PM.some(n=>n.id===pageId)) return 'pm';
-  if(NAV_SALES.some(n=>n.id===pageId)) return 'sales';
-  return null;
-}
-/* Blue-family shades (light -> dark) so tabs read as one cohesive
-   palette instead of unrelated hues, while still being visually distinct. */
 function renderNav(){
   const el = document.getElementById('navTabs');
   const navList = getCurrentNav();
@@ -823,13 +854,6 @@ function renderNav(){
   el.querySelectorAll('.nav-tab').forEach(btn=>{
     btn.addEventListener('click', ()=> goPage(btn.dataset.page));
   });
-  const homeBtn = document.getElementById('homeDashboardBtn');
-  if(homeBtn){
-    const homeActive = currentPage==='dashboard';
-    homeBtn.classList.toggle('active', homeActive);
-    homeBtn.style.background = homeActive ? 'var(--teal)' : '';
-    homeBtn.style.color = homeActive ? '#fff' : '';
-  }
   updateWorkspaceMenuUI();
 }
 
@@ -916,7 +940,7 @@ function renderPage(extra){
    DASHBOARD
    ============================================================ */
 function weekRange(d=new Date()){
-  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const day = d.getDay();
   const diffToMon = (day===0? -6 : 1-day);
   const mon = new Date(d); mon.setDate(d.getDate()+diffToMon); mon.setHours(0,0,0,0);
   const sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
@@ -936,60 +960,36 @@ function inRange(dateStr, start, end){
 function isMaintenanceProject(p){ return (p.projType||'maintenance')==='maintenance'; }
 
 function getAllInstallments(){
-  // 應收帳款只抓「維護專案」分頁的資料，且只顯示「今年」的收款項目
   const list = [];
-  const thisYear = new Date().getFullYear();
   DATA.projects.forEach(p=>{
     if(!isMaintenanceProject(p)) return;
-    const yearInsts = (p.installments||[]).filter(i=>i.year===thisYear).sort((a,b)=>a.month-b.month);
-    yearInsts.forEach((inst, idx)=>{
-      list.push({ projectId:p.id, instId:inst.id, year:thisYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales, status:p.status,
-        period:idx+1, total:yearInsts.length, month:Number(inst.month), amount:Number(inst.amount)||0, received: !!inst.received });
+    const months = p.installmentMonths||[];
+    months.forEach((m, idx)=>{
+      const amt = p.autoSplit ? (Number(p.contractAmount)||0)/(months.length||1) : Number((p.installmentAmounts||[])[idx])||0;
+      const received = !!(p.installmentReceived && p.installmentReceived[idx]);
+      list.push({ projectId:p.id, idx, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales, status:p.status,
+        period:idx+1, total:months.length, month:Number(m), amount:amt, received });
     });
   });
   return list;
 }
 
-/* 逾期未收款：本年度已經過了開款月份、卻尚未勾選已收的款項，不受月份篩選影響 */
-function computeOverdueReceivables(){
-  const now = new Date();
-  const curMonth = now.getMonth()+1;
-  return getAllInstallments()
-    .filter(r=> !r.received && r.month < curMonth)
-    .sort((a,b)=> a.month - b.month);
-}
-
-function toggleInstallmentReceived(projectId, instId, checked){
+function toggleInstallmentReceived(projectId, idx, checked){
   const p = DATA.projects.find(x=>x.id===projectId);
-  if(!p || !Array.isArray(p.installments)) return;
-  const inst = p.installments.find(i=>i.id===instId);
-  if(!inst) return;
-  inst.received = checked;
+  if(!p) return;
+  const count = (p.installmentMonths||[]).length;
+  if(!Array.isArray(p.installmentReceived) || p.installmentReceived.length!==count){
+    p.installmentReceived = new Array(count).fill(false);
+  }
+  p.installmentReceived[idx] = checked;
   persist('projects');
 }
 
-/* 容錯日期正規化：把 20260531 / 2026/05/31 等格式統一轉成 2026-05-31，
-   避免日期比較（逾期／到期判斷）因格式不同而被誤判為 Invalid Date。 */
-function normDate(s){
-  if(!s) return '';
-  s = String(s).trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  let m = s.match(/^(\d{4})[\/.](\d{1,2})[\/.](\d{1,2})$/);
-  if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-  m = s.match(/^(\d{4})(\d{2})(\d{2})$/);
-  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
-  const d = new Date(s);
-  if(!isNaN(d.getTime())) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  return '';
-}
-
-/* 即將到期專案：維護專案看「合約到期日」，進行中專案（保固中）看「保固到期」。
-   進行中專案在開發中階段尚無保固到期日，因此不會出現在到期清單，等驗收後填入保固到期日才會被追蹤。 */
 function getProjectExpiryInfo(p){
   if(!isMaintenanceProject(p)){
-    return { date: normDate(p.warrantyEndDate), label: '保固到期' };
+    return { date: p.warrantyEndDate || '', label: '保固到期' };
   }
-  return { date: normDate(p.endDate), label: '合約到期' };
+  return { date: p.endDate || '', label: '合約到期' };
 }
 
 function computeUpcomingExpiring(monthsAhead=3){
@@ -1003,34 +1003,6 @@ function computeUpcomingExpiring(monthsAhead=3){
     const d = new Date(p._expiryDate+'T00:00:00');
     return d>=now && d<=future;
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
-}
-
-/* 已逾期但尚未標記完成的到期／保固項目：不受 3 個月時間窗限制，避免拖久了從清單消失 */
-function computeOverdueExpiring(){
-  const now = new Date(); now.setHours(0,0,0,0);
-  return DATA.projects.map(p=>{
-    const info = getProjectExpiryInfo(p);
-    return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
-  }).filter(p=>{
-    if(!p._expiryDate || p.status==='已終止' || p.renewalDone) return false;
-    const d = new Date(p._expiryDate+'T00:00:00');
-    return d < now;
-  }).sort((a,b)=> (a._expiryDate||'').localeCompare(b._expiryDate||''));
-}
-
-/* 即將到期專案頁面實際顯示的清單：已逾期（不限時間窗）＋ 未來 monthsAhead 個月內到期（含已標記完成的項目，供對照） */
-function computeExpiringPageList(monthsAhead=3){
-  const now = new Date(); now.setHours(0,0,0,0);
-  const overdue = computeOverdueExpiring();
-  const upcoming = computeUpcomingExpiring(monthsAhead);
-  const map = new Map();
-  overdue.forEach(p=> map.set(p.id, Object.assign({}, p, { _isOverdue:true })));
-  upcoming.forEach(p=>{
-    if(map.has(p.id)) return;
-    const d = new Date(p._expiryDate+'T00:00:00');
-    map.set(p.id, Object.assign({}, p, { _isOverdue: d < now }));
-  });
-  return Array.from(map.values());
 }
 
 function computeStats(){
@@ -1053,7 +1025,6 @@ function computeStats(){
 
   const overdue = todos.filter(t=> !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now).length;
 
-  // current month receivables (for dashboard mini card)
   const curMonth = now.getMonth()+1;
   const receivables = getAllInstallments().filter(x=>x.month===curMonth);
   const receivablesTotal = receivables.reduce((s,r)=>s+r.amount,0);
@@ -1064,9 +1035,10 @@ function computeStats(){
 }
 
 function dashboardTpl(){
+  const isPm = currentWorkspace==='pm';
   return `
   <div class="page active" id="page-dashboard">
-    ${pageHeaderHtml('dashboard', ICONS.dashboard, '儀表板', '即時掌握專案收款、到期與待辦執行狀況')}
+    ${pageHeaderHtml('dashboard', ICONS.dashboard, '儀表板', isPm ? '即時掌握專案收款與到期狀況' : '即時掌握待辦與客戶聯絡狀況')}
     <div id="statGrid" class="stat-grid"></div>
 
     <div class="chart-row" style="grid-template-columns:1fr 1fr;">
@@ -1115,7 +1087,6 @@ function statCardHtml({label, value, suffix, icon, color, bg, accent, onClick}){
   </div>`;
 }
 
-/* ---------- lightweight inline SVG chart helper (no external chart library needed) ---------- */
 function gaugeSVG(pct, color, size){
   size = size || 168;
   const r = 58, cx = 80, cy = 80, sw = 16;
@@ -1132,6 +1103,7 @@ function gaugeSVG(pct, color, size){
 
 function afterDashboardRender(){
   const s = computeStats();
+  const isPm = currentWorkspace==='pm';
   document.getElementById('statGrid').innerHTML = [
     statCardHtml({label:'待辦事項總數', value:s.totalOpen, icon:ICONS.inbox, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:all'}),
     statCardHtml({label:'本週待完成', value:s.weekOpen, icon:ICONS.clock, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:thisWeek'}),
@@ -1140,19 +1112,14 @@ function afterDashboardRender(){
   ].join('');
 
   document.querySelectorAll('[data-goto]').forEach(card=>{
-    card.addEventListener('click', async ()=>{
+    card.addEventListener('click', ()=>{
       const v = card.dataset.goto;
       if(!v) return;
       const [page, filter] = v.split(':');
-      const ws = pageWorkspace(page);
-      if(ws && ws!==currentWorkspace){
-        await switchWorkspace(ws);
-      }
       goPage(page, filter);
     });
   });
 
-  // week / month gauges
   const weekDone = s.weekTotal - s.weekOpen;
   const monthDone = s.monthTotal - s.monthOpen;
   document.getElementById('weekGauge').innerHTML = gaugeSVG(s.weekRate, 'var(--red)');
@@ -1160,28 +1127,32 @@ function afterDashboardRender(){
   document.getElementById('monthGauge').innerHTML = gaugeSVG(s.monthRate, 'var(--blue-700)');
   document.getElementById('monthGaugeSub').textContent = s.monthTotal ? `本月共 ${s.monthTotal} 筆，已完成 ${monthDone} 筆` : '本月尚無到期待辦';
 
-  // PM mini cards row (receivables / expiring) — always shown regardless of current workspace
-  document.getElementById('receivCount').textContent = s.receivables.length;
-  document.getElementById('receivAmountSub').textContent = s.receivables.length ? `預計收款 ${money(s.receivablesTotal)}` : '本月無應收款項目';
+  const pmRow = document.getElementById('dashboardPmRow');
+  if(pmRow){
+    pmRow.style.display = isPm ? 'grid' : 'none';
+  }
+  if(isPm){
+    document.getElementById('receivCount').textContent = s.receivables.length;
+    document.getElementById('receivAmountSub').textContent = s.receivables.length ? `預計收款 ${money(s.receivablesTotal)}` : '本月無應收款項目';
 
-  document.getElementById('expiringCount').textContent = s.upcomingExpiring.length;
-  const buckets = [0,0,0];
-  const nowRef = new Date();
-  s.upcomingExpiring.forEach(p=>{
-    const d = new Date(normDate(p._expiryDate)+'T00:00:00');
-    const diff = (d.getFullYear()-nowRef.getFullYear())*12+(d.getMonth()-nowRef.getMonth());
-    if(diff>=0 && diff<3) buckets[diff]++;
-  });
-  document.getElementById('expiringSub').textContent = s.upcomingExpiring.length
-    ? `本月 ${buckets[0]}・下月 ${buckets[1]}・後月 ${buckets[2]}`
-    : '近三個月無即將到期專案';
+    document.getElementById('expiringCount').textContent = s.upcomingExpiring.length;
+    const buckets = [0,0,0];
+    const nowRef = new Date();
+    s.upcomingExpiring.forEach(p=>{
+      const d = new Date(p._expiryDate+'T00:00:00');
+      const diff = (d.getFullYear()-nowRef.getFullYear())*12+(d.getMonth()-nowRef.getMonth());
+      if(diff>=0 && diff<3) buckets[diff]++;
+    });
+    document.getElementById('expiringSub').textContent = s.upcomingExpiring.length
+      ? `本月 ${buckets[0]}・下月 ${buckets[1]}・後月 ${buckets[2]}`
+      : '近三個月無即將到期專案';
+  }
 }
 
 function emptyState(msg, icon){
   return `<div class="empty-state">${icon||ICONS.empty}<div class="t">${msg}</div></div>`;
 }
 
-/* ---------- unified page header (icon badge + title, consistent size across all pages) ---------- */
 const PAGE_THEME = {
   dashboard:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   projects:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
@@ -1227,9 +1198,6 @@ function priorityBadge(p){
   return `<span class="badge badge-gray"><span class="badge-dot"></span>待處理</span>`;
 }
 
-/* ============================================================
-   QUOTES / CONTRACTS (業務執行 — 佔位頁面，功能開發中)
-   ============================================================ */
 function quotesTpl(){
   return `
   <div class="page active" id="page-quotes">
@@ -1245,20 +1213,12 @@ function contractsTpl(){
   </div>`;
 }
 
-/* ============================================================
-   RECEIVABLES PAGE (應收帳款)
-   ============================================================ */
 function receivablesTpl(){
   const opts = Array.from({length:12}, (_,i)=>i+1);
-  const thisYear = new Date().getFullYear();
   return `
   <div class="page active" id="page-receivables">
-    ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', `${thisYear} 年度・依開款月份查詢各專案收款期數明細`)}
+    ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', '依開款月份查詢各專案收款期數明細')}
     <div class="filter-bar">
-      <div class="seg" id="rvStatusSeg">
-        <button data-v="overdue" class="${receivFilter.status==='overdue'?'active':''}">已逾期</button>
-        <button data-v="month" class="${receivFilter.status==='month'?'active':''}">依月份</button>
-      </div>
       <label style="font-size:12.5px;font-weight:700;color:var(--blue-800);">查詢月份</label>
       <select id="rvMonth">
         ${opts.map(m=>`<option value="${m}" ${receivFilter.month===m?'selected':''}>${m} 月</option>`).join('')}
@@ -1267,69 +1227,21 @@ function receivablesTpl(){
       <span class="badge badge-blue" id="rvCountBadge"></span>
     </div>
     <div class="card panel">
-      <div class="panel-title" id="rvPanelTitle"></div>
+      <div class="panel-title">合計金額<span class="tag" id="rvTotalTag" style="background:${PAGE_THEME.receivables.bg};color:${PAGE_THEME.receivables.color};"></span></div>
       <div id="rvList"></div>
     </div>
   </div>`;
 }
 
 function afterReceivablesRender(){
-  renderReceivablesAll();
+  renderReceivablesList();
   document.getElementById('rvMonth').addEventListener('change', e=>{
     receivFilter.month = Number(e.target.value);
-    receivFilter.status = 'month';
-    updateRvSegUI();
-    renderReceivablesAll();
-  });
-  document.querySelectorAll('#rvStatusSeg button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      receivFilter.status = btn.dataset.v;
-      updateRvSegUI();
-      renderReceivablesAll();
-    });
+    renderReceivablesList();
   });
 }
 
-function updateRvSegUI(){
-  document.querySelectorAll('#rvStatusSeg button').forEach(b=> b.classList.toggle('active', b.dataset.v===receivFilter.status));
-}
-
-function renderReceivablesAll(){
-  if(receivFilter.status==='overdue') renderReceivablesOverdueList();
-  else renderReceivablesMonthList();
-}
-
-function renderReceivablesOverdueList(){
-  const titleEl = document.getElementById('rvPanelTitle');
-  const list = computeOverdueReceivables();
-  const total = list.reduce((s,r)=>s+r.amount,0);
-  titleEl.innerHTML = `逾期未收款（不受月份篩選影響）<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
-  document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆`;
-  const el = document.getElementById('rvList');
-  if(!list.length){
-    el.innerHTML = emptyState('目前沒有逾期未收款項目', ICONS.money);
-  } else {
-    el.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>應開款月份</th><th>期數</th><th>金額</th></tr></thead><tbody>
-      ${list.map(r=>`<tr>
-        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></td>
-        <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
-        <td>${esc(r.pm)}</td>
-        <td class="cell-muted" style="color:var(--red);font-weight:700;">${r.month} 月 ⚠</td>
-        <td class="cell-muted">第${r.period}/${r.total}期</td>
-        <td class="cell-amount">${money(r.amount)}</td>
-      </tr>`).join('')}
-    </tbody></table>`;
-  }
-  el.querySelectorAll('.rv-check').forEach(cb=>{
-    cb.addEventListener('change', e=>{
-      toggleInstallmentReceived(e.target.dataset.pid, e.target.dataset.instid, e.target.checked);
-      renderReceivablesAll();
-    });
-  });
-}
-
-function renderReceivablesMonthList(){
-  const titleEl = document.getElementById('rvPanelTitle');
+function renderReceivablesList(){
   const list = getAllInstallments().filter(x=>x.month===receivFilter.month)
     .sort((a,b)=>{
       if(a.received!==b.received) return a.received?1:-1;
@@ -1337,17 +1249,17 @@ function renderReceivablesMonthList(){
     });
   const total = list.reduce((s,r)=>s+r.amount,0);
   const receivedCount = list.filter(r=>r.received).length;
-  titleEl.innerHTML = `合計金額<span class="tag" style="background:${PAGE_THEME.receivables.bg};color:${PAGE_THEME.receivables.color};">${money(total)}</span>`;
   document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆・已收 ${receivedCount} 筆`;
+  document.getElementById('rvTotalTag').textContent = money(total);
   const rl = document.getElementById('rvList');
   if(!list.length){
     rl.innerHTML = emptyState(`${receivFilter.month} 月無應收款項目`, ICONS.money);
   } else {
-    rl.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>期數</th><th>金額</th></tr></thead><tbody>
+    rl.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>業務</th><th>期數</th><th>金額</th></tr></thead><tbody>
       ${list.map(r=>`<tr style="${r.received?'opacity:.55;':''}">
-        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" ${r.received?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.receivables.color};cursor:pointer;"></td>
+        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-idx="${r.idx}" ${r.received?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.receivables.color};cursor:pointer;"></td>
         <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
-        <td>${esc(r.pm)}</td>
+        <td>${esc(r.pm)}</td><td>${esc(r.sales)}</td>
         <td class="cell-muted">第${r.period}/${r.total}期</td>
         <td class="cell-amount">${money(r.amount)}</td>
       </tr>`).join('')}
@@ -1355,19 +1267,16 @@ function renderReceivablesMonthList(){
   }
   rl.querySelectorAll('.rv-check').forEach(cb=>{
     cb.addEventListener('change', e=>{
-      toggleInstallmentReceived(e.target.dataset.pid, e.target.dataset.instid, e.target.checked);
-      renderReceivablesAll();
+      toggleInstallmentReceived(e.target.dataset.pid, Number(e.target.dataset.idx), e.target.checked);
+      renderReceivablesList();
     });
   });
 }
 
-/* ============================================================
-   EXPIRING PROJECTS PAGE (即將到期專案)
-   ============================================================ */
 function expiringTpl(){
   return `
   <div class="page active" id="page-expiring">
-    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理，以及近三個月內即將到期（結案）的專案')}
+    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '統計近三個月內即將到期（結案）的專案')}
     <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></div>
@@ -1384,62 +1293,55 @@ function afterExpiringRender(){
 }
 
 function renderExpiringContent(){
-  const combined = computeExpiringPageList(3); // 已逾期（不限時間窗）＋ 未來3個月到期，各項目帶有 _isOverdue 旗標
-  const now = new Date(); now.setHours(0,0,0,0);
+  const list = computeUpcomingExpiring(3);
+  const now = new Date();
+  const buckets = [0,0,0];
   const bucketLabels = [];
   for(let i=0;i<3;i++){
     const ref = new Date(now.getFullYear(), now.getMonth()+i, 1);
     bucketLabels.push(`${ref.getMonth()+1}月`);
   }
-  const overdueCount = combined.filter(p=>p._isOverdue).length;
-  const buckets = [0,0,0];
-  combined.forEach(p=>{
-    if(p._isOverdue) return;
+  list.forEach(p=>{
     const d = new Date(p._expiryDate+'T00:00:00');
     const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
     if(diff>=0 && diff<3) buckets[diff]++;
   });
 
   const cardDefs = [
-    {bucket:'overdue', label:'已逾期', value:overdueCount, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
-    {bucket:0, label:`${bucketLabels[0]}到期`, value:buckets[0], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
-    {bucket:1, label:`${bucketLabels[1]}到期`, value:buckets[1], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
-    {bucket:2, label:`${bucketLabels[2]}到期`, value:buckets[2], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
+    {bucket:'all', label:'全部（近三個月）', value:list.length, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:0, label:`${bucketLabels[0]}到期`, value:buckets[0], color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
+    {bucket:1, label:`${bucketLabels[1]}到期`, value:buckets[1], color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:2, label:`${bucketLabels[2]}到期`, value:buckets[2], color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
   ];
   document.getElementById('expiringStatGrid').innerHTML = cardDefs.map(c=>{
     const isActive = expiringFilter===c.bucket;
-    const html = statCardHtml({label:c.label, value:c.value, icon:c.icon, color:c.color, bg:c.bg, accent:c.accent});
+    const html = statCardHtml({label:c.label, value:c.value, icon:ICONS.calendar, color:c.color, bg:c.bg, accent:c.accent});
     return html.replace('class="card stat-card"', `class="card stat-card${isActive?' is-active':''}" data-bucket="${c.bucket}"`);
   }).join('');
   document.querySelectorAll('#expiringStatGrid [data-bucket]').forEach(card=>{
     card.addEventListener('click', ()=>{
       const b = card.dataset.bucket;
-      const nextFilter = (b==='overdue') ? 'overdue' : Number(b);
-      expiringFilter = (expiringFilter===nextFilter) ? 'all' : nextFilter;
+      expiringFilter = (b==='all') ? 'all' : Number(b);
       renderExpiringContent();
     });
   });
 
-  const filtered = expiringFilter==='all' ? combined
-    : expiringFilter==='overdue' ? combined.filter(p=>p._isOverdue)
-    : combined.filter(p=>{
-        if(p._isOverdue) return false;
-        const d = new Date(p._expiryDate+'T00:00:00');
-        const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
-        return diff===expiringFilter;
-      });
+  const filtered = expiringFilter==='all' ? list : list.filter(p=>{
+    const d = new Date(p._expiryDate+'T00:00:00');
+    const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
+    return diff===expiringFilter;
+  });
 
   document.getElementById('expiringTotalTag').textContent = `共 ${filtered.length} 個專案`;
   const el = document.getElementById('expiringList');
   if(!filtered.length){
-    el.innerHTML = emptyState('此範圍內沒有即將到期或逾期的專案', ICONS.calendar);
+    el.innerHTML = emptyState('此範圍內沒有即將到期的專案', ICONS.calendar);
   } else {
     const sortedFiltered = filtered.slice().sort((a,b)=>{
-      if(!!a._isOverdue !== !!b._isOverdue) return a._isOverdue ? -1 : 1;
       if(!!a.renewalDone !== !!b.renewalDone) return a.renewalDone ? 1 : -1;
-      return (a._expiryDate||'').localeCompare(b._expiryDate||'');
+      return (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'});
     });
-    el.innerHTML = `<table><thead><tr><th></th><th>來源</th><th>客戶</th><th>合約名稱</th><th>專案代碼</th><th>專案經理</th><th>到期日</th><th></th></tr></thead><tbody>
+    el.innerHTML = `<table><thead><tr><th></th><th>來源</th><th>客戶</th><th>合約名稱</th><th>專案代碼</th><th>專案經理</th><th>業務</th><th>到期類型</th><th>到期日</th><th></th></tr></thead><tbody>
       ${sortedFiltered.map(p=>{
         const srcBadge = isMaintenanceProject(p)
           ? `<span class="badge badge-gray">維護專案</span>`
@@ -1448,8 +1350,9 @@ function renderExpiringContent(){
         <td><input type="checkbox" class="exp-check" data-pid="${p.id}" ${p.renewalDone?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成"></td>
         <td>${srcBadge}</td>
         <td>${esc(p.client)}</td><td><b>${esc(p.name)}</b></td><td class="cell-muted">${esc(p.code)}</td>
-        <td>${esc(p.pm)}</td>
-        <td class="cell-muted" style="${p._isOverdue?'color:var(--red);font-weight:700;':''}">${esc(p._expiryDate)}${p._isOverdue?' ⚠':''}</td>
+        <td>${esc(p.pm)}</td><td>${esc(p.sales)}</td>
+        <td class="cell-muted">${esc(p._expiryLabel)}</td>
+        <td class="cell-muted">${esc(p._expiryDate)}</td>
         <td><button class="icon-btn" data-addtodo="${p.id}" title="加入待辦事項">${ICONS.plus}</button></td>
       </tr>`;}).join('')}
     </tbody></table>`;
@@ -1479,43 +1382,9 @@ function renderExpiringContent(){
   }
 }
 
-/* 標記已完成後的後續詢問：
-   - 維護專案（合約到期）：多數情況是續約，因此只給「續約：直接更新這筆專案」（開啟同一筆專案編輯，不會產生重複專案）或「不用，謝謝」。
-   - 進行中專案（保固到期）：本來就沒有既有維護合約可更新，因此提供「建立維護專案」（新建）或「不用，謝謝」。 */
 function openExpiringRenewalDialog(proj){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
-
-  if(isMaintenanceProject(proj)){
-    box.innerHTML = `
-      <div class="modal-head">
-        <div class="modal-title">已標記為完成</div>
-        <button class="modal-close" id="mClose">${ICONS.close}</button>
-      </div>
-      <div class="modal-body">
-        <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-          已將「<b>${esc(proj.name)}</b>」標記為完成。這份維護合約是否要續約？選擇續約會直接開啟這筆專案的編輯視窗，方便您更新金額、代碼與新的起訖日，<b>不會另外產生新的專案</b>。
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
-        <button class="btn btn-primary" id="mRenew">續約：直接更新這筆專案</button>
-      </div>
-    `;
-    document.getElementById('modalOverlay').classList.add('show');
-    document.getElementById('mClose').addEventListener('click', closeModal);
-    document.getElementById('mNo').addEventListener('click', closeModal);
-    document.getElementById('mRenew').addEventListener('click', ()=>{
-      closeModal();
-      // 進入續約流程即視為已在處理中，先解除完成標記，避免使用者取消編輯後這筆仍被誤判為已處理完成
-      proj.renewalDone = false;
-      persist('projects');
-      if(currentPage==='expiring') renderExpiringContent();
-      openMaintenanceProjectModal(proj, true);
-    });
-    return;
-  }
-
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">已標記為完成</div>
@@ -1523,12 +1392,12 @@ function openExpiringRenewalDialog(proj){
     </div>
     <div class="modal-body">
       <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-        已將「<b>${esc(proj.name)}</b>」標記為完成，是否需要為這個專案建立「維護專案」合約？
+        已將「<b>${esc(proj.name)}</b>」標記為完成，是否需要將這個專案加入「維護專案」（例如簽署續約合約）？
       </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
-      <button class="btn btn-primary" id="mYes">建立維護專案</button>
+      <button class="btn btn-primary" id="mYes">加入維護專案</button>
     </div>
   `;
   document.getElementById('modalOverlay').classList.add('show');
@@ -1539,17 +1408,13 @@ function openExpiringRenewalDialog(proj){
     const prefill = {
       id: uid(), projType:'maintenance', client:proj.client, code:'', name:proj.name, contractAmount:0,
       maintenanceRate:proj.maintenanceRate||'', startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
-      pm:proj.pm||'', sales:proj.sales||'', status:'進行中', note:'', installments:[],
+      pm:proj.pm||'', sales:proj.sales||'', status:'進行中', note:'', autoSplit:true, installmentMonths:[1], installmentAmounts:[0],
       department:proj.department||'', contractNo:'', contact:proj.contact||'', invoiceNote:'',
-      renewalDone:false,
     };
     openMaintenanceProjectModal(prefill, false);
   });
 }
 
-/* ============================================================
-   PROJECTS PAGE
-   ============================================================ */
 function projectsTpl(){
   const list = DATA.projects.filter(p=> (p.projType||'maintenance')===projSubTab);
   const pms = [...new Set(list.map(p=>p.pm).filter(Boolean))];
@@ -1626,20 +1491,20 @@ function renderProjectsTable(){
 
 function renderMaintenanceTable(){
   document.getElementById('projectsThead').innerHTML = `<tr>
-    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>合約起始日</th><th>合約到期日</th><th>發票期數</th><th>聯絡人</th><th></th>
+    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>維護費率</th><th>合約起始日</th><th>合約到期日</th><th>增修時數</th><th>發票期數</th><th>合約編號</th><th>增修單價(未稅)</th><th>Source code</th><th>備註</th><th>聯絡人</th><th></th>
   </tr>`;
   const tbody = document.getElementById('projectsTbody');
   const list = filteredProjects();
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的維護專案', ICONS.projects)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="18">${emptyState('目前沒有符合條件的維護專案', ICONS.projects)}</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p=>{
-    const insts = p.installments || [];
-    const periodLabel = insts.length
-      ? `共${insts.length}期<br>（${[...new Set(insts.map(i=>i.month))].sort((a,b)=>a-b).join('、')}月）`
+    const months = (p.installmentMonths||[]).join('、');
+    const periodLabel = (p.installmentMonths||[]).length
+      ? `分${(p.installmentMonths||[]).length}期<br>（${months}月）`
       : (p.invoiceNote ? esc(p.invoiceNote) : '-');
-    return `<tr class="row-clickable" data-preview="${p.id}">
+    return `<tr>
       <td>${esc(p.sales)}</td>
       <td>${esc(p.client)}</td>
       <td class="cell-muted">${esc(p.code)}</td>
@@ -1647,34 +1512,41 @@ function renderMaintenanceTable(){
       <td>${esc(p.pm)}</td>
       <td class="cell-muted">${esc(p.department||'')}</td>
       <td class="cell-amount">${money(p.contractAmount)}</td>
+      <td class="cell-muted">${esc(p.maintenanceRate||'')}</td>
       <td class="cell-muted">${esc(p.startDate)}</td>
       <td class="cell-muted">${esc(p.endDate)}</td>
+      <td class="cell-muted">${p.modHours?esc(String(p.modHours)):''}</td>
       <td class="cell-muted cell-wrap" style="max-width:150px;">${periodLabel}</td>
+      <td class="cell-muted cell-wrap" style="max-width:110px;">${esc(p.contractNo||'')}</td>
+      <td class="cell-muted">${p.modUnitPrice?money(p.modUnitPrice):''}</td>
+      <td class="cell-muted">${esc(p.sourceCode||'')}</td>
+      <td class="cell-muted cell-clamp3" style="max-width:220px;" title="${esc(p.note||'')}">${esc(p.note||'')}</td>
       <td class="cell-muted">${esc(p.contact||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+        <button class="icon-btn" data-edit="${p.id}">${ICONS.edit}</button>
+        <button class="icon-btn danger" data-del="${p.id}">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
-  tbody.querySelectorAll('[data-preview]').forEach(tr=> tr.addEventListener('click', ()=> openProjectPreviewModal(tr.dataset.preview)));
-  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteProject(b.dataset.del); }));
+  tbody.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openProjectModal(b.dataset.edit)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', ()=> confirmDeleteProject(b.dataset.del)));
 }
 
 function renderInProgressTable(){
   document.getElementById('projectsThead').innerHTML = `<tr>
-    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>階段</th><th>驗收日期</th><th>保固到期</th><th>保固期限</th><th></th>
+    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>維護費率</th><th>階段</th><th>驗收日期</th><th>保固到期</th><th>保固期限</th><th>合約編號</th><th>備註</th><th></th>
   </tr>`;
   const tbody = document.getElementById('projectsTbody');
   const list = filteredProjects();
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的進行中專案', ICONS.projects)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15">${emptyState('目前沒有符合條件的進行中專案', ICONS.projects)}</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p=>{
     const phaseBadge = p.acceptanceDate
       ? `<span class="badge badge-green"><span class="badge-dot"></span>保固中</span>`
       : `<span class="badge badge-blue"><span class="badge-dot"></span>開發中</span>`;
-    return `<tr class="row-clickable" data-preview="${p.id}">
+    return `<tr>
       <td>${esc(p.sales)}</td>
       <td>${esc(p.client)}</td>
       <td class="cell-muted">${esc(p.code)}</td>
@@ -1682,17 +1554,21 @@ function renderInProgressTable(){
       <td>${esc(p.pm)}</td>
       <td class="cell-muted">${esc(p.department||'')}</td>
       <td class="cell-amount">${money(p.contractAmount)}</td>
+      <td class="cell-muted">${esc(p.maintenanceRate||'')}</td>
       <td>${phaseBadge}</td>
       <td class="cell-muted">${esc(p.acceptanceDate||'-')}</td>
       <td class="cell-muted">${esc(p.warrantyEndDate||'-')}</td>
       <td class="cell-muted">${esc(p.warrantyPeriod||'')}</td>
+      <td class="cell-muted cell-wrap" style="max-width:110px;">${esc(p.contractNo||'')}</td>
+      <td class="cell-muted cell-clamp3" style="max-width:220px;" title="${esc(p.note||'')}">${esc(p.note||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+        <button class="icon-btn" data-edit="${p.id}">${ICONS.edit}</button>
+        <button class="icon-btn danger" data-del="${p.id}">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
-  tbody.querySelectorAll('[data-preview]').forEach(tr=> tr.addEventListener('click', ()=> openProjectPreviewModal(tr.dataset.preview)));
-  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteProject(b.dataset.del); }));
+  tbody.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openProjectModal(b.dataset.edit)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', ()=> confirmDeleteProject(b.dataset.del)));
 }
 
 function confirmDeleteProject(id){
@@ -1706,95 +1582,6 @@ function confirmDeleteProject(id){
   }
 }
 
-/* ---------- Project Preview Modal ---------- */
-function pvField(label, value, full){
-  const hasVal = value!==undefined && value!==null && String(value).trim()!=='';
-  return `<div class="form-field${full?' full':''}">
-    <label>${label}</label>
-    <div class="preview-value${hasVal?'':' empty'}">${hasVal?value:'—'}</div>
-  </div>`;
-}
-
-function pvInstallmentsTable(p){
-  const insts = (p.installments||[]).slice().sort((a,b)=> a.year-b.year || a.month-b.month);
-  if(!insts.length) return `<div class="form-field full"><label>收款設定</label><div class="preview-value empty">—</div></div>`;
-  const total = insts.reduce((s,i)=>s+(Number(i.amount)||0),0);
-  const rows = insts.map((inst,i)=>`<tr><td>第 ${i+1} 期</td><td>${inst.year} 年</td><td>${esc(inst.month)} 月</td><td class="cell-amount">${money(inst.amount||0)}</td></tr>`).join('');
-  return `<div class="form-field full">
-    <label>收款設定</label>
-    <div class="preview-value" style="padding:10px;">
-      <table><thead><tr><th>期別</th><th>年度</th><th>月份</th><th>金額</th></tr></thead><tbody>${rows}</tbody></table>
-      <div class="cell-muted" style="margin-top:8px;">＊共 ${insts.length} 期，合計 ${money(total)}</div>
-    </div>
-  </div>`;
-}
-
-function openProjectPreviewModal(id){
-  const p = DATA.projects.find(x=>x.id===id);
-  if(!p) return;
-  const isMaint = (p.projType||'maintenance')==='maintenance';
-
-  let fieldsHtml = '';
-  if(isMaint){
-    fieldsHtml = `
-      ${pvField('客戶名稱', esc(p.client))}
-      ${pvField('專案代碼', esc(p.code))}
-      ${pvField('合約名稱', esc(p.name), true)}
-      ${pvField('專案經理', esc(p.pm))}
-      ${pvField('部門', esc(p.department))}
-      ${pvField('業務', esc(p.sales))}
-      ${pvField('合約編號', esc(p.contractNo))}
-      ${pvField('合約金額(含稅)', p.contractAmount?money(p.contractAmount):'')}
-      ${pvField('維護費率', esc(p.maintenanceRate))}
-      ${pvField('合約起始日', esc(p.startDate))}
-      ${pvField('合約到期日', esc(p.endDate))}
-      ${pvField('增修時數', p.modHours?String(p.modHours):'')}
-      ${pvField('增修單價(未稅)', p.modUnitPrice?money(p.modUnitPrice):'')}
-      ${pvField('Source code', esc(p.sourceCode))}
-      ${pvField('聯絡人', esc(p.contact))}
-      ${pvField('發票期數說明', esc(p.invoiceNote), true)}
-      ${pvInstallmentsTable(p)}
-      ${pvField('備註', esc(p.note), true)}
-    `;
-  } else {
-    fieldsHtml = `
-      ${pvField('客戶名稱', esc(p.client))}
-      ${pvField('專案代碼', esc(p.code))}
-      ${pvField('合約名稱', esc(p.name), true)}
-      ${pvField('專案經理', esc(p.pm))}
-      ${pvField('部門', esc(p.department))}
-      ${pvField('業務', esc(p.sales))}
-      ${pvField('合約編號', esc(p.contractNo))}
-      ${pvField('合約金額(含稅)', p.contractAmount?money(p.contractAmount):'')}
-      ${pvField('維護費率', esc(p.maintenanceRate))}
-      ${pvField('驗收日期', esc(p.acceptanceDate))}
-      ${pvField('保固到期', esc(p.warrantyEndDate))}
-      ${pvField('保固期限', esc(p.warrantyPeriod))}
-      ${pvField('聯絡人', esc(p.contact))}
-      ${pvField('備註', esc(p.note), true)}
-    `;
-  }
-
-  const box = document.getElementById('modalBox');
-  box.className = 'modal wide';
-  box.innerHTML = `
-    <div class="modal-head">
-      <div class="modal-title">專案細節預覽</div>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">${fieldsHtml}</div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" id="mCloseBtn">關閉視窗</button>
-      <button class="btn btn-primary" id="mEdit">編輯專案</button>
-    </div>
-  `;
-  document.getElementById('modalOverlay').classList.add('show');
-  document.getElementById('mCloseBtn').addEventListener('click', closeModal);
-  document.getElementById('mEdit').addEventListener('click', ()=> openProjectModal(p.id));
-}
-
-/* ---------- Project Modal ---------- */
 function openProjectModal(id, forcedType){
   const editing = !!id;
   const existing = editing ? DATA.projects.find(x=>x.id===id) : null;
@@ -1807,12 +1594,10 @@ function openMaintenanceProjectModal(existing, editing){
   const p = existing || {
     id: uid(), projType:'maintenance', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
     startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
-    pm:'', sales:'', status:'進行中', note:'', installments:[],
+    pm:'', sales:'', status:'進行中', note:'', autoSplit:true, installmentMonths:[1], installmentAmounts:[0],
     department:'', contractNo:'', contact:'', invoiceNote:'',
   };
   const clientList = DATA.clients;
-  const existingInstallments = p.installments || [];
-  const initialAuto = !existingInstallments.length || existingInstallments.every(i=> Math.abs((i.amount||0)-(existingInstallments[0].amount||0)) < 0.01);
 
   const box = document.getElementById('modalBox');
   box.className = 'modal wide';
@@ -1899,11 +1684,16 @@ function openMaintenanceProjectModal(existing, editing){
 
         <div class="installment-box">
           <div class="installment-head">
-            <div class="lbl">收款期數設定（可跨年度，每期各自設定年度／月份／金額）</div>
-            <label class="checkbox-row"><input type="checkbox" id="f_auto" ${initialAuto?'checked':''}>平均分配金額（依目前期數合計合約金額）</label>
+            <div class="lbl">收款期數設定</div>
+            <label class="checkbox-row"><input type="checkbox" id="f_auto" ${p.autoSplit!==false?'checked':''}>平均分配金額</label>
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr;margin-bottom:10px;">
+            <div class="form-field">
+              <label>分幾期</label>
+              <input id="f_count" type="number" min="1" max="12" value="${(p.installmentMonths||[1]).length}">
+            </div>
           </div>
           <div id="installRows" class="install-rows"></div>
-          <button type="button" class="btn btn-ghost btn-sm" id="f_addRow" style="margin-top:8px;">＋ 新增一期</button>
           <div class="install-total" id="installTotal"></div>
         </div>
 
@@ -1922,63 +1712,49 @@ function openMaintenanceProjectModal(existing, editing){
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
 
-  const defaultYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
-  let rows = (p.installments && p.installments.length)
-    ? p.installments.map(i=>({ year:i.year, month:i.month, amount:i.amount }))
-    : [{ year:defaultYear, month:1, amount:0 }];
+  let months = (p.installmentMonths||[1]).slice();
+  let amounts = (p.installmentAmounts||[]).slice();
 
   function renderInstallRows(){
+    const count = Math.max(1, Math.min(12, Number(document.getElementById('f_count').value)||1));
+    while(months.length < count) months.push('');
+    while(amounts.length < count) amounts.push(0);
+    months = months.slice(0,count);
+    amounts = amounts.slice(0,count);
     const auto = document.getElementById('f_auto').checked;
     const contractAmt = Number(document.getElementById('f_amount').value)||0;
-    const count = rows.length;
     const evenAmt = auto ? Math.round((contractAmt/count)*100)/100 : null;
 
     const rowsEl = document.getElementById('installRows');
-    rowsEl.innerHTML = rows.map((r,i)=>`
+    rowsEl.innerHTML = months.map((m,i)=>`
       <div class="install-row">
         <div class="idx">${i+1}</div>
-        <input type="number" placeholder="年度" class="inst-year" data-i="${i}" value="${r.year}">
-        <input type="number" min="1" max="12" placeholder="月份(1-12)" class="inst-month" data-i="${i}" value="${r.month}">
-        <input type="number" min="0" step="1" class="inst-amt" data-i="${i}" value="${auto? evenAmt : (r.amount||0)}" ${auto?'disabled':''}>
-        <button type="button" class="icon-btn danger inst-del" data-i="${i}" title="刪除此期">${ICONS.trash}</button>
+        <input type="number" min="1" max="12" placeholder="開款月份(1-12)" class="inst-month" data-i="${i}" value="${m}">
+        <input type="number" min="0" step="1" class="inst-amt" data-i="${i}" value="${auto? evenAmt : (amounts[i]||0)}" ${auto?'disabled':''}>
       </div>`).join('');
 
-    rowsEl.querySelectorAll('.inst-year').forEach(inp=>{
-      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].year = Number(e.target.value)||defaultYear; });
-    });
     rowsEl.querySelectorAll('.inst-month').forEach(inp=>{
-      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].month = e.target.value; });
+      inp.addEventListener('input', e=>{ months[Number(e.target.dataset.i)] = e.target.value; updateTotal(); });
     });
     rowsEl.querySelectorAll('.inst-amt').forEach(inp=>{
-      inp.addEventListener('input', e=>{ rows[Number(e.target.dataset.i)].amount = Number(e.target.value)||0; updateTotal(); });
-    });
-    rowsEl.querySelectorAll('.inst-del').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        if(rows.length<=1){ toast('至少要保留一期'); return; }
-        rows.splice(Number(btn.dataset.i),1);
-        renderInstallRows();
-      });
+      inp.addEventListener('input', e=>{ amounts[Number(e.target.dataset.i)] = Number(e.target.value)||0; updateTotal(); });
     });
     updateTotal();
   }
   function updateTotal(){
     const auto = document.getElementById('f_auto').checked;
     const contractAmt = Number(document.getElementById('f_amount').value)||0;
-    const count = rows.length;
+    const count = months.length;
     let sum;
     if(auto){ sum = contractAmt; }
-    else { sum = rows.reduce((a,r)=>a+(Number(r.amount)||0),0); }
+    else { sum = amounts.reduce((a,b)=>a+(Number(b)||0),0); }
     const diff = Math.round((contractAmt - sum)*100)/100;
     document.getElementById('installTotal').innerHTML = auto
       ? `每期約 <b>${money(contractAmt/count)}</b>，合計 <b>${money(contractAmt)}</b>`
       : `已分配 <b>${money(sum)}</b> ／ 合約 <b>${money(contractAmt)}</b>${diff!==0?` <span style="color:var(--red)">（尚差 ${money(diff)}）</span>`:''}`;
   }
 
-  document.getElementById('f_addRow').addEventListener('click', ()=>{
-    const last = rows[rows.length-1];
-    rows.push({ year: last?last.year:defaultYear, month:1, amount:0 });
-    renderInstallRows();
-  });
+  document.getElementById('f_count').addEventListener('input', renderInstallRows);
   document.getElementById('f_auto').addEventListener('change', renderInstallRows);
   document.getElementById('f_amount').addEventListener('input', renderInstallRows);
   renderInstallRows();
@@ -1989,21 +1765,8 @@ function openMaintenanceProjectModal(existing, editing){
     if(!client || !name){ toast('請填寫客戶名稱與合約名稱'); return; }
     const auto = document.getElementById('f_auto').checked;
     const contractAmt = Number(document.getElementById('f_amount').value)||0;
-    const evenAmt = auto ? contractAmt/(rows.length||1) : null;
-    const oldInstallments = p.installments || [];
-    const finalInstallments = rows
-      .filter(r=> r.month!=='' && r.month!=null)
-      .map((r,i)=>{
-        const prev = oldInstallments[i]; // 盡量沿用同一列原本的已收狀態與 id
-        return {
-          id: (prev && prev.id) || uid(),
-          year: Number(r.year)||defaultYear,
-          month: Number(r.month)||1,
-          amount: auto ? evenAmt : (Number(r.amount)||0),
-          received: prev ? !!prev.received : false,
-        };
-      })
-      .sort((a,b)=> a.year-b.year || a.month-b.month);
+    const finalMonths = months.map(m=> Number(m)||'').filter(m=>m!=='');
+    const finalAmounts = auto ? [] : amounts.slice(0, finalMonths.length);
 
     const rec = {
       id: p.id, projType:'maintenance', client, code: document.getElementById('f_code').value.trim(),
@@ -2018,8 +1781,9 @@ function openMaintenanceProjectModal(existing, editing){
       sourceCode: document.getElementById('f_sourceCode').value.trim(),
       contractNo: document.getElementById('f_contractNo').value.trim(), contact: document.getElementById('f_contact').value.trim(),
       invoiceNote: document.getElementById('f_invoiceNote').value.trim(),
-      installments: finalInstallments,
-      renewalDone: p.renewalDone || false,
+      autoSplit: auto, installmentMonths: finalMonths.length?finalMonths:months.map(m=>m||1),
+      installmentAmounts: finalAmounts,
+      installmentReceived: p.installmentReceived || [],
     };
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
@@ -2035,7 +1799,7 @@ function openInProgressProjectModal(existing, editing){
   const p = existing || {
     id: uid(), projType:'inprogress', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
     acceptanceDate:'', warrantyEndDate:'', warrantyPeriod:'',
-    pm:'', sales:'', status:'進行中', note:'', department:'', contractNo:'', contact:'',
+    pm:'', sales:'', status:'進行中', note:'', department:'', contractNo:'',
   };
   const clientList = DATA.clients;
 
@@ -2102,10 +1866,6 @@ function openInProgressProjectModal(existing, editing){
           <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
         </div>
         <div class="form-field">
-          <label>聯絡人</label>
-          <input id="f_contact" value="${esc(p.contact||'')}" placeholder="客戶端聯絡窗口">
-        </div>
-        <div class="form-field">
           <label>專案狀態</label>
           <select id="f_status">
             ${['進行中','已終止','暫停','待處理'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}
@@ -2165,9 +1925,7 @@ function openInProgressProjectModal(existing, editing){
       warrantyEndDate: document.getElementById('f_warrantyEnd').value,
       warrantyPeriod: document.getElementById('f_warrantyPeriod').value.trim(),
       contractNo: document.getElementById('f_contractNo').value.trim(),
-      contact: document.getElementById('f_contact').value.trim(),
       status: document.getElementById('f_status').value, note: document.getElementById('f_note').value.trim(),
-      renewalDone: p.renewalDone || false,
     };
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
@@ -2184,9 +1942,6 @@ function closeModal(){
   document.getElementById('modalBox').innerHTML = '';
 }
 
-/* ============================================================
-   BATCH IMPORT (聯絡人 / 專案 / 待辦事項 共用)
-   ============================================================ */
 const IMPORT_CONFIGS = {
   maintenance: {
     title:'批次匯入維護專案',
@@ -2195,8 +1950,8 @@ const IMPORT_CONFIGS = {
   },
   inprogress: {
     title:'批次匯入進行中專案（開發中／保固中）',
-    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','驗收日期(YYYY/M/D)','保固到期(YYYY/M/D)','保固期限','合約編號','備註','聯絡人'],
-    example:['Dabbie','滙豐投信','D0002-N1','滙豐投信新系統開發','陳名乾','AM','$3,200,000','15%','','','1年','F202601088','範例資料，可直接刪除後貼上您的資料，驗收前可留空','洪偉峰 Eric'],
+    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','驗收日期(YYYY/M/D)','保固到期(YYYY/M/D)','保固期限','合約編號','備註'],
+    example:['Dabbie','滙豐投信','D0002-N1','滙豐投信新系統開發','陳名乾','AM','$3,200,000','15%','','','1年','F202601088','範例資料，可直接刪除後貼上您的資料，驗收前可留空'],
   },
   todos: {
     title:'批次匯入待辦事項',
@@ -2212,13 +1967,11 @@ const IMPORT_CONFIGS = {
 
 function parseImportText(text){
   if(!text) return [];
-  // strip BOM if present
   if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
   const firstLineEnd = text.search(/\r?\n/);
   const firstLine = firstLineEnd===-1 ? text : text.slice(0, firstLineEnd);
   const delim = firstLine.includes('\t') ? '\t' : ',';
 
-  // Quote-aware parser: handles delimiters/newlines embedded inside "quoted" fields
   const rows = [];
   let row = [];
   let field = '';
@@ -2259,36 +2012,22 @@ function buildImportRecord(type, cells){
     if(!client || !name) return null;
     ensureClient(client.trim());
     const validDept = ['WM','AM'].includes((department||'').trim()) ? department.trim() : (department||'').trim();
-    // best-effort: pull explicit "N月" mentions out of the free-text invoice schedule description
     const monthMatches = [...String(invoiceNote||'').matchAll(/(\d{1,2})\s*月/g)].map(m=>Number(m[1])).filter(m=>m>=1&&m<=12);
     const months = [...new Set(monthMatches)].sort((a,b)=>a-b);
-    const parsedStart = parseSlashDate(startDate);
-    const parsedEnd = parseSlashDate(endDate);
-    const contractAmt = parseAmountStr(amountStr);
-    const startY = parsedStart ? new Date(normDate(parsedStart)+'T00:00:00').getFullYear() : new Date().getFullYear();
-    const endY = parsedEnd ? new Date(normDate(parsedEnd)+'T00:00:00').getFullYear() : startY;
-    // 每年都依這些月份重複收款（如需個別年度不同月份／金額，匯入後可在編輯視窗調整每一期）
-    const installments = [];
-    if(months.length){
-      const evenAmt = contractAmt/(months.length * Math.max(1, endY-startY+1));
-      for(let y=startY; y<=endY; y++){
-        months.forEach(m=> installments.push({ id:uid(), year:y, month:m, amount:evenAmt, received:false }));
-      }
-    }
     return {
       id:uid(), projType:'maintenance', client:client.trim(), code:(code||'').trim(), name:name.trim(),
       department:validDept,
-      contractAmount:contractAmt, maintenanceRate:(maintRate||'').trim(),
-      startDate:parsedStart, endDate:parsedEnd,
+      contractAmount:parseAmountStr(amountStr), maintenanceRate:(maintRate||'').trim(),
+      startDate:parseSlashDate(startDate), endDate:parseSlashDate(endDate),
       modHours:parseAmountStr(modHours), modUnitPrice:parseAmountStr(modUnitPrice), sourceCode:(sourceCode||'').trim(),
       pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
       contractNo:(contractNo||'').trim(), invoiceNote:(invoiceNote||'').trim(), contact:(contact||'').trim(),
       note:(note||'').trim(),
-      installments,
+      autoSplit:true, installmentMonths: months, installmentAmounts:[],
     };
   }
   if(type==='inprogress'){
-    const [sales, client, code, name, pm, department, amountStr, maintRate, acceptanceDate, warrantyEnd, warrantyPeriod, contractNo, note, contact] = cells;
+    const [sales, client, code, name, pm, department, amountStr, maintRate, acceptanceDate, warrantyEnd, warrantyPeriod, contractNo, note] = cells;
     if(!client || !name) return null;
     ensureClient(client.trim());
     const validDept = ['WM','AM'].includes((department||'').trim()) ? department.trim() : (department||'').trim();
@@ -2299,7 +2038,7 @@ function buildImportRecord(type, cells){
       acceptanceDate:parseSlashDate(acceptanceDate), warrantyEndDate:parseSlashDate(warrantyEnd),
       warrantyPeriod:(warrantyPeriod||'').trim(),
       pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
-      contractNo:(contractNo||'').trim(), note:(note||'').trim(), contact:(contact||'').trim(),
+      contractNo:(contractNo||'').trim(), note:(note||'').trim(),
     };
   }
   if(type==='todos'){
@@ -2376,9 +2115,6 @@ function openImportModal(type){
   });
 }
 
-/* ============================================================
-   GLOBAL ADD WIZARD (統一新增入口：選擇類別 + 單筆/批次)
-   ============================================================ */
 const ADD_WIZARD_CATEGORIES = [
   {id:'projects', label:'專案', icon:ICONS.projects},
   {id:'todos', label:'待辦事項', icon:ICONS.todos},
@@ -2486,9 +2222,6 @@ function openAddWizard(){
   });
 }
 
-/* ============================================================
-   TODOS PAGE
-   ============================================================ */
 function todosTpl(){
   return `
   <div class="page active" id="page-todos">
@@ -2688,9 +2421,6 @@ function openTodoModal(id, prefill){
   });
 }
 
-/* ============================================================
-   CONTACTS PAGE
-   ============================================================ */
 function contactsTpl(){
   return `
   <div class="page active" id="page-contacts">
@@ -2836,9 +2566,6 @@ function openContactModal(id){
   });
 }
 
-/* ============================================================
-   INIT
-   ============================================================ */
 document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target.id==='modalOverlay') closeModal();
 });
@@ -2859,11 +2586,6 @@ async function clearAllData(){
   toast('已清空所有資料');
 }
 
-/* ============================================================
-   BACKUP EXPORT / RESTORE
-   （建議：每次系統更新前先匯出備份，更新後如發現資料被重置，
-   可用「還原備份檔」把資料復原回來）
-   ============================================================ */
 function exportBackup(){
   try{
     const payload = {
@@ -2920,9 +2642,6 @@ async function init(){
   const collapseBtn = document.getElementById('collapseBtn');
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
 
-  const homeBtn = document.getElementById('homeDashboardBtn');
-  if(homeBtn) homeBtn.addEventListener('click', ()=> goPage('dashboard'));
-
   const globalAddBtn = document.getElementById('globalAddBtn');
   if(globalAddBtn) globalAddBtn.addEventListener('click', openAddWizard);
 
@@ -2956,6 +2675,9 @@ async function init(){
   const clearAllBtn = document.getElementById('clearAllBtn');
   if(clearAllBtn) clearAllBtn.addEventListener('click', clearAllData);
 
+  const signOutBtn = document.getElementById('signOutBtn');
+  if(signOutBtn) signOutBtn.addEventListener('click', ()=> fbAuth.signOut());
+
   const savedName = await loadUsername();
   applyUsername(savedName);
   let lastSavedName = savedName;
@@ -2976,8 +2698,46 @@ async function init(){
     });
   }
 }
-init();
 
+/* ============================================================
+   AUTH — Google 登入 / 登出 / 狀態切換
+   ============================================================ */
+let appInitialized = false;
+
+document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
+  const errEl = document.getElementById('loginGateError');
+  errEl.textContent = '';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  fbAuth.signInWithPopup(provider).catch(err=>{
+    console.error(err);
+    errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+  });
+});
+
+fbAuth.onAuthStateChanged(async (user)=>{
+  const gate = document.getElementById('loginGate');
+  const root = document.getElementById('appRoot');
+  if(user){
+    currentUid = user.uid;
+    gate.style.display = 'none';
+    root.style.display = '';
+    const avatarEl = document.getElementById('topbarAvatar');
+    if(avatarEl && user.photoURL){
+      avatarEl.innerHTML = `<img src="${user.photoURL}" alt="">`;
+    }
+    const loggedInLabel = document.getElementById('loggedInAsLabel');
+    if(loggedInLabel) loggedInLabel.textContent = '已登入：' + (user.email || user.displayName || '');
+    if(!appInitialized){
+      appInitialized = true;
+      init();
+    }
+  } else {
+    currentUid = null;
+    appInitialized = false;
+    gate.style.display = 'flex';
+    root.style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>
