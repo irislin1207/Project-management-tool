@@ -661,7 +661,7 @@ let currentPage = 'dashboard';
 let currentWorkspace = 'sales'; // 'sales' (業務執行) | 'pm' (專案管理)
 let charts = {};
 let todoFilter = { priority:'all', q:'' };
-let projFilter = { q:'', pm:'', sales:'', status:'' };
+let projFilter = { q:'', pm:'', sales:'' };
 let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案：開發中／保固中)
 let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
 
@@ -1018,15 +1018,19 @@ function inRange(dateStr, start, end){
 function isMaintenanceProject(p){ return (p.projType||'maintenance')==='maintenance'; }
 
 function getAllInstallments(){
-  // 應收帳款只抓「維護專案」分頁的資料，且只顯示「今年」的收款項目
+  // 應收帳款只抓「維護專案」分頁的資料，且只顯示「今年」的收款項目；
+  // 期數分子/分母改用「該專案全部年度的收款總期數」計算，而不是只看今年度的筆數，
+  // 避免像「三年期、每年1月收一次」這種情況，今年只看到1筆就誤判成 1/1。
   const list = [];
   const thisYear = new Date().getFullYear();
   DATA.projects.forEach(p=>{
     if(!isMaintenanceProject(p)) return;
-    const yearInsts = (p.installments||[]).filter(i=>i.year===thisYear).sort((a,b)=>a.month-b.month);
-    yearInsts.forEach((inst, idx)=>{
-      list.push({ projectId:p.id, instId:inst.id, year:thisYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales, status:p.status,
-        period:idx+1, total:yearInsts.length, month:Number(inst.month), amount:Number(inst.amount)||0, received: !!inst.received });
+    const allInsts = (p.installments||[]).slice().sort((a,b)=> a.year-b.year || a.month-b.month);
+    const total = allInsts.length;
+    allInsts.forEach((inst, idx)=>{
+      if(inst.year !== thisYear) return;
+      list.push({ projectId:p.id, instId:inst.id, year:thisYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales,
+        period:idx+1, total, month:Number(inst.month), amount:Number(inst.amount)||0, received: !!inst.received });
     });
   });
   return list;
@@ -1081,7 +1085,7 @@ function computeUpcomingExpiring(monthsAhead=3){
     const info = getProjectExpiryInfo(p);
     return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
   }).filter(p=>{
-    if(!p._expiryDate || p.status==='已終止') return false;
+    if(!p._expiryDate || p.terminated) return false;
     const d = new Date(p._expiryDate+'T00:00:00');
     return d>=now && d<=future;
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
@@ -1094,7 +1098,7 @@ function computeOverdueExpiring(){
     const info = getProjectExpiryInfo(p);
     return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
   }).filter(p=>{
-    if(!p._expiryDate || p.status==='已終止' || p.renewalDone) return false;
+    if(!p._expiryDate || p.terminated || p.renewalDone) return false;
     const d = new Date(p._expiryDate+'T00:00:00');
     return d < now;
   }).sort((a,b)=> (a._expiryDate||'').localeCompare(b._expiryDate||''));
@@ -1142,7 +1146,7 @@ function computeStats(){
 
   const upcomingExpiring = computeUpcomingExpiring(3);
 
-  return {totalOpen, weekOpen, weekRate, weekTotal:weekTodos.length, monthOpen, monthRate, monthTotal:monthTodos.length, overdue, receivables, receivablesTotal, upcomingExpiring, activeProjects: DATA.projects.filter(p=>p.status==='進行中').length};
+  return {totalOpen, weekOpen, weekRate, weekTotal:weekTodos.length, monthOpen, monthRate, monthTotal:monthTodos.length, overdue, receivables, receivablesTotal, upcomingExpiring, activeProjects: DATA.projects.filter(p=>!p.terminated).length};
 }
 
 function dashboardTpl(){
@@ -1621,7 +1625,7 @@ function openExpiringRenewalDialog(proj){
     const prefill = {
       id: uid(), projType:'maintenance', client:proj.client, code:'', name:proj.name, contractAmount:0,
       maintenanceRate:proj.maintenanceRate||'', startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
-      pm:proj.pm||'', sales:proj.sales||'', status:'進行中', note:'', installments:[],
+      pm:proj.pm||'', sales:proj.sales||'', terminated:false, note:'', installments:[],
       department:proj.department||'', contractNo:'', contact:proj.contact||'', invoiceNote:'',
       renewalDone:false,
     };
@@ -1650,10 +1654,6 @@ function projectsTpl(){
       <input type="text" id="pjSearch" placeholder="搜尋客戶／合約名稱／代碼" value="${esc(projFilter.q)}">
       <select id="pjPmFilter"><option value="">全部專案經理</option>${pms.map(x=>`<option ${projFilter.pm===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
       <select id="pjSalesFilter"><option value="">全部業務</option>${salesList.map(x=>`<option ${projFilter.sales===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
-      <select id="pjStatusFilter">
-        <option value="">全部狀態</option>
-        ${['進行中','已終止','暫停','待處理'].map(x=>`<option ${projFilter.status===x?'selected':''}>${x}</option>`).join('')}
-      </select>
       <div class="filter-spacer"></div>
     </div>
     <div class="card table-wrap">
@@ -1675,14 +1675,8 @@ function filteredProjects(){
     }
     if(projFilter.pm && p.pm!==projFilter.pm) return false;
     if(projFilter.sales && p.sales!==projFilter.sales) return false;
-    if(projFilter.status && p.status!==projFilter.status) return false;
     return true;
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
-}
-
-function statusBadge(status){
-  const map = {'進行中':'badge-blue','已終止':'badge-gray','暫停':'badge-red','待處理':'badge-green'};
-  return `<span class="badge ${map[status]||'badge-gray'}"><span class="badge-dot"></span>${status||'-'}</span>`;
 }
 
 function afterProjectsRender(){
@@ -1690,12 +1684,11 @@ function afterProjectsRender(){
   document.getElementById('pjSearch').addEventListener('input', e=>{ projFilter.q=e.target.value; renderProjectsTable(); });
   document.getElementById('pjPmFilter').addEventListener('change', e=>{ projFilter.pm=e.target.value; renderProjectsTable(); });
   document.getElementById('pjSalesFilter').addEventListener('change', e=>{ projFilter.sales=e.target.value; renderProjectsTable(); });
-  document.getElementById('pjStatusFilter').addEventListener('change', e=>{ projFilter.status=e.target.value; renderProjectsTable(); });
   document.querySelectorAll('#projSubTabSeg button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       if(btn.dataset.v===projSubTab) return;
       projSubTab = btn.dataset.v;
-      projFilter = { q:'', pm:'', sales:'', status:'' };
+      projFilter = { q:'', pm:'', sales:'' };
       renderPage();
     });
   });
@@ -1708,12 +1701,12 @@ function renderProjectsTable(){
 
 function renderMaintenanceTable(){
   document.getElementById('projectsThead').innerHTML = `<tr>
-    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>合約起始日</th><th>合約到期日</th><th>發票期數</th><th>聯絡人</th><th></th>
+    <th>業務</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>合約起始日</th><th>合約到期日</th><th>發票期數</th><th>聯絡人</th><th></th>
   </tr>`;
   const tbody = document.getElementById('projectsTbody');
   const list = filteredProjects();
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的維護專案', ICONS.projects)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11">${emptyState('目前沒有符合條件的維護專案', ICONS.projects)}</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p=>{
@@ -1723,7 +1716,6 @@ function renderMaintenanceTable(){
       : (p.invoiceNote ? esc(p.invoiceNote) : '-');
     return `<tr class="row-clickable" data-preview="${p.id}">
       <td>${esc(p.sales)}</td>
-      <td>${esc(p.client)}</td>
       <td class="cell-muted">${esc(p.code)}</td>
       <td class="cell-wrap" style="max-width:170px;"><b>${esc(p.name)}</b></td>
       <td>${esc(p.pm)}</td>
@@ -1744,12 +1736,12 @@ function renderMaintenanceTable(){
 
 function renderInProgressTable(){
   document.getElementById('projectsThead').innerHTML = `<tr>
-    <th>業務</th><th>客戶名稱</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>階段</th><th>驗收日期</th><th>保固到期</th><th>保固期限</th><th></th>
+    <th>業務</th><th>專案代碼</th><th>合約名稱</th><th>專案經理</th><th>部門</th><th>合約金額(含稅)</th><th>階段</th><th>驗收日期</th><th>保固到期</th><th>保固期限</th><th></th>
   </tr>`;
   const tbody = document.getElementById('projectsTbody');
   const list = filteredProjects();
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="12">${emptyState('目前沒有符合條件的進行中專案', ICONS.projects)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11">${emptyState('目前沒有符合條件的進行中專案', ICONS.projects)}</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p=>{
@@ -1758,7 +1750,6 @@ function renderInProgressTable(){
       : `<span class="badge badge-blue"><span class="badge-dot"></span>開發中</span>`;
     return `<tr class="row-clickable" data-preview="${p.id}">
       <td>${esc(p.sales)}</td>
-      <td>${esc(p.client)}</td>
       <td class="cell-muted">${esc(p.code)}</td>
       <td class="cell-wrap" style="max-width:170px;"><b>${esc(p.name)}</b></td>
       <td>${esc(p.pm)}</td>
@@ -1834,6 +1825,7 @@ function openProjectPreviewModal(id){
       ${pvField('增修單價(未稅)', p.modUnitPrice?money(p.modUnitPrice):'')}
       ${pvField('Source code', esc(p.sourceCode))}
       ${pvField('聯絡人', esc(p.contact))}
+      ${pvField('已終止', p.terminated?'是':'否')}
       ${pvField('發票期數說明', esc(p.invoiceNote), true)}
       ${pvInstallmentsTable(p)}
       ${pvField('備註', esc(p.note), true)}
@@ -1853,6 +1845,7 @@ function openProjectPreviewModal(id){
       ${pvField('保固到期', esc(p.warrantyEndDate))}
       ${pvField('保固期限', esc(p.warrantyPeriod))}
       ${pvField('聯絡人', esc(p.contact))}
+      ${pvField('已終止', p.terminated?'是':'否')}
       ${pvField('備註', esc(p.note), true)}
     `;
   }
@@ -1889,7 +1882,7 @@ function openMaintenanceProjectModal(existing, editing){
   const p = existing || {
     id: uid(), projType:'maintenance', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
     startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
-    pm:'', sales:'', status:'進行中', note:'', installments:[],
+    pm:'', sales:'', terminated:false, note:'', installments:[],
     department:'', contractNo:'', contact:'', invoiceNote:'',
   };
   const clientList = DATA.clients;
@@ -1905,10 +1898,6 @@ function openMaintenanceProjectModal(existing, editing){
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-field">
-          <label>業務</label>
-          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
-        </div>
         <div class="form-field">
           <label>客戶名稱</label>
           <input list="clientList" id="f_client" value="${esc(p.client)}" placeholder="輸入或選擇客戶">
@@ -1930,6 +1919,14 @@ function openMaintenanceProjectModal(existing, editing){
           <label>部門</label>
           <input list="deptList" id="f_department" value="${esc(p.department||'')}" placeholder="WM／AM">
           <datalist id="deptList"><option value="WM"><option value="AM"></datalist>
+        </div>
+        <div class="form-field">
+          <label>業務</label>
+          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
+        </div>
+        <div class="form-field">
+          <label>合約編號</label>
+          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
         </div>
         <div class="form-field">
           <label>合約金額(含稅)</label>
@@ -1956,10 +1953,6 @@ function openMaintenanceProjectModal(existing, editing){
           <input id="f_modUnitPrice" type="number" min="0" step="1" value="${p.modUnitPrice||0}">
         </div>
         <div class="form-field">
-          <label>合約編號</label>
-          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
-        </div>
-        <div class="form-field">
           <label>Source code</label>
           <input id="f_sourceCode" value="${esc(p.sourceCode||'')}" placeholder="例如：Git 連結或有／無">
         </div>
@@ -1968,11 +1961,8 @@ function openMaintenanceProjectModal(existing, editing){
           <input list="contactPersonList" id="f_contact" value="${esc(p.contact||'')}" placeholder="輸入或選擇聯絡人">
           <datalist id="contactPersonList">${[...new Set(DATA.contacts.map(c=>c.name).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
         </div>
-        <div class="form-field">
-          <label>專案狀態</label>
-          <select id="f_status">
-            ${['進行中','已終止','暫停','待處理'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}
-          </select>
+        <div class="form-field" style="justify-content:flex-end;">
+          <label class="checkbox-row"><input type="checkbox" id="f_terminated" ${p.terminated?'checked':''}>已終止</label>
         </div>
         <div class="form-field full">
           <label>發票期數說明</label>
@@ -2092,7 +2082,7 @@ function openMaintenanceProjectModal(existing, editing){
       name, contractAmount: contractAmt,
       startDate: document.getElementById('f_start').value, endDate: document.getElementById('f_end').value,
       pm: document.getElementById('f_pm').value.trim(), sales: document.getElementById('f_sales').value.trim(),
-      status: document.getElementById('f_status').value, note: document.getElementById('f_note').value.trim(),
+      terminated: document.getElementById('f_terminated').checked, note: document.getElementById('f_note').value.trim(),
       department: document.getElementById('f_department').value.trim(),
       maintenanceRate: document.getElementById('f_maintRate').value.trim(),
       modHours: Number(document.getElementById('f_modHours').value)||0,
@@ -2117,7 +2107,7 @@ function openInProgressProjectModal(existing, editing){
   const p = existing || {
     id: uid(), projType:'inprogress', client:'', code:'', name:'', contractAmount:0, maintenanceRate:'',
     acceptanceDate:'', warrantyEndDate:'', warrantyPeriod:'',
-    pm:'', sales:'', status:'進行中', note:'', department:'', contractNo:'', contact:'',
+    pm:'', sales:'', terminated:false, note:'', department:'', contractNo:'', contact:'',
   };
   const clientList = DATA.clients;
 
@@ -2130,10 +2120,6 @@ function openInProgressProjectModal(existing, editing){
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-field">
-          <label>業務</label>
-          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
-        </div>
         <div class="form-field">
           <label>客戶名稱</label>
           <input list="clientListIp" id="f_client" value="${esc(p.client)}" placeholder="輸入或選擇客戶">
@@ -2157,6 +2143,14 @@ function openInProgressProjectModal(existing, editing){
           <datalist id="deptListIp"><option value="WM"><option value="AM"></datalist>
         </div>
         <div class="form-field">
+          <label>業務</label>
+          <input id="f_sales" value="${esc(p.sales)}" placeholder="業務姓名">
+        </div>
+        <div class="form-field">
+          <label>合約編號</label>
+          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
+        </div>
+        <div class="form-field">
           <label>合約金額(含稅)</label>
           <input id="f_amount" type="number" min="0" step="1" value="${p.contractAmount||0}">
         </div>
@@ -2165,33 +2159,27 @@ function openInProgressProjectModal(existing, editing){
           <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如：15%（保固後續約用）">
         </div>
         <div class="form-field">
-          <label>驗收日期</label>
-          <input id="f_acceptance" type="date" value="${p.acceptanceDate||''}">
+          <label>保固到期</label>
+          <input id="f_warrantyEnd" type="date" value="${p.warrantyEndDate||''}">
         </div>
         <div class="form-field">
           <label>保固期限</label>
           <input id="f_warrantyPeriod" value="${esc(p.warrantyPeriod||'')}" placeholder="例如：1年 或 12個月">
         </div>
         <div class="form-field">
-          <label>保固到期</label>
-          <input id="f_warrantyEnd" type="date" value="${p.warrantyEndDate||''}">
+          <label>驗收日期</label>
+          <input id="f_acceptance" type="date" value="${p.acceptanceDate||''}">
         </div>
         <div class="form-field" style="justify-content:flex-end;">
           <button type="button" class="btn btn-ghost btn-sm" id="f_calcWarranty">依驗收日＋保固期限自動帶入到期日</button>
         </div>
         <div class="form-field">
-          <label>合約編號</label>
-          <input id="f_contractNo" value="${esc(p.contractNo||'')}" placeholder="合約／報價單編號">
-        </div>
-        <div class="form-field">
           <label>聯絡人</label>
-          <input id="f_contact" value="${esc(p.contact||'')}" placeholder="客戶端聯絡窗口">
+          <input list="contactPersonListIp" id="f_contact" value="${esc(p.contact||'')}" placeholder="輸入或選擇聯絡人">
+          <datalist id="contactPersonListIp">${[...new Set(DATA.contacts.map(c=>c.name).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
         </div>
-        <div class="form-field">
-          <label>專案狀態</label>
-          <select id="f_status">
-            ${['進行中','已終止','暫停','待處理'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}
-          </select>
+        <div class="form-field" style="justify-content:flex-end;">
+          <label class="checkbox-row"><input type="checkbox" id="f_terminated" ${p.terminated?'checked':''}>已終止</label>
         </div>
         <div class="form-field full">
           <div class="form-hint">提示：開發中專案通常尚無驗收日期／保固到期日；驗收後填入即可自動出現在「即將到期專案」的保固追蹤中。</div>
@@ -2248,7 +2236,7 @@ function openInProgressProjectModal(existing, editing){
       warrantyPeriod: document.getElementById('f_warrantyPeriod').value.trim(),
       contractNo: document.getElementById('f_contractNo').value.trim(),
       contact: document.getElementById('f_contact').value.trim(),
-      status: document.getElementById('f_status').value, note: document.getElementById('f_note').value.trim(),
+      terminated: document.getElementById('f_terminated').checked, note: document.getElementById('f_note').value.trim(),
       renewalDone: p.renewalDone || false,
     };
     ensureClient(client);
@@ -2363,7 +2351,7 @@ function buildImportRecord(type, cells){
       contractAmount:contractAmt, maintenanceRate:(maintRate||'').trim(),
       startDate:parsedStart, endDate:parsedEnd,
       modHours:parseAmountStr(modHours), modUnitPrice:parseAmountStr(modUnitPrice), sourceCode:(sourceCode||'').trim(),
-      pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
+      pm:(pm||'').trim(), sales:(sales||'').trim(), terminated:false,
       contractNo:(contractNo||'').trim(), invoiceNote:(invoiceNote||'').trim(), contact:(contact||'').trim(),
       note:(note||'').trim(),
       installments,
@@ -2380,7 +2368,7 @@ function buildImportRecord(type, cells){
       contractAmount:parseAmountStr(amountStr), maintenanceRate:(maintRate||'').trim(),
       acceptanceDate:parseSlashDate(acceptanceDate), warrantyEndDate:parseSlashDate(warrantyEnd),
       warrantyPeriod:(warrantyPeriod||'').trim(),
-      pm:(pm||'').trim(), sales:(sales||'').trim(), status:'進行中',
+      pm:(pm||'').trim(), sales:(sales||'').trim(), terminated:false,
       contractNo:(contractNo||'').trim(), note:(note||'').trim(), contact:(contact||'').trim(),
     };
   }
@@ -2936,7 +2924,7 @@ async function clearAllData(){
   DATA.clients = [];
   await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
   todoFilter = { priority:'all', q:'' };
-  projFilter = { q:'', pm:'', sales:'', status:'' };
+  projFilter = { q:'', pm:'', sales:'' };
   goPage('dashboard');
   toast('已清空所有資料');
 }
