@@ -27,8 +27,12 @@
     --red-soft:#E3C6BF;
     --red-bg:#F7EAE7;
     --text:var(--navy);
-    --text-muted:rgba(47,65,86,0.65);
-    --text-faint:rgba(47,65,86,0.42);
+    /* 無障礙:提高次要文字對比度。原本 0.65 / 0.42 透明度在白色卡片背景上
+       實測約僅 3.8:1 / 2.2:1,低於 WCAG AA 一般文字所需的 4.5:1 / 3:1 門檻。
+       調整後 text-muted 約 5:1(達 AA 標準),text-faint 約 3.3:1
+       (達大字體／UI元件的 3:1 門檻,仍保留比 text-muted 淡的視覺層次)。 */
+    --text-muted:rgba(47,65,86,0.75);
+    --text-faint:rgba(47,65,86,0.60);
     --border:var(--sky);
     --ok:var(--teal);
     --sidebar-w:196px;
@@ -362,6 +366,12 @@
   .seg button.active{ background:#fff; color:var(--blue-900); box-shadow:0 1px 3px rgba(62,90,112,0.18); }
 
   /* ---------- Empty state ---------- */
+  /* 無障礙:搜尋／篩選欄位補上的 label 文字不需要在畫面上顯示(placeholder 已說明用途),
+     但要讓螢幕報讀軟體讀得到,所以視覺上隱藏、語意上保留 */
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
   .empty-state{ padding:50px 20px; text-align:center; color:var(--text-muted); }
   .empty-state svg{ width:48px;height:48px; color:var(--blue-300); margin-bottom:10px; }
   .empty-state .t{ font-weight:700; color:var(--blue-800); margin-bottom:4px; }
@@ -616,7 +626,7 @@
 <div id="pages"></div>
 
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalBox"></div>
+  <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -664,6 +674,7 @@ let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'' };
 let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案:開發中／保固中)
 let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
+let lastFocusedEl = null; // 無障礙:記住開啟 Modal 前的焦點位置,關閉時還原,方便鍵盤操作者回到原本位置
 
 /* ---------------- Firebase-backed storage layer ----------------
    取代原本的 window.storage(Claude artifact 專屬 API)。
@@ -1345,7 +1356,7 @@ function receivablesTpl(){
         <button data-v="overdue" class="${receivFilter.status==='overdue'?'active':''}">已逾期</button>
         <button data-v="month" class="${receivFilter.status==='month'?'active':''}">依月份</button>
       </div>
-      <label style="font-size:12.5px;font-weight:700;color:var(--blue-800);">查詢月份</label>
+      <label for="rvMonth" style="font-size:12.5px;font-weight:700;color:var(--blue-800);">查詢月份</label>
       <select id="rvMonth">
         ${opts.map(m=>`<option value="${m}" ${receivFilter.month===m?'selected':''}>${m} 月</option>`).join('')}
       </select>
@@ -1588,7 +1599,7 @@ function openExpiringRenewalDialog(proj){
         <button class="btn btn-primary" id="mRenew">續約:直接更新這筆專案</button>
       </div>
     `;
-    document.getElementById('modalOverlay').classList.add('show');
+    openModalOverlay();
     document.getElementById('mClose').addEventListener('click', closeModal);
     document.getElementById('mNo').addEventListener('click', closeModal);
     document.getElementById('mRenew').addEventListener('click', ()=>{
@@ -1617,7 +1628,7 @@ function openExpiringRenewalDialog(proj){
       <button class="btn btn-primary" id="mYes">建立維護專案</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mNo').addEventListener('click', closeModal);
   document.getElementById('mYes').addEventListener('click', ()=>{
@@ -1651,8 +1662,11 @@ function projectsTpl(){
       <button data-v="inprogress" class="${projSubTab==='inprogress'?'active':''}">進行中專案(開發中／保固中)</button>
     </div>
     <div class="filter-bar">
+      <label for="pjSearch" class="visually-hidden">搜尋專案</label>
       <input type="text" id="pjSearch" placeholder="搜尋客戶／合約名稱／代碼" value="${esc(projFilter.q)}">
+      <label for="pjPmFilter" class="visually-hidden">篩選專案經理</label>
       <select id="pjPmFilter"><option value="">全部專案經理</option>${pms.map(x=>`<option ${projFilter.pm===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
+      <label for="pjSalesFilter" class="visually-hidden">篩選業務</label>
       <select id="pjSalesFilter"><option value="">全部業務</option>${salesList.map(x=>`<option ${projFilter.sales===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
       <div class="filter-spacer"></div>
     </div>
@@ -1864,7 +1878,7 @@ function openProjectPreviewModal(id){
       <button class="btn btn-primary" id="mEdit">編輯專案</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mCloseBtn').addEventListener('click', closeModal);
   document.getElementById('mEdit').addEventListener('click', ()=> openProjectModal(p.id));
 }
@@ -1990,7 +2004,7 @@ function openMaintenanceProjectModal(existing, editing){
       <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增專案'}</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
 
@@ -2195,7 +2209,7 @@ function openInProgressProjectModal(existing, editing){
       <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增專案'}</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
 
@@ -2249,9 +2263,27 @@ function openInProgressProjectModal(existing, editing){
   });
 }
 
+/* 無障礙:統一的 Modal 開啟入口。呼叫端先把內容寫進 #modalBox,再呼叫這個函式,
+   會記住目前的焦點位置、顯示遮罩,並把鍵盤焦點移到視窗內第一個可操作元素
+   (優先移到第一個輸入欄位,沒有的話退而求其次移到第一個按鈕),
+   讓鍵盤／螢幕報讀軟體使用者能立刻知道焦點已經進入 Modal。 */
+function openModalOverlay(){
+  lastFocusedEl = document.activeElement;
+  document.getElementById('modalOverlay').classList.add('show');
+  const box = document.getElementById('modalBox');
+  const firstField = box.querySelector('input, select, textarea');
+  const firstFocusable = firstField || box.querySelector('button, [href], [tabindex]:not([tabindex="-1"])');
+  if(firstFocusable) firstFocusable.focus();
+}
+
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('show');
   document.getElementById('modalBox').innerHTML = '';
+  // 無障礙:把焦點還原到開啟 Modal 前所在的位置,避免鍵盤使用者「迷失」在頁面頂端
+  if(lastFocusedEl && typeof lastFocusedEl.focus === 'function'){
+    lastFocusedEl.focus();
+  }
+  lastFocusedEl = null;
 }
 
 /* ============================================================
@@ -2406,6 +2438,7 @@ function openImportModal(type){
         </div>
       </div>
       <label class="checkbox-row" style="margin-bottom:10px;"><input type="checkbox" id="importSkipHeader" checked>貼上的內容第一列是標題列,匯入時略過</label>
+      <label for="importText" class="visually-hidden">貼上要匯入的資料</label>
       <textarea id="importText" rows="10" placeholder="${esc(placeholderText)}" style="width:100%;font-family:inherit;font-size:13px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--blue-050);resize:vertical;"></textarea>
       <div class="form-hint" style="margin-top:8px;" id="importPreviewInfo">尚未貼上資料</div>
     </div>
@@ -2414,7 +2447,7 @@ function openImportModal(type){
       <button class="btn btn-primary" id="mImport" style="background:${theme.color};">開始匯入</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
 
@@ -2513,7 +2546,7 @@ function openAddWizard(){
       <button class="btn btn-primary" id="mNext">下一步</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
 
@@ -2570,6 +2603,7 @@ function todosTpl(){
           return `<button data-v="${k}" class="${todoFilter.priority===k?'active':''}">${label}</button>`;
         }).join('')}
       </div>
+      <label for="tdSearch" class="visually-hidden">搜尋待辦事項</label>
       <input type="text" id="tdSearch" placeholder="搜尋客戶／項目／備註" value="${esc(todoFilter.q)}">
       <div class="filter-spacer"></div>
     </div>
@@ -2734,7 +2768,7 @@ function openTodoModal(id, prefill){
       <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增待辦'}</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('mSave').addEventListener('click', ()=>{
@@ -2766,6 +2800,7 @@ function contactsTpl(){
   <div class="page active" id="page-contacts">
     ${pageHeaderHtml('contacts', ICONS.contacts, '聯絡清單', `共 ${DATA.contacts.length} 位聯絡人`)}
     <div class="filter-bar">
+      <label for="ctSearch" class="visually-hidden">搜尋聯絡人</label>
       <input type="text" id="ctSearch" placeholder="搜尋客戶／姓名／職稱">
       <div class="filter-spacer"></div>
     </div>
@@ -2882,7 +2917,7 @@ function openContactModal(id){
       <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增聯絡人'}</button>
     </div>
   `;
-  document.getElementById('modalOverlay').classList.add('show');
+  openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('mSave').addEventListener('click', ()=>{
@@ -2913,7 +2948,24 @@ document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target.id==='modalOverlay') closeModal();
 });
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape') closeModal();
+  if(e.key==='Escape'){ closeModal(); return; }
+  // 無障礙:Modal 開啟時把 Tab 鍵焦點鎖在視窗內,避免鍵盤使用者 Tab 到背景看不見的元素
+  if(e.key!=='Tab') return;
+  const overlay = document.getElementById('modalOverlay');
+  if(!overlay.classList.contains('show')) return;
+  const box = document.getElementById('modalBox');
+  const focusable = Array.from(box.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    .filter(el=> !el.disabled && el.offsetParent!==null);
+  if(!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length-1];
+  if(e.shiftKey && document.activeElement===first){
+    e.preventDefault();
+    last.focus();
+  } else if(!e.shiftKey && document.activeElement===last){
+    e.preventDefault();
+    first.focus();
+  }
 });
 
 async function clearAllData(){
