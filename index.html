@@ -476,6 +476,17 @@
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
   }
 
+  /* 動畫:尊重作業系統的「減少動態效果」設定,讓所有過場動畫、位移、彈出效果
+     幾乎瞬間完成,對動態效果敏感或有前庭功能問題的使用者更友善 */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:0.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:0.01ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+
   /* ---------- Login Gate ---------- */
   #loginGate{
     position:fixed; inset:0; z-index:999; background:var(--beige);
@@ -859,7 +870,29 @@ function toggleWorkspaceMenu(forceState){
   const next = typeof forceState==='boolean' ? forceState : !wrap.classList.contains('open');
   wrap.classList.toggle('open', next);
 }
-async function switchWorkspace(ws){
+/* ---------------- 導覽:把目前頁面／工作區同步到網址列 ----------------
+   格式:#<workspace>/<page>,例如 #pm/receivables、#sales/todos。
+   用 replaceState 而不是直接改 location.hash,避免每次切換頁面都往瀏覽器
+   歷史紀錄多塞一筆(那個交給下一步的上一頁/下一頁支援再處理),
+   但網址仍會即時反映目前位置,重新整理或分享連結都能回到同一頁。 */
+function updateUrlHash(push){
+  const hash = '#' + currentWorkspace + '/' + currentPage;
+  if(location.hash === hash) return;
+  if(push){
+    history.pushState(null, '', hash);
+  } else {
+    history.replaceState(null, '', hash);
+  }
+}
+function parseUrlHash(){
+  const h = location.hash.replace(/^#/, '');
+  if(!h) return null;
+  const [ws, page] = h.split('/');
+  if(ws!=='sales' && ws!=='pm') return null;
+  return { ws, page: page || 'dashboard' };
+}
+
+async function switchWorkspace(ws, opts){
   if(ws===currentWorkspace) return;
   currentWorkspace = ws;
   saveWorkspace(ws);
@@ -868,6 +901,8 @@ async function switchWorkspace(ws){
   if(!validIds.includes(currentPage)) currentPage = 'dashboard';
   renderNav();
   renderPage();
+  const pushHistory = !opts || opts.pushHistory !== false;
+  updateUrlHash(pushHistory);
   toast(ws==='pm' ? '已切換至「專案管理」工作區' : '已切換至「業務執行」工作區');
 }
 
@@ -1107,6 +1142,7 @@ function goPage(id, extra){
   currentPage = id;
   renderNav();
   renderPage(extra);
+  updateUrlHash(true);
 }
 
 function renderPage(extra){
@@ -1369,7 +1405,7 @@ function afterDashboardRender(){
       const [page, filter] = v.split(':');
       const ws = pageWorkspace(page);
       if(ws && ws!==currentWorkspace){
-        await switchWorkspace(ws);
+        await switchWorkspace(ws, { pushHistory:false });
       }
       goPage(page, filter);
     });
@@ -2201,7 +2237,7 @@ function openMaintenanceProjectModal(existing, editing){
   document.getElementById('f_amount').addEventListener('input', renderInstallRows);
   renderInstallRows();
 
-  document.getElementById('mSave').addEventListener('click', ()=>{
+  document.getElementById('mSave').addEventListener('click', async ()=>{
     clearAllFieldErrors(box);
     const clientInput = document.getElementById('f_client');
     const nameInput = document.getElementById('f_name');
@@ -2211,6 +2247,9 @@ function openMaintenanceProjectModal(existing, editing){
     if(!client){ markFieldError(clientInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫合約名稱'); hasError = true; }
     if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:nameInput).focus(); return; }
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
     const auto = document.getElementById('f_auto').checked;
     const contractAmt = Number(document.getElementById('f_amount').value)||0;
     const evenAmt = auto ? contractAmt/(rows.length||1) : null;
@@ -2248,7 +2287,7 @@ function openMaintenanceProjectModal(existing, editing){
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
-    persist('projects');
+    await persist('projects');
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     toast(editing?'已儲存變更':'已新增維護專案');
@@ -2375,7 +2414,7 @@ function openInProgressProjectModal(existing, editing){
     toast('已自動帶入保固到期日');
   });
 
-  document.getElementById('mSave').addEventListener('click', ()=>{
+  document.getElementById('mSave').addEventListener('click', async ()=>{
     clearAllFieldErrors(box);
     const clientInput = document.getElementById('f_client');
     const nameInput = document.getElementById('f_name');
@@ -2385,6 +2424,9 @@ function openInProgressProjectModal(existing, editing){
     if(!client){ markFieldError(clientInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫合約名稱'); hasError = true; }
     if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:nameInput).focus(); return; }
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
     const rec = {
       id: p.id, projType:'inprogress', client, code: document.getElementById('f_code').value.trim(),
       name, contractAmount: Number(document.getElementById('f_amount').value)||0,
@@ -2402,7 +2444,7 @@ function openInProgressProjectModal(existing, editing){
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
-    persist('projects');
+    await persist('projects');
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     toast(editing?'已儲存變更':'已新增進行中專案');
@@ -2609,16 +2651,19 @@ function openImportModal(type){
   skipHeaderEl.addEventListener('change', updateInfo);
 
   const dataKey = (type==='maintenance'||type==='inprogress') ? 'projects' : type;
-  document.getElementById('mImport').addEventListener('click', ()=>{
+  document.getElementById('mImport').addEventListener('click', async ()=>{
     const rowsAll = parseImportText(textArea.value);
     const rows = (skipHeaderEl.checked && rowsAll.length) ? rowsAll.slice(1) : rowsAll;
     if(!rows.length){ toast('請先貼上要匯入的資料'); return; }
+    const importBtn = document.getElementById('mImport');
+    importBtn.disabled = true;
+    importBtn.textContent = '匯入中…';
     let added=0, skipped=0;
     rows.forEach(cells=>{
       const rec = buildImportRecord(type, cells);
       if(rec){ DATA[dataKey].push(rec); added++; } else skipped++;
     });
-    if(added>0) persist(dataKey);
+    if(added>0) await persist(dataKey);
     closeModal();
     renderPage();
     toast(`已匯入 ${added} 筆${skipped?`,略過 ${skipped} 筆(必要欄位缺漏)`:''}`);
@@ -2922,11 +2967,14 @@ function openTodoModal(id, prefill){
   document.getElementById('mClose').addEventListener('click', closeModal);
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('f_title').addEventListener('input', e=> clearFieldError(e.target));
-  document.getElementById('mSave').addEventListener('click', ()=>{
+  document.getElementById('mSave').addEventListener('click', async ()=>{
     clearAllFieldErrors(box);
     const titleInput = document.getElementById('f_title');
     const title = titleInput.value.trim();
     if(!title){ markFieldError(titleInput, '請填寫項目/專案名稱'); toast('請確認標示為紅色的必填欄位'); titleInput.focus(); return; }
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
     const client = document.getElementById('f_client').value.trim();
     ensureClient(client);
     const rec = {
@@ -2938,7 +2986,7 @@ function openTodoModal(id, prefill){
     };
     const idx = DATA.todos.findIndex(x=>x.id===t.id);
     if(idx>=0) DATA.todos[idx]=rec; else DATA.todos.push(rec);
-    persist('todos');
+    await persist('todos');
     closeModal();
     if(currentPage==='todos') renderTodosTable();
     toast(editing?'已儲存變更':'已新增待辦');
@@ -3079,7 +3127,7 @@ function openContactModal(id){
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('f_company').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
-  document.getElementById('mSave').addEventListener('click', ()=>{
+  document.getElementById('mSave').addEventListener('click', async ()=>{
     clearAllFieldErrors(box);
     const companyInput = document.getElementById('f_company');
     const nameInput = document.getElementById('f_name');
@@ -3089,6 +3137,9 @@ function openContactModal(id){
     if(!company){ markFieldError(companyInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫聯絡人姓名'); hasError = true; }
     if(hasError){ toast('請確認標示為紅色的必填欄位'); (!company?companyInput:nameInput).focus(); return; }
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
     ensureClient(company);
     const rec = {
       id: c.id, company, name, role: document.getElementById('f_role').value.trim(),
@@ -3099,7 +3150,7 @@ function openContactModal(id){
     };
     const idx = DATA.contacts.findIndex(x=>x.id===c.id);
     if(idx>=0) DATA.contacts[idx]=rec; else DATA.contacts.push(rec);
-    persist('contacts');
+    await persist('contacts');
     closeModal();
     if(currentPage==='contacts') renderContactsList();
     toast(editing?'已儲存變更':'已新增聯絡人');
@@ -3112,6 +3163,23 @@ function openContactModal(id){
 document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target.id==='modalOverlay') closeModal();
 });
+
+/* 導覽:瀏覽器上一頁/下一頁按鈕觸發時,依網址列還原對應的工作區與頁面。
+   這裡只重新渲染畫面,不再呼叫 updateUrlHash() 推新的歷史紀錄,
+   避免使用者按上一頁卻又被推回下一頁的情況。 */
+window.addEventListener('popstate', ()=>{
+  if(!appInitialized) return; // 尚未登入完成、init() 還沒跑過時不處理
+  const parsed = parseUrlHash();
+  currentWorkspace = parsed ? parsed.ws : currentWorkspace;
+  const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
+  let page = parsed ? parsed.page : currentPage;
+  if(!validIds.includes(page)) page = 'dashboard';
+  currentPage = page;
+  updateWorkspaceMenuUI();
+  renderNav();
+  renderPage();
+});
+
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){ closeModal(); return; }
   // 無障礙:Modal 開啟時把 Tab 鍵焦點鎖在視窗內,避免鍵盤使用者 Tab 到背景看不見的元素
@@ -3208,11 +3276,17 @@ function importBackupFromFile(file){
 }
 
 async function init(){
-  currentWorkspace = await loadWorkspace();
+  const fromHash = parseUrlHash();
+  currentWorkspace = fromHash ? fromHash.ws : await loadWorkspace();
+  if(fromHash){
+    const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
+    currentPage = validIds.includes(fromHash.page) ? fromHash.page : 'dashboard';
+  }
   renderNav();
   await loadAll();
   renderPage();
   renderNotifications();
+  updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效)時,同步修正回去
 
   const collapseBtn = document.getElementById('collapseBtn');
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
