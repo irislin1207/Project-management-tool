@@ -491,7 +491,7 @@
   #loginGateLoading{ font-size:13px; color:var(--text-muted); }
 </style>
 
-<!-- ===== Firebase SDK（Google 登入 + Firestore 雲端資料庫）===== -->
+<!-- ===== Firebase SDK(Google 登入 + Firestore 雲端資料庫)===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -516,7 +516,7 @@
   <div class="lg-title">專案管理工作台</div>
   <div class="lg-sub" id="loginGateSub">請使用 Google 帳號登入以繼續</div>
   <button id="googleSignInBtn">
-    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.4C41.8 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.4C41.8 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
     使用 Google 登入
   </button>
   <div id="loginGateError"></div>
@@ -543,7 +543,7 @@
     </div>
     <div class="hamburger-wrap" id="notifWrap">
       <button class="hamburger-btn" id="notifBtn" aria-label="通知">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
       </button>
       <div class="hamburger-menu notif-menu" id="notifMenu">
@@ -553,31 +553,31 @@
     </div>
     <div class="hamburger-wrap" id="hamburgerWrap">
       <button class="hamburger-btn" id="hamburgerBtn" aria-label="更多選單">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="hamburger-menu" id="hamburgerMenu">
         <div class="hmenu-label" id="loggedInAsLabel">已登入</div>
         <button class="hmenu-item" id="exportBackupBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
           匯出備份檔
         </button>
         <button class="hmenu-item" id="importBackupBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V8"/><path d="m6 14 6-6 6 6"/><path d="M4 4h16"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V8"/><path d="m6 14 6-6 6 6"/><path d="M4 4h16"/></svg>
           還原備份檔
         </button>
         <div class="hmenu-sep"></div>
         <button class="hmenu-item" id="settingsBtn" disabled title="即將推出">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          設定（即將推出）
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          設定(即將推出)
         </button>
         <div class="hmenu-sep"></div>
         <button class="hmenu-item danger" id="clearAllBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
           清除所有資料
         </button>
         <div class="hmenu-sep"></div>
         <button class="hmenu-item danger" id="signOutBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
           登出
         </button>
       </div>
@@ -587,18 +587,18 @@
 
 <div class="sidenav">
   <button class="nav-collapse-btn" id="collapseBtn" title="收合側邊欄">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>
     <span class="label">收合選單</span>
   </button>
   <button type="button" class="nav-tab home-tab" id="homeDashboardBtn" style="margin-bottom:10px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
     <span class="label">儀表板</span>
   </button>
   <div class="workspace-switcher" id="workspaceSwitcher">
     <button type="button" class="ws-trigger" id="workspaceTriggerBtn">
-      <svg class="ws-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <svg class="ws-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
       <span class="ws-label" id="workspaceLabel">業務執行</span>
-      <svg class="ws-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      <svg class="ws-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
     </button>
     <div class="ws-menu" id="workspaceMenu">
       <button type="button" class="ws-menu-item" data-ws="sales">業務執行</button>
@@ -608,7 +608,7 @@
   <div class="nav-tabs" id="navTabs"></div>
   <div class="nav-meta"><span class="sync-dot"></span><span class="label" id="syncStatus">已同步</span></div>
   <button class="sidenav-add-btn" id="globalAddBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     <span class="label">新增</span>
   </button>
 </div>
@@ -626,32 +626,32 @@
 <script>
 /* ============================================================
    專案管理工作台 — 前端邏輯
-   資料透過 Firebase Firestore 持久化（依登入的 Google 帳號區分），跨裝置同步
+   資料透過 Firebase Firestore 持久化(依登入的 Google 帳號區分),跨裝置同步
    ============================================================ */
 
 /* ---------------- Icons ---------------- */
 const ICONS = {
-  dashboard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`,
-  projects:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
-  todos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 7 2 2 3-3"/><path d="M11 6h9"/><path d="m4 15 2 2 3-3"/><path d="M11 14h9"/></svg>`,
-  contacts:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16.5 4.5c1.6.4 2.8 1.9 2.8 3.6 0 1.7-1.2 3.2-2.8 3.6"/><path d="M20 20c0-2.7-1.7-5-4-5.8"/></svg>`,
-  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
-  edit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
-  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>`,
-  close:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
-  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
-  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
-  calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>`,
-  money:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 6v0M18 18v0"/></svg>`,
-  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.3 3.9 1.8 18a1.8 1.8 0 0 0 1.6 2.7h17.2a1.8 1.8 0 0 0 1.6-2.7L13.7 3.9a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 17h.01"/></svg>`,
-  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c0 8.3 6.7 15 15 15l3-4-6-3-2 2c-2.5-1.3-4.7-3.5-6-6l2-2-3-6Z"/></svg>`,
-  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>`,
-  briefcase:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8 7.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/></svg>`,
-  empty:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4z"/><path d="M4 7l3-4h10l3 4"/><path d="M9 12h6"/></svg>`,
-  upload:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>`,
-  inbox:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-7Z"/></svg>`,
-  single:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
-  batch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="3" y="16" width="14" height="4" rx="1"/></svg>`,
+  dashboard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`,
+  projects:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
+  todos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 7 2 2 3-3"/><path d="M11 6h9"/><path d="m4 15 2 2 3-3"/><path d="M11 14h9"/></svg>`,
+  contacts:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16.5 4.5c1.6.4 2.8 1.9 2.8 3.6 0 1.7-1.2 3.2-2.8 3.6"/><path d="M20 20c0-2.7-1.7-5-4-5.8"/></svg>`,
+  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
+  edit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>`,
+  close:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`,
+  calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>`,
+  money:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 6v0M18 18v0"/></svg>`,
+  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M10.3 3.9 1.8 18a1.8 1.8 0 0 0 1.6 2.7h17.2a1.8 1.8 0 0 0 1.6-2.7L13.7 3.9a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 17h.01"/></svg>`,
+  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 8.3 6.7 15 15 15l3-4-6-3-2 2c-2.5-1.3-4.7-3.5-6-6l2-2-3-6Z"/></svg>`,
+  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>`,
+  briefcase:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8 7.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/></svg>`,
+  empty:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4z"/><path d="M4 7l3-4h10l3 4"/><path d="M9 12h6"/></svg>`,
+  upload:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>`,
+  inbox:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-7Z"/></svg>`,
+  single:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
+  batch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="3" y="16" width="14" height="4" rx="1"/></svg>`,
 };
 
 /* ---------------- State & Storage ---------------- */
@@ -662,12 +662,12 @@ let currentWorkspace = 'sales'; // 'sales' (業務執行) | 'pm' (專案管理)
 let charts = {};
 let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'' };
-let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案：開發中／保固中)
+let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案:開發中／保固中)
 let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
 
 /* ---------------- Firebase-backed storage layer ----------------
-   取代原本的 window.storage（Claude artifact 專屬 API）。
-   資料存放路徑：users/{Google帳號UID}/appData/{key}
+   取代原本的 window.storage(Claude artifact 專屬 API)。
+   資料存放路徑:users/{Google帳號UID}/appData/{key}
    ---------------------------------------------------------------- */
 let currentUid = null;
 async function fbStorageGet(key){
@@ -742,8 +742,8 @@ async function loadAll(){
   if(migrated) persist('projects');
 }
 
-/* 舊資料相容：把沒有年度概念的 installmentReceived 陣列，歸到「合約起始年」，
-   轉成 installmentReceivedByYear = { "2026": [...], ... }，讓每個年度的收款狀態分開記錄。 */
+/* 舊資料相容:把沒有年度概念的 installmentReceived 陣列,歸到「合約起始年」,
+   轉成 installmentReceivedByYear = { "2026": [...], ... },讓每個年度的收款狀態分開記錄。 */
 function migrateLegacyInstallmentData(){
   let changed = false;
   (DATA.projects||[]).forEach(p=>{
@@ -754,8 +754,8 @@ function migrateLegacyInstallmentData(){
       changed = true;
     }
   });
-  /* 再把「每年重複套用同一組月份」的舊模式，展開成逐筆「年度＋月份＋金額」的明確清單，
-     這樣才能處理跨年度金額或月份不同的情況（例如三年期、每年一月各繳一次，金額不必然均分）。 */
+  /* 再把「每年重複套用同一組月份」的舊模式,展開成逐筆「年度＋月份＋金額」的明確清單,
+     這樣才能處理跨年度金額或月份不同的情況(例如三年期、每年一月各繳一次,金額不必然均分)。 */
   (DATA.projects||[]).forEach(p=>{
     if(!isMaintenanceProject(p)) return;
     if(Array.isArray(p.installments)) return; // 已是新格式
@@ -795,7 +795,7 @@ async function persist(key){
     updateTopbarTime();
     if(key==='todos') renderNotifications();
   }catch(e){
-    setSync('儲存失敗，稍後重試');
+    setSync('儲存失敗,稍後重試');
     console.error(e);
   }
 }
@@ -1018,9 +1018,9 @@ function inRange(dateStr, start, end){
 function isMaintenanceProject(p){ return (p.projType||'maintenance')==='maintenance'; }
 
 function getAllInstallments(){
-  // 應收帳款只抓「維護專案」分頁的資料，且只顯示「今年」的收款項目；
-  // 期數分子/分母改用「該專案全部年度的收款總期數」計算，而不是只看今年度的筆數，
-  // 避免像「三年期、每年1月收一次」這種情況，今年只看到1筆就誤判成 1/1。
+  // 應收帳款只抓「維護專案」分頁的資料,且只顯示「今年」的收款項目;
+  // 期數分子/分母改用「該專案全部年度的收款總期數」計算,而不是只看今年度的筆數,
+  // 避免像「三年期、每年1月收一次」這種情況,今年只看到1筆就誤判成 1/1。
   const list = [];
   const thisYear = new Date().getFullYear();
   DATA.projects.forEach(p=>{
@@ -1036,7 +1036,7 @@ function getAllInstallments(){
   return list;
 }
 
-/* 逾期未收款：本年度已經過了開款月份、卻尚未勾選已收的款項，不受月份篩選影響 */
+/* 逾期未收款:本年度已經過了開款月份、卻尚未勾選已收的款項,不受月份篩選影響 */
 function computeOverdueReceivables(){
   const now = new Date();
   const curMonth = now.getMonth()+1;
@@ -1054,8 +1054,8 @@ function toggleInstallmentReceived(projectId, instId, checked){
   persist('projects');
 }
 
-/* 容錯日期正規化：把 20260531 / 2026/05/31 等格式統一轉成 2026-05-31，
-   避免日期比較（逾期／到期判斷）因格式不同而被誤判為 Invalid Date。 */
+/* 容錯日期正規化:把 20260531 / 2026/05/31 等格式統一轉成 2026-05-31,
+   避免日期比較(逾期／到期判斷)因格式不同而被誤判為 Invalid Date。 */
 function normDate(s){
   if(!s) return '';
   s = String(s).trim();
@@ -1069,8 +1069,8 @@ function normDate(s){
   return '';
 }
 
-/* 即將到期專案：維護專案看「合約到期日」，進行中專案（保固中）看「保固到期」。
-   進行中專案在開發中階段尚無保固到期日，因此不會出現在到期清單，等驗收後填入保固到期日才會被追蹤。 */
+/* 即將到期專案:維護專案看「合約到期日」,進行中專案(保固中)看「保固到期」。
+   進行中專案在開發中階段尚無保固到期日,因此不會出現在到期清單,等驗收後填入保固到期日才會被追蹤。 */
 function getProjectExpiryInfo(p){
   if(!isMaintenanceProject(p)){
     return { date: normDate(p.warrantyEndDate), label: '保固到期' };
@@ -1091,7 +1091,7 @@ function computeUpcomingExpiring(monthsAhead=3){
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
 }
 
-/* 已逾期但尚未標記完成的到期／保固項目：不受 3 個月時間窗限制，避免拖久了從清單消失 */
+/* 已逾期但尚未標記完成的到期／保固項目:不受 3 個月時間窗限制,避免拖久了從清單消失 */
 function computeOverdueExpiring(){
   const now = new Date(); now.setHours(0,0,0,0);
   return DATA.projects.map(p=>{
@@ -1104,7 +1104,7 @@ function computeOverdueExpiring(){
   }).sort((a,b)=> (a._expiryDate||'').localeCompare(b._expiryDate||''));
 }
 
-/* 即將到期專案頁面實際顯示的清單：已逾期（不限時間窗）＋ 未來 monthsAhead 個月內到期（含已標記完成的項目，供對照） */
+/* 即將到期專案頁面實際顯示的清單:已逾期(不限時間窗)＋ 未來 monthsAhead 個月內到期(含已標記完成的項目,供對照) */
 function computeExpiringPageList(monthsAhead=3){
   const now = new Date(); now.setHours(0,0,0,0);
   const overdue = computeOverdueExpiring();
@@ -1208,7 +1208,7 @@ function gaugeSVG(pct, color, size){
   const C = 2*Math.PI*r;
   const clamped = Math.max(0, Math.min(100, pct));
   const dash = (clamped/100)*C;
-  return `<svg viewBox="0 0 160 160" width="${size}" height="${size}" style="max-width:100%;">
+  return `<svg viewBox="0 0 160 160" width="${size}" height="${size}" style="max-width:100%;" role="img" aria-label="完成率 ${clamped}%">
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--blue-100)" stroke-width="${sw}"/>
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"
       stroke-dasharray="${dash.toFixed(1)} ${(C-dash).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>
@@ -1242,9 +1242,9 @@ function afterDashboardRender(){
   const weekDone = s.weekTotal - s.weekOpen;
   const monthDone = s.monthTotal - s.monthOpen;
   document.getElementById('weekGauge').innerHTML = gaugeSVG(s.weekRate, 'var(--red)');
-  document.getElementById('weekGaugeSub').textContent = s.weekTotal ? `本週共 ${s.weekTotal} 筆，已完成 ${weekDone} 筆` : '本週尚無到期待辦';
+  document.getElementById('weekGaugeSub').textContent = s.weekTotal ? `本週共 ${s.weekTotal} 筆,已完成 ${weekDone} 筆` : '本週尚無到期待辦';
   document.getElementById('monthGauge').innerHTML = gaugeSVG(s.monthRate, 'var(--blue-700)');
-  document.getElementById('monthGaugeSub').textContent = s.monthTotal ? `本月共 ${s.monthTotal} 筆，已完成 ${monthDone} 筆` : '本月尚無到期待辦';
+  document.getElementById('monthGaugeSub').textContent = s.monthTotal ? `本月共 ${s.monthTotal} 筆,已完成 ${monthDone} 筆` : '本月尚無到期待辦';
 
   // PM mini cards row (receivables / expiring) — always shown regardless of current workspace
   document.getElementById('receivCount').textContent = s.receivables.length;
@@ -1314,19 +1314,19 @@ function priorityBadge(p){
 }
 
 /* ============================================================
-   QUOTES / CONTRACTS (業務執行 — 佔位頁面，功能開發中)
+   QUOTES / CONTRACTS (業務執行 — 佔位頁面,功能開發中)
    ============================================================ */
 function quotesTpl(){
   return `
   <div class="page active" id="page-quotes">
-    ${pageHeaderHtml('quotes', ICONS.money, '報價處理', '此功能開發中，敬請期待')}
+    ${pageHeaderHtml('quotes', ICONS.money, '報價處理', '此功能開發中,敬請期待')}
     <div class="card panel">${emptyState('報價處理功能即將推出', ICONS.money)}</div>
   </div>`;
 }
 function contractsTpl(){
   return `
   <div class="page active" id="page-contracts">
-    ${pageHeaderHtml('contracts', ICONS.briefcase, '合約處理', '此功能開發中，敬請期待')}
+    ${pageHeaderHtml('contracts', ICONS.briefcase, '合約處理', '此功能開發中,敬請期待')}
     <div class="card panel">${emptyState('合約處理功能即將推出', ICONS.briefcase)}</div>
   </div>`;
 }
@@ -1389,7 +1389,7 @@ function renderReceivablesOverdueList(){
   const titleEl = document.getElementById('rvPanelTitle');
   const list = computeOverdueReceivables();
   const total = list.reduce((s,r)=>s+r.amount,0);
-  titleEl.innerHTML = `逾期未收款（不受月份篩選影響）<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
+  titleEl.innerHTML = `逾期未收款(不受月份篩選影響)<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
   document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆`;
   const el = document.getElementById('rvList');
   if(!list.length){
@@ -1397,7 +1397,7 @@ function renderReceivablesOverdueList(){
   } else {
     el.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>應開款月份</th><th>期數</th><th>金額</th></tr></thead><tbody>
       ${list.map(r=>`<tr>
-        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></td>
+        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;" aria-label="標記 ${esc(r.client)}／${esc(r.name)} 第${r.period}期(${r.month}月)為已收款"></td>
         <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
         <td>${esc(r.pm)}</td>
         <td class="cell-muted" style="color:var(--red);font-weight:700;">${r.month} 月 ⚠</td>
@@ -1431,7 +1431,7 @@ function renderReceivablesMonthList(){
   } else {
     rl.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>期數</th><th>金額</th></tr></thead><tbody>
       ${list.map(r=>`<tr style="${r.received?'opacity:.55;':''}">
-        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" ${r.received?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.receivables.color};cursor:pointer;"></td>
+        <td><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" ${r.received?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.receivables.color};cursor:pointer;" aria-label="標記 ${esc(r.client)}／${esc(r.name)} 第${r.period}期為${r.received?'未收款':'已收款'}"></td>
         <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
         <td>${esc(r.pm)}</td>
         <td class="cell-muted">第${r.period}/${r.total}期</td>
@@ -1453,7 +1453,7 @@ function renderReceivablesMonthList(){
 function expiringTpl(){
   return `
   <div class="page active" id="page-expiring">
-    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理，以及近三個月內即將到期（結案）的專案')}
+    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案')}
     <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></div>
@@ -1470,7 +1470,7 @@ function afterExpiringRender(){
 }
 
 function renderExpiringContent(){
-  const combined = computeExpiringPageList(3); // 已逾期（不限時間窗）＋ 未來3個月到期，各項目帶有 _isOverdue 旗標
+  const combined = computeExpiringPageList(3); // 已逾期(不限時間窗)＋ 未來3個月到期,各項目帶有 _isOverdue 旗標
   const now = new Date(); now.setHours(0,0,0,0);
   const bucketLabels = [];
   for(let i=0;i<3;i++){
@@ -1531,12 +1531,12 @@ function renderExpiringContent(){
           ? `<span class="badge badge-gray">維護專案</span>`
           : `<span class="badge badge-blue">進行中專案</span>`;
         return `<tr style="${p.renewalDone?'opacity:.55;':''}">
-        <td><input type="checkbox" class="exp-check" data-pid="${p.id}" ${p.renewalDone?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成"></td>
+        <td><input type="checkbox" class="exp-check" data-pid="${p.id}" ${p.renewalDone?'checked':''} style="width:16px;height:16px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成" aria-label="標記 ${esc(p.name)} 為已完成"></td>
         <td>${srcBadge}</td>
         <td>${esc(p.client)}</td><td><b>${esc(p.name)}</b></td><td class="cell-muted">${esc(p.code)}</td>
         <td>${esc(p.pm)}</td>
         <td class="cell-muted" style="${p._isOverdue?'color:var(--red);font-weight:700;':''}">${esc(p._expiryDate)}${p._isOverdue?' ⚠':''}</td>
-        <td><button class="icon-btn" data-addtodo="${p.id}" title="加入待辦事項">${ICONS.plus}</button></td>
+        <td><button class="icon-btn" data-addtodo="${p.id}" title="加入待辦事項" aria-label="將 ${esc(p.name)} 加入待辦事項">${ICONS.plus}</button></td>
       </tr>`;}).join('')}
     </tbody></table>`;
     el.querySelectorAll('.exp-check').forEach(cb=>{
@@ -1558,16 +1558,16 @@ function renderExpiringContent(){
           client: proj.client, category:'合約', title: proj.name,
           dueDate: info.date || todayISO(),
           priority: derivePriorityFromDueDate(info.date||''),
-          note: `${info.label}提醒${proj.code?'（'+proj.code+'）':''}`,
+          note: `${info.label}提醒${proj.code?'('+proj.code+')':''}`,
         });
       });
     });
   }
 }
 
-/* 標記已完成後的後續詢問：
-   - 維護專案（合約到期）：多數情況是續約，因此只給「續約：直接更新這筆專案」（開啟同一筆專案編輯，不會產生重複專案）或「不用，謝謝」。
-   - 進行中專案（保固到期）：本來就沒有既有維護合約可更新，因此提供「建立維護專案」（新建）或「不用，謝謝」。 */
+/* 標記已完成後的後續詢問:
+   - 維護專案(合約到期):多數情況是續約,因此只給「續約:直接更新這筆專案」(開啟同一筆專案編輯,不會產生重複專案)或「不用,謝謝」。
+   - 進行中專案(保固到期):本來就沒有既有維護合約可更新,因此提供「建立維護專案」(新建)或「不用,謝謝」。 */
 function openExpiringRenewalDialog(proj){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
@@ -1576,16 +1576,16 @@ function openExpiringRenewalDialog(proj){
     box.innerHTML = `
       <div class="modal-head">
         <div class="modal-title">已標記為完成</div>
-        <button class="modal-close" id="mClose">${ICONS.close}</button>
+        <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
       </div>
       <div class="modal-body">
         <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-          已將「<b>${esc(proj.name)}</b>」標記為完成。這份維護合約是否要續約？選擇續約會直接開啟這筆專案的編輯視窗，方便您更新金額、代碼與新的起訖日，<b>不會另外產生新的專案</b>。
+          已將「<b>${esc(proj.name)}</b>」標記為完成。這份維護合約是否要續約?選擇續約會直接開啟這筆專案的編輯視窗,方便您更新金額、代碼與新的起訖日,<b>不會另外產生新的專案</b>。
         </div>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
-        <button class="btn btn-primary" id="mRenew">續約：直接更新這筆專案</button>
+        <button class="btn btn-ghost" id="mNo">不用,謝謝</button>
+        <button class="btn btn-primary" id="mRenew">續約:直接更新這筆專案</button>
       </div>
     `;
     document.getElementById('modalOverlay').classList.add('show');
@@ -1593,7 +1593,7 @@ function openExpiringRenewalDialog(proj){
     document.getElementById('mNo').addEventListener('click', closeModal);
     document.getElementById('mRenew').addEventListener('click', ()=>{
       closeModal();
-      // 進入續約流程即視為已在處理中，先解除完成標記，避免使用者取消編輯後這筆仍被誤判為已處理完成
+      // 進入續約流程即視為已在處理中,先解除完成標記,避免使用者取消編輯後這筆仍被誤判為已處理完成
       proj.renewalDone = false;
       persist('projects');
       if(currentPage==='expiring') renderExpiringContent();
@@ -1605,15 +1605,15 @@ function openExpiringRenewalDialog(proj){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">已標記為完成</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-        已將「<b>${esc(proj.name)}</b>」標記為完成，是否需要為這個專案建立「維護專案」合約？
+        已將「<b>${esc(proj.name)}</b>」標記為完成,是否需要為這個專案建立「維護專案」合約?
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-ghost" id="mNo">不用，謝謝</button>
+      <button class="btn btn-ghost" id="mNo">不用,謝謝</button>
       <button class="btn btn-primary" id="mYes">建立維護專案</button>
     </div>
   `;
@@ -1642,13 +1642,13 @@ function projectsTpl(){
   const salesList = [...new Set(list.map(p=>p.sales).filter(Boolean))];
   const subTitle = projSubTab==='maintenance'
     ? `維護專案・共 ${list.length} 個`
-    : `進行中專案（開發中／保固中）・共 ${list.length} 個`;
+    : `進行中專案(開發中／保固中)・共 ${list.length} 個`;
   return `
   <div class="page active" id="page-projects">
     ${pageHeaderHtml('projects', ICONS.projects, '專案總覽', subTitle)}
     <div class="seg" id="projSubTabSeg" style="margin-bottom:14px;">
       <button data-v="maintenance" class="${projSubTab==='maintenance'?'active':''}">維護專案</button>
-      <button data-v="inprogress" class="${projSubTab==='inprogress'?'active':''}">進行中專案（開發中／保固中）</button>
+      <button data-v="inprogress" class="${projSubTab==='inprogress'?'active':''}">進行中專案(開發中／保固中)</button>
     </div>
     <div class="filter-bar">
       <input type="text" id="pjSearch" placeholder="搜尋客戶／合約名稱／代碼" value="${esc(projFilter.q)}">
@@ -1712,7 +1712,7 @@ function renderMaintenanceTable(){
   tbody.innerHTML = list.map(p=>{
     const insts = p.installments || [];
     const periodLabel = insts.length
-      ? `共${insts.length}期<br>（${[...new Set(insts.map(i=>i.month))].sort((a,b)=>a-b).join('、')}月）`
+      ? `共${insts.length}期<br>(${[...new Set(insts.map(i=>i.month))].sort((a,b)=>a-b).join('、')}月)`
       : (p.invoiceNote ? esc(p.invoiceNote) : '-');
     return `<tr class="row-clickable" data-preview="${p.id}">
       <td>${esc(p.sales)}</td>
@@ -1726,7 +1726,7 @@ function renderMaintenanceTable(){
       <td class="cell-muted cell-wrap" style="max-width:150px;">${periodLabel}</td>
       <td class="cell-muted">${esc(p.contact||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+        <button class="icon-btn" data-del="${p.id}" title="刪除專案" aria-label="刪除專案 ${esc(p.name)}">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1760,7 +1760,7 @@ function renderInProgressTable(){
       <td class="cell-muted">${esc(p.warrantyEndDate||'-')}</td>
       <td class="cell-muted">${esc(p.warrantyPeriod||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+        <button class="icon-btn" data-del="${p.id}" title="刪除專案" aria-label="刪除專案 ${esc(p.name)}">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1771,7 +1771,7 @@ function renderInProgressTable(){
 function confirmDeleteProject(id){
   const p = DATA.projects.find(x=>x.id===id);
   if(!p) return;
-  if(confirm(`確定要刪除專案「${p.name}」嗎？此動作無法復原。`)){
+  if(confirm(`確定要刪除專案「${p.name}」嗎?此動作無法復原。`)){
     DATA.projects = DATA.projects.filter(x=>x.id!==id);
     persist('projects');
     renderProjectsTable();
@@ -1797,7 +1797,7 @@ function pvInstallmentsTable(p){
     <label>收款設定</label>
     <div class="preview-value" style="padding:10px;">
       <table><thead><tr><th>期別</th><th>年度</th><th>月份</th><th>金額</th></tr></thead><tbody>${rows}</tbody></table>
-      <div class="cell-muted" style="margin-top:8px;">＊共 ${insts.length} 期，合計 ${money(total)}</div>
+      <div class="cell-muted" style="margin-top:8px;">＊共 ${insts.length} 期,合計 ${money(total)}</div>
     </div>
   </div>`;
 }
@@ -1894,7 +1894,7 @@ function openMaintenanceProjectModal(existing, editing){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯維護專案':'新增維護專案'}</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
@@ -1934,7 +1934,7 @@ function openMaintenanceProjectModal(existing, editing){
         </div>
         <div class="form-field">
           <label>維護費率</label>
-          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如：15%">
+          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如:15%">
         </div>
         <div class="form-field">
           <label>合約起始日</label>
@@ -1954,7 +1954,7 @@ function openMaintenanceProjectModal(existing, editing){
         </div>
         <div class="form-field">
           <label>Source code</label>
-          <input id="f_sourceCode" value="${esc(p.sourceCode||'')}" placeholder="例如：Git 連結或有／無">
+          <input id="f_sourceCode" value="${esc(p.sourceCode||'')}" placeholder="例如:Git 連結或有／無">
         </div>
         <div class="form-field">
           <label>聯絡人</label>
@@ -1966,13 +1966,13 @@ function openMaintenanceProjectModal(existing, editing){
         </div>
         <div class="form-field full">
           <label>發票期數說明</label>
-          <input id="f_invoiceNote" value="${esc(p.invoiceNote||'')}" placeholder="例如：分四期(期初)，1月、4月、7月、10月">
+          <input id="f_invoiceNote" value="${esc(p.invoiceNote||'')}" placeholder="例如:分四期(期初),1月、4月、7月、10月">
         </div>
 
         <div class="installment-box">
           <div class="installment-head">
-            <div class="lbl">收款期數設定（可跨年度，每期各自設定年度／月份／金額）</div>
-            <label class="checkbox-row"><input type="checkbox" id="f_auto" ${initialAuto?'checked':''}>平均分配金額（依目前期數合計合約金額）</label>
+            <div class="lbl">收款期數設定(可跨年度,每期各自設定年度／月份／金額)</div>
+            <label class="checkbox-row"><input type="checkbox" id="f_auto" ${initialAuto?'checked':''}>平均分配金額(依目前期數合計合約金額)</label>
           </div>
           <div id="installRows" class="install-rows"></div>
           <button type="button" class="btn btn-ghost btn-sm" id="f_addRow" style="margin-top:8px;">＋ 新增一期</button>
@@ -2012,7 +2012,7 @@ function openMaintenanceProjectModal(existing, editing){
         <input type="number" placeholder="年度" class="inst-year" data-i="${i}" value="${r.year}">
         <input type="number" min="1" max="12" placeholder="月份(1-12)" class="inst-month" data-i="${i}" value="${r.month}">
         <input type="number" min="0" step="1" class="inst-amt" data-i="${i}" value="${auto? evenAmt : (r.amount||0)}" ${auto?'disabled':''}>
-        <button type="button" class="icon-btn danger inst-del" data-i="${i}" title="刪除此期">${ICONS.trash}</button>
+        <button type="button" class="icon-btn danger inst-del" data-i="${i}" title="刪除此期" aria-label="刪除第${i+1}期">${ICONS.trash}</button>
       </div>`).join('');
 
     rowsEl.querySelectorAll('.inst-year').forEach(inp=>{
@@ -2042,8 +2042,8 @@ function openMaintenanceProjectModal(existing, editing){
     else { sum = rows.reduce((a,r)=>a+(Number(r.amount)||0),0); }
     const diff = Math.round((contractAmt - sum)*100)/100;
     document.getElementById('installTotal').innerHTML = auto
-      ? `每期約 <b>${money(contractAmt/count)}</b>，合計 <b>${money(contractAmt)}</b>`
-      : `已分配 <b>${money(sum)}</b> ／ 合約 <b>${money(contractAmt)}</b>${diff!==0?` <span style="color:var(--red)">（尚差 ${money(diff)}）</span>`:''}`;
+      ? `每期約 <b>${money(contractAmt/count)}</b>,合計 <b>${money(contractAmt)}</b>`
+      : `已分配 <b>${money(sum)}</b> ／ 合約 <b>${money(contractAmt)}</b>${diff!==0?` <span style="color:var(--red)">(尚差 ${money(diff)})</span>`:''}`;
   }
 
   document.getElementById('f_addRow').addEventListener('click', ()=>{
@@ -2116,7 +2116,7 @@ function openInProgressProjectModal(existing, editing){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯進行中專案':'新增進行中專案'}</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
@@ -2156,7 +2156,7 @@ function openInProgressProjectModal(existing, editing){
         </div>
         <div class="form-field">
           <label>維護費率</label>
-          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如：15%（保固後續約用）">
+          <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如:15%(保固後續約用)">
         </div>
         <div class="form-field">
           <label>保固到期</label>
@@ -2164,7 +2164,7 @@ function openInProgressProjectModal(existing, editing){
         </div>
         <div class="form-field">
           <label>保固期限</label>
-          <input id="f_warrantyPeriod" value="${esc(p.warrantyPeriod||'')}" placeholder="例如：1年 或 12個月">
+          <input id="f_warrantyPeriod" value="${esc(p.warrantyPeriod||'')}" placeholder="例如:1年 或 12個月">
         </div>
         <div class="form-field">
           <label>驗收日期</label>
@@ -2182,7 +2182,7 @@ function openInProgressProjectModal(existing, editing){
           <label class="checkbox-row"><input type="checkbox" id="f_terminated" ${p.terminated?'checked':''}>已終止</label>
         </div>
         <div class="form-field full">
-          <div class="form-hint">提示：開發中專案通常尚無驗收日期／保固到期日；驗收後填入即可自動出現在「即將到期專案」的保固追蹤中。</div>
+          <div class="form-hint">提示:開發中專案通常尚無驗收日期／保固到期日;驗收後填入即可自動出現在「即將到期專案」的保固追蹤中。</div>
         </div>
         <div class="form-field full">
           <label>備註</label>
@@ -2213,7 +2213,7 @@ function openInProgressProjectModal(existing, editing){
       const n = Number(periodStr);
       if(!isNaN(n)) monthsTotal = n;
     }
-    if(!monthsTotal){ toast('無法解析保固期限，請確認格式（例如：1年、12個月）'); return; }
+    if(!monthsTotal){ toast('無法解析保固期限,請確認格式(例如:1年、12個月)'); return; }
     const d = new Date(accept+'T12:00:00');
     d.setMonth(d.getMonth()+Math.round(monthsTotal));
     const iso = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
@@ -2260,13 +2260,13 @@ function closeModal(){
 const IMPORT_CONFIGS = {
   maintenance: {
     title:'批次匯入維護專案',
-    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','合約起始日(YYYY/M/D)','合約到期日(YYYY/M/D)','增修時數','發票期數(文字說明，如：分四期(期初)，1月、4月、7月、10月)','合約編號','增修單價(未稅)','Source code','備註','聯絡人'],
-    example:['Dabbie','滙豐投信','D0001-M5','滙豐投信PAM_MO基本維護','陳名乾','AM','$6,391,800','15%','2025/1/1','2027/12/31','40','分三期支付','F202504102','1500','有（GitLab）','範例資料，可直接刪除後貼上您的資料','洪偉峰 Eric'],
+    columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','合約起始日(YYYY/M/D)','合約到期日(YYYY/M/D)','增修時數','發票期數(文字說明,如:分四期(期初),1月、4月、7月、10月)','合約編號','增修單價(未稅)','Source code','備註','聯絡人'],
+    example:['Dabbie','滙豐投信','D0001-M5','滙豐投信PAM_MO基本維護','陳名乾','AM','$6,391,800','15%','2025/1/1','2027/12/31','40','分三期支付','F202504102','1500','有(GitLab)','範例資料,可直接刪除後貼上您的資料','洪偉峰 Eric'],
   },
   inprogress: {
-    title:'批次匯入進行中專案（開發中／保固中）',
+    title:'批次匯入進行中專案(開發中／保固中)',
     columns:['業務','客戶名稱','專案代碼','合約名稱','專案經理','部門(WM/AM)','合約金額(含稅)','維護費率','驗收日期(YYYY/M/D)','保固到期(YYYY/M/D)','保固期限','合約編號','備註','聯絡人'],
-    example:['Dabbie','滙豐投信','D0002-N1','滙豐投信新系統開發','陳名乾','AM','$3,200,000','15%','','','1年','F202601088','範例資料，可直接刪除後貼上您的資料，驗收前可留空','洪偉峰 Eric'],
+    example:['Dabbie','滙豐投信','D0002-N1','滙豐投信新系統開發','陳名乾','AM','$3,200,000','15%','','','1年','F202601088','範例資料,可直接刪除後貼上您的資料,驗收前可留空','洪偉峰 Eric'],
   },
   todos: {
     title:'批次匯入待辦事項',
@@ -2276,7 +2276,7 @@ const IMPORT_CONFIGS = {
   contacts: {
     title:'批次匯入聯絡人',
     columns:['公司名稱','姓名','部門','職稱','電話','地址','Email','備註'],
-    example:['大眾證券','王小華','資訊部','經理','02-1234-5678','台北市信義區信義路一段1號','wang@example.com','範例資料，可直接刪除後貼上您的資料'],
+    example:['大眾證券','王小華','資訊部','經理','02-1234-5678','台北市信義區信義路一段1號','wang@example.com','範例資料,可直接刪除後貼上您的資料'],
   },
 };
 
@@ -2337,7 +2337,7 @@ function buildImportRecord(type, cells){
     const contractAmt = parseAmountStr(amountStr);
     const startY = parsedStart ? new Date(normDate(parsedStart)+'T00:00:00').getFullYear() : new Date().getFullYear();
     const endY = parsedEnd ? new Date(normDate(parsedEnd)+'T00:00:00').getFullYear() : startY;
-    // 每年都依這些月份重複收款（如需個別年度不同月份／金額，匯入後可在編輯視窗調整每一期）
+    // 每年都依這些月份重複收款(如需個別年度不同月份／金額,匯入後可在編輯視窗調整每一期)
     const installments = [];
     if(months.length){
       const evenAmt = contractAmt/(months.length * Math.max(1, endY-startY+1));
@@ -2395,17 +2395,17 @@ function openImportModal(type){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${cfg.title}</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div style="background:${theme.bg};color:${theme.color};border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.7;margin-bottom:14px;">
-        欄位順序（依序對應，缺少的欄位留空即可）：<br>
+        欄位順序(依序對應,缺少的欄位留空即可):<br>
         <b>${cfg.columns.join('、')}</b>
         <div style="margin-top:6px;color:var(--text-muted);">
-          可直接從 Excel 選取範圍後複製，貼到下方欄位即可（會自動以 Tab 分隔辨識），也支援逗號分隔的 CSV 內容。
+          可直接從 Excel 選取範圍後複製,貼到下方欄位即可(會自動以 Tab 分隔辨識),也支援逗號分隔的 CSV 內容。
         </div>
       </div>
-      <label class="checkbox-row" style="margin-bottom:10px;"><input type="checkbox" id="importSkipHeader" checked>貼上的內容第一列是標題列，匯入時略過</label>
+      <label class="checkbox-row" style="margin-bottom:10px;"><input type="checkbox" id="importSkipHeader" checked>貼上的內容第一列是標題列,匯入時略過</label>
       <textarea id="importText" rows="10" placeholder="${esc(placeholderText)}" style="width:100%;font-family:inherit;font-size:13px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--blue-050);resize:vertical;"></textarea>
       <div class="form-hint" style="margin-top:8px;" id="importPreviewInfo">尚未貼上資料</div>
     </div>
@@ -2442,12 +2442,12 @@ function openImportModal(type){
     if(added>0) persist(dataKey);
     closeModal();
     renderPage();
-    toast(`已匯入 ${added} 筆${skipped?`，略過 ${skipped} 筆（必要欄位缺漏）`:''}`);
+    toast(`已匯入 ${added} 筆${skipped?`,略過 ${skipped} 筆(必要欄位缺漏)`:''}`);
   });
 }
 
 /* ============================================================
-   GLOBAL ADD WIZARD (統一新增入口：選擇類別 + 單筆/批次)
+   GLOBAL ADD WIZARD (統一新增入口:選擇類別 + 單筆/批次)
    ============================================================ */
 const ADD_WIZARD_CATEGORIES = [
   {id:'projects', label:'專案', icon:ICONS.projects},
@@ -2465,7 +2465,7 @@ function openAddWizard(){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">新增資料</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div class="form-field" style="margin-bottom:14px;">
@@ -2634,7 +2634,7 @@ function renderTodosTable(){
   tbody.innerHTML = list.map(t=>{
     const overdue = !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now;
     return `<tr style="${t.done?'opacity:.55;':''}">
-      <td><input type="checkbox" class="todo-check" data-id="${t.id}" ${t.done?'checked':''} style="width:16px;height:16px;accent-color:var(--blue-700);cursor:pointer;"></td>
+      <td><input type="checkbox" class="todo-check" data-id="${t.id}" ${t.done?'checked':''} style="width:16px;height:16px;accent-color:var(--blue-700);cursor:pointer;" aria-label="標記待辦「${esc(t.title||'')}」為${t.done?'未完成':'已完成'}"></td>
       <td class="cell-muted" style="${overdue?'color:var(--red);font-weight:700;':''}">${esc(t.dueDate||'-')}${overdue?' ⚠':''}</td>
       <td class="cell-muted">${esc(t.updatedDate||'-')}</td>
       <td>${esc(t.client||'-')}</td>
@@ -2644,8 +2644,8 @@ function renderTodosTable(){
       <td>${t.progress?`<span class="badge badge-blue">${esc(t.progress)}</span>`:''}</td>
       <td class="cell-muted" style="max-width:200px;white-space:normal;">${esc(t.note||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-edit="${t.id}">${ICONS.edit}</button>
-        <button class="icon-btn danger" data-del="${t.id}">${ICONS.trash}</button>
+        <button class="icon-btn" data-edit="${t.id}" title="編輯待辦" aria-label="編輯待辦「${esc(t.title||'')}」">${ICONS.edit}</button>
+        <button class="icon-btn danger" data-del="${t.id}" title="刪除待辦" aria-label="刪除待辦「${esc(t.title||'')}」">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2667,7 +2667,7 @@ function renderTodosTable(){
 function confirmDeleteTodo(id){
   const t = DATA.todos.find(x=>x.id===id);
   if(!t) return;
-  if(confirm(`確定要刪除待辦「${t.title}」嗎？`)){
+  if(confirm(`確定要刪除待辦「${t.title}」嗎?`)){
     DATA.todos = DATA.todos.filter(x=>x.id!==id);
     persist('todos');
     renderTodosTable();
@@ -2688,7 +2688,7 @@ function openTodoModal(id, prefill){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯待辦事項':'新增待辦事項'}</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
@@ -2714,7 +2714,7 @@ function openTodoModal(id, prefill){
         </div>
         <div class="form-field full">
           <label>項目/專案</label>
-          <input list="projList" id="f_title" value="${esc(t.title)}" placeholder="輸入項目名稱，或關聯專案總覽中的專案">
+          <input list="projList" id="f_title" value="${esc(t.title)}" placeholder="輸入項目名稱,或關聯專案總覽中的專案">
           <datalist id="projList">${DATA.projects.map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist>
         </div>
         <div class="form-field full">
@@ -2801,8 +2801,8 @@ function renderContactsList(q){
         ${items.map(c=>`
           <div class="card contact-card">
             <div class="contact-actions">
-              <button class="icon-btn" data-edit="${c.id}">${ICONS.edit}</button>
-              <button class="icon-btn danger" data-del="${c.id}">${ICONS.trash}</button>
+              <button class="icon-btn" data-edit="${c.id}" title="編輯聯絡人" aria-label="編輯聯絡人 ${esc(c.name)}">${ICONS.edit}</button>
+              <button class="icon-btn danger" data-del="${c.id}" title="刪除聯絡人" aria-label="刪除聯絡人 ${esc(c.name)}">${ICONS.trash}</button>
             </div>
             <div class="contact-name">${esc(c.name)}</div>
             <div class="contact-role">${esc(c.role||'')}${c.department?`・${esc(c.department)}`:''}</div>
@@ -2822,7 +2822,7 @@ function renderContactsList(q){
 function confirmDeleteContact(id){
   const c = DATA.contacts.find(x=>x.id===id);
   if(!c) return;
-  if(confirm(`確定要刪除聯絡人「${c.name}」嗎？`)){
+  if(confirm(`確定要刪除聯絡人「${c.name}」嗎?`)){
     DATA.contacts = DATA.contacts.filter(x=>x.id!==id);
     persist('contacts');
     renderContactsList();
@@ -2838,7 +2838,7 @@ function openContactModal(id){
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯聯絡人':'新增聯絡人'}</div>
-      <button class="modal-close" id="mClose">${ICONS.close}</button>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
@@ -2853,7 +2853,7 @@ function openContactModal(id){
         </div>
         <div class="form-field">
           <label>部門</label>
-          <input id="f_department" value="${esc(c.department||'')}" placeholder="例如：資訊部">
+          <input id="f_department" value="${esc(c.department||'')}" placeholder="例如:資訊部">
         </div>
         <div class="form-field">
           <label>職稱</label>
@@ -2917,7 +2917,7 @@ document.addEventListener('keydown', e=>{
 });
 
 async function clearAllData(){
-  if(!confirm('確定要清空所有專案／待辦／聯絡人資料嗎？此動作無法復原（建議先匯出備份）。')) return;
+  if(!confirm('確定要清空所有專案／待辦／聯絡人資料嗎?此動作無法復原(建議先匯出備份)。')) return;
   DATA.projects = [];
   DATA.todos = [];
   DATA.contacts = [];
@@ -2931,8 +2931,8 @@ async function clearAllData(){
 
 /* ============================================================
    BACKUP EXPORT / RESTORE
-   （建議：每次系統更新前先匯出備份，更新後如發現資料被重置，
-   可用「還原備份檔」把資料復原回來）
+   (建議:每次系統更新前先匯出備份,更新後如發現資料被重置,
+   可用「還原備份檔」把資料復原回來)
    ============================================================ */
 function exportBackup(){
   try{
@@ -2953,7 +2953,7 @@ function exportBackup(){
     toast('備份檔已下載');
   }catch(e){
     console.error(e);
-    toast('匯出失敗，請再試一次');
+    toast('匯出失敗,請再試一次');
   }
 }
 
@@ -2963,8 +2963,8 @@ function importBackupFromFile(file){
     try{
       const obj = JSON.parse(reader.result);
       const hasAny = Array.isArray(obj.projects) || Array.isArray(obj.todos) || Array.isArray(obj.contacts) || Array.isArray(obj.clients);
-      if(!hasAny){ toast('這個檔案格式看起來不對，請確認是本系統匯出的備份檔'); return; }
-      if(!confirm('確定要用這個備份檔還原嗎？目前畫面上的所有專案／待辦／聯絡人資料將會被覆蓋。')) return;
+      if(!hasAny){ toast('這個檔案格式看起來不對,請確認是本系統匯出的備份檔'); return; }
+      if(!confirm('確定要用這個備份檔還原嗎?目前畫面上的所有專案／待辦／聯絡人資料將會被覆蓋。')) return;
       DATA.projects = Array.isArray(obj.projects) ? obj.projects : [];
       DATA.todos = Array.isArray(obj.todos) ? obj.todos : [];
       DATA.contacts = Array.isArray(obj.contacts) ? obj.contacts : [];
@@ -2974,7 +2974,7 @@ function importBackupFromFile(file){
       toast('已還原備份資料');
     }catch(e){
       console.error(e);
-      toast('讀取備份檔失敗，請確認檔案內容');
+      toast('讀取備份檔失敗,請確認檔案內容');
     }
   };
   reader.readAsText(file);
@@ -3046,12 +3046,12 @@ document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
   if(isMobileBrowser()){
     fbAuth.signInWithRedirect(provider).catch(err=>{
       console.error(err);
-      errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+      errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
     });
   } else {
     fbAuth.signInWithPopup(provider).catch(err=>{
       console.error(err);
-      errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+      errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
     });
   }
 });
@@ -3059,7 +3059,7 @@ document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
 fbAuth.getRedirectResult().catch(err=>{
   console.error('redirect result error:', err);
   const errEl = document.getElementById('loginGateError');
-  if(errEl) errEl.textContent = '登入失敗：' + (err.message || err.code || '請再試一次');
+  if(errEl) errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
 });
 
 fbAuth.onAuthStateChanged(async (user)=>{
@@ -3071,7 +3071,7 @@ fbAuth.onAuthStateChanged(async (user)=>{
     root.style.display = '';
     applyGoogleIdentity(user);
     const loggedInLabel = document.getElementById('loggedInAsLabel');
-    if(loggedInLabel) loggedInLabel.textContent = '已登入：' + (user.email || user.displayName || '');
+    if(loggedInLabel) loggedInLabel.textContent = '已登入:' + (user.email || user.displayName || '');
     if(!appInitialized){
       appInitialized = true;
       init();
