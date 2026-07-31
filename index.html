@@ -76,7 +76,7 @@
 
   /* ---------- Global Search (topbar) ---------- */
   .topbar-search{
-    flex:1; max-width:420px; margin:0 24px; height:38px;
+    position:relative; flex:1; max-width:420px; margin:0 24px; height:38px;
     display:flex; align-items:center; gap:9px; padding:0 14px;
     background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.22); border-radius:10px;
     transition:.15s ease;
@@ -90,14 +90,48 @@
   .topbar-search input::placeholder{ color:rgba(255,255,255,0.6); }
   #topbarSearchToggleBtn{ display:none; }
 
+  /* ---------- Global Search results dropdown ---------- */
+  .search-results{
+    position:absolute; top:calc(100% + 8px); left:0; right:0; z-index:80;
+    background:#fff; border-radius:14px; box-shadow:0 16px 40px rgba(30,45,55,0.28);
+    border:1px solid var(--border); padding:8px; max-height:70vh; overflow-y:auto;
+    display:none;
+  }
+  .search-results.show{ display:block; }
+  .search-results-group{ margin-bottom:4px; }
+  .search-results-group:last-child{ margin-bottom:0; }
+  .search-results-group-title{
+    font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;
+    letter-spacing:.4px; padding:8px 10px 4px;
+  }
+  .search-result-item{
+    display:flex; flex-direction:column; gap:2px; width:100%; text-align:left;
+    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
+    padding:9px 10px; border-radius:9px;
+  }
+  .search-result-item:hover, .search-result-item:focus-visible{ background:var(--blue-050); outline:none; }
+  .search-result-item .sr-title{ font-size:13.5px; font-weight:700; color:var(--blue-900); }
+  .search-result-item .sr-meta{ font-size:11.5px; color:var(--text-muted); }
+  .search-results-more{ font-size:11.5px; color:var(--text-faint); padding:6px 10px 4px; }
+  .search-results-empty{ padding:24px 12px; text-align:center; color:var(--text-muted); font-size:12.5px; }
+  .search-results-hint{ padding:24px 12px; text-align:center; color:var(--text-faint); font-size:12.5px; }
+
   /* ---------- Global Search (mobile overlay bar) ---------- */
   .topbar-search-mobile{
     position:fixed; top:var(--topbar-h); left:0; right:0; z-index:59;
     background:var(--blue-900); padding:10px 14px; box-shadow:0 6px 16px rgba(20,35,45,0.25);
-    display:none; align-items:center; gap:10px;
+    display:none; flex-direction:column; gap:10px;
   }
   .topbar-search-mobile.show{ display:flex; }
-  .topbar-search-mobile .topbar-search{ margin:0; max-width:none; }
+  .topbar-search-mobile-row{ display:flex; align-items:center; gap:10px; }
+  .topbar-search-mobile .topbar-search{ margin:0; max-width:none; flex:1; }
+  .topbar-search-mobile .search-results{ position:static; box-shadow:none; border:none; background:transparent; padding:0; max-height:calc(100vh - var(--topbar-h) - 70px); }
+  .topbar-search-mobile .search-results-group-title,
+  .topbar-search-mobile .search-results-empty,
+  .topbar-search-mobile .search-results-hint{ color:rgba(255,255,255,0.6); }
+  .topbar-search-mobile .search-result-item .sr-title{ color:#fff; }
+  .topbar-search-mobile .search-result-item .sr-meta{ color:rgba(255,255,255,0.65); }
+  .topbar-search-mobile .search-result-item:hover{ background:rgba(255,255,255,0.1); }
   .topbar-search-mobile-close{
     width:36px;height:36px; border-radius:10px; flex:none; cursor:pointer;
     background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:#fff;
@@ -592,6 +626,7 @@
     <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <label for="globalSearchInput" class="visually-hidden">全站搜尋:專案、待辦事項、聯絡人</label>
     <input type="text" id="globalSearchInput" placeholder="搜尋專案、待辦、聯絡人..." autocomplete="off">
+    <div class="search-results" id="searchResultsDesktop" role="listbox" aria-label="搜尋結果"></div>
   </div>
   <div class="topbar-right">
     <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
@@ -650,14 +685,17 @@
 </div>
 
 <div class="topbar-search-mobile" id="topbarSearchMobile">
-  <div class="topbar-search">
-    <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-    <label for="globalSearchInputMobile" class="visually-hidden">全站搜尋:專案、待辦事項、聯絡人</label>
-    <input type="text" id="globalSearchInputMobile" placeholder="搜尋專案、待辦、聯絡人..." autocomplete="off">
+  <div class="topbar-search-mobile-row">
+    <div class="topbar-search">
+      <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="globalSearchInputMobile" class="visually-hidden">全站搜尋:專案、待辦事項、聯絡人</label>
+      <input type="text" id="globalSearchInputMobile" placeholder="搜尋專案、待辦、聯絡人..." autocomplete="off">
+    </div>
+    <button class="topbar-search-mobile-close" id="topbarSearchMobileClose" aria-label="關閉搜尋">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
   </div>
-  <button class="topbar-search-mobile-close" id="topbarSearchMobileClose" aria-label="關閉搜尋">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-  </button>
+  <div class="search-results" id="searchResultsMobile" role="listbox" aria-label="搜尋結果"></div>
 </div>
 
 <div class="sidenav">
@@ -1536,6 +1574,142 @@ function priorityBadge(p){
   if(p==='本週') return `<span class="badge badge-red"><span class="badge-dot"></span>本週</span>`;
   if(p==='本月') return `<span class="badge badge-blue"><span class="badge-dot"></span>本月</span>`;
   return `<span class="badge badge-gray"><span class="badge-dot"></span>待處理</span>`;
+}
+
+/* ============================================================
+   GLOBAL SEARCH(全站搜尋:專案／待辦事項／聯絡人)
+   直接在前端已載入的 DATA 裡做子字串比對,不分工作區,一次搜三種資料。
+   ============================================================ */
+const SEARCH_RESULT_LIMIT = 5;
+
+function computeSearchResults(query){
+  const q = query.trim().toLowerCase();
+  if(!q) return null;
+
+  const matchedProjects = DATA.projects.filter(p=>{
+    return [p.client, p.name, p.code, p.pm, p.sales, p.contractNo, p.contact]
+      .some(v=> (v||'').toLowerCase().includes(q));
+  });
+  const matchedTodos = DATA.todos.filter(t=>{
+    return [t.title, t.client, t.category, t.note]
+      .some(v=> (v||'').toLowerCase().includes(q));
+  });
+  const matchedContacts = DATA.contacts.filter(c=>{
+    return [c.name, c.company, c.role, c.phone, c.email]
+      .some(v=> (v||'').toLowerCase().includes(q));
+  });
+
+  return {
+    projects: matchedProjects.slice(0, SEARCH_RESULT_LIMIT), projectsTotal: matchedProjects.length,
+    todos: matchedTodos.slice(0, SEARCH_RESULT_LIMIT), todosTotal: matchedTodos.length,
+    contacts: matchedContacts.slice(0, SEARCH_RESULT_LIMIT), contactsTotal: matchedContacts.length,
+  };
+}
+
+function searchResultGroupHtml(title, items, total, renderItem){
+  if(!items.length) return '';
+  const moreHtml = total > items.length
+    ? `<div class="search-results-more">還有 ${total - items.length} 筆,請輸入更精確的關鍵字</div>`
+    : '';
+  return `<div class="search-results-group">
+    <div class="search-results-group-title">${esc(title)}(${total})</div>
+    ${items.map(renderItem).join('')}
+    ${moreHtml}
+  </div>`;
+}
+
+function renderSearchResultsHtml(query, results){
+  if(!results) return '';
+  const total = results.projectsTotal + results.todosTotal + results.contactsTotal;
+  if(total===0){
+    return `<div class="search-results-empty">找不到符合「${esc(query.trim())}」的結果</div>`;
+  }
+  const projectsHtml = searchResultGroupHtml('專案', results.projects, results.projectsTotal, p=>`
+    <button type="button" class="search-result-item" role="option" data-type="project" data-id="${esc(p.id)}">
+      <span class="sr-title">${esc(p.name)}</span>
+      <span class="sr-meta">${esc(p.client)}${p.code?`・${esc(p.code)}`:''}</span>
+    </button>`);
+  const todosHtml = searchResultGroupHtml('待辦事項', results.todos, results.todosTotal, t=>`
+    <button type="button" class="search-result-item" role="option" data-type="todo" data-id="${esc(t.id)}">
+      <span class="sr-title">${esc(t.title||'-')}</span>
+      <span class="sr-meta">${[t.client, t.dueDate?`到期 ${t.dueDate}`:''].filter(Boolean).map(esc).join('・')}</span>
+    </button>`);
+  const contactsHtml = searchResultGroupHtml('聯絡人', results.contacts, results.contactsTotal, c=>`
+    <button type="button" class="search-result-item" role="option" data-type="contact" data-id="${esc(c.id)}">
+      <span class="sr-title">${esc(c.name)}</span>
+      <span class="sr-meta">${[c.company, c.role].filter(Boolean).map(esc).join('・')}</span>
+    </button>`);
+  return projectsHtml + todosHtml + contactsHtml;
+}
+
+function updateSearchPanel(inputEl, panelEl){
+  const query = inputEl.value;
+  if(!query.trim()){
+    panelEl.classList.remove('show');
+    panelEl.innerHTML = '';
+    return;
+  }
+  const results = computeSearchResults(query);
+  panelEl.innerHTML = renderSearchResultsHtml(query, results);
+  panelEl.classList.add('show');
+}
+
+function setupGlobalSearch(inputId, panelId){
+  const inputEl = document.getElementById(inputId);
+  const panelEl = document.getElementById(panelId);
+  if(!inputEl || !panelEl) return;
+  inputEl.addEventListener('input', ()=> updateSearchPanel(inputEl, panelEl));
+  inputEl.addEventListener('focus', ()=>{ if(inputEl.value.trim()) updateSearchPanel(inputEl, panelEl); });
+  panelEl.addEventListener('click', e=>{
+    const item = e.target.closest('.search-result-item');
+    if(!item) return;
+    const { type, id } = item.dataset;
+    panelEl.classList.remove('show');
+    panelEl.innerHTML = '';
+    inputEl.value = '';
+    // 手機版搜尋列也一併收起來,直接看到跳轉後的畫面
+    const mobileBar = document.getElementById('topbarSearchMobile');
+    if(mobileBar) mobileBar.classList.remove('show');
+    const toggleBtn = document.getElementById('topbarSearchToggleBtn');
+    if(toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    openSearchResult(type, id);
+  });
+  document.addEventListener('click', e=>{
+    if(!inputEl.contains(e.target) && !panelEl.contains(e.target)) panelEl.classList.remove('show');
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && panelEl.classList.contains('show')){
+      panelEl.classList.remove('show');
+    }
+  });
+}
+
+/* 點擊搜尋結果:切到對應工作區＋頁面,並直接開啟該筆資料的預覽／編輯 Modal。
+   切工作區那一步不推歷史紀錄,緊接著的 goPage() 才是使用者真正要去的頁面, 
+   避免瀏覽器上一頁時卡在一個閃現過的中繼畫面(跟儀表板小卡片的做法一致)。 */
+function openSearchResult(type, id){
+  if(type==='project'){
+    const p = DATA.projects.find(x=>x.id===id);
+    if(!p) return;
+    projSubTab = p.projType || 'maintenance';
+    (async ()=>{
+      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
+      goPage('projects');
+      openProjectPreviewModal(id);
+    })();
+  } else if(type==='todo'){
+    (async ()=>{
+      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
+      goPage('todos');
+      openTodoModal(id);
+    })();
+  } else if(type==='contact'){
+    (async ()=>{
+      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
+      goPage('contacts');
+      openContactModal(id);
+    })();
+  }
 }
 
 /* ============================================================
@@ -3390,6 +3564,8 @@ async function init(){
       if(e.key==='Escape' && searchMobileBar.classList.contains('show')) closeMobileSearch();
     });
   }
+  setupGlobalSearch('globalSearchInput', 'searchResultsDesktop');
+  setupGlobalSearch('globalSearchInputMobile', 'searchResultsMobile');
 
   const exportBtn = document.getElementById('exportBackupBtn');
   if(exportBtn) exportBtn.addEventListener('click', exportBackup);
