@@ -73,6 +73,37 @@
   .topbar-title .main{ font-size:21px; font-weight:800; color:#fff; letter-spacing:2px; }
   .topbar-title .sub{ font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:3.5px; text-transform:uppercase; margin-top:3px; }
   .topbar-right{ display:flex; align-items:center; gap:16px; }
+
+  /* ---------- Global Search (topbar) ---------- */
+  .topbar-search{
+    flex:1; max-width:420px; margin:0 24px; height:38px;
+    display:flex; align-items:center; gap:9px; padding:0 14px;
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.22); border-radius:10px;
+    transition:.15s ease;
+  }
+  .topbar-search:focus-within{ background:rgba(255,255,255,0.22); border-color:rgba(255,255,255,0.4); }
+  .topbar-search-icon{ width:16px;height:16px; color:rgba(255,255,255,0.75); flex:none; }
+  .topbar-search input{
+    flex:1; min-width:0; appearance:none; border:none; outline:none; background:transparent;
+    font-family:inherit; font-size:13.5px; color:#fff;
+  }
+  .topbar-search input::placeholder{ color:rgba(255,255,255,0.6); }
+  #topbarSearchToggleBtn{ display:none; }
+
+  /* ---------- Global Search (mobile overlay bar) ---------- */
+  .topbar-search-mobile{
+    position:fixed; top:var(--topbar-h); left:0; right:0; z-index:59;
+    background:var(--blue-900); padding:10px 14px; box-shadow:0 6px 16px rgba(20,35,45,0.25);
+    display:none; align-items:center; gap:10px;
+  }
+  .topbar-search-mobile.show{ display:flex; }
+  .topbar-search-mobile .topbar-search{ margin:0; max-width:none; }
+  .topbar-search-mobile-close{
+    width:36px;height:36px; border-radius:10px; flex:none; cursor:pointer;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .topbar-search-mobile-close svg{ width:16px;height:16px; }
   .sidenav-add-btn{
     width:100%; margin-top:10px; flex:none;
     appearance:none; border:none; cursor:pointer; font-family:inherit;
@@ -471,6 +502,8 @@
     .topbar-title .sub{ display:none; }
     .topbar-user .info{ display:none; }
     .sidenav-add-btn span{ display:none; }
+    .topbar-search{ display:none; }
+    #topbarSearchToggleBtn{ display:flex; }
   }
   @media (max-width: 600px){
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
@@ -555,6 +588,11 @@
       <span class="sub">Project Console</span>
     </div>
   </div>
+  <div class="topbar-search" id="topbarSearch">
+    <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <label for="globalSearchInput" class="visually-hidden">全站搜尋:專案、待辦事項、聯絡人</label>
+    <input type="text" id="globalSearchInput" placeholder="搜尋專案、待辦、聯絡人..." autocomplete="off">
+  </div>
   <div class="topbar-right">
     <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
     <div class="topbar-user">
@@ -564,6 +602,9 @@
       </div>
       <div class="avatar" id="topbarAvatar">I</div>
     </div>
+    <button class="hamburger-btn topbar-search-toggle-btn" id="topbarSearchToggleBtn" aria-label="開啟搜尋" title="搜尋">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
     <div class="hamburger-wrap" id="notifWrap">
       <button class="hamburger-btn" id="notifBtn" aria-label="通知" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -606,6 +647,17 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="topbar-search-mobile" id="topbarSearchMobile">
+  <div class="topbar-search">
+    <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <label for="globalSearchInputMobile" class="visually-hidden">全站搜尋:專案、待辦事項、聯絡人</label>
+    <input type="text" id="globalSearchInputMobile" placeholder="搜尋專案、待辦、聯絡人..." autocomplete="off">
+  </div>
+  <button class="topbar-search-mobile-close" id="topbarSearchMobileClose" aria-label="關閉搜尋">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
 </div>
 
 <div class="sidenav">
@@ -3315,6 +3367,29 @@ async function init(){
   // 觸控與互動:讓漢堡選單／通知選單在觸控裝置上也能點擊開關,不再只依賴 hover
   setupClickMenu('hamburgerWrap', 'hamburgerBtn', 'hamburgerMenu');
   setupClickMenu('notifWrap', 'notifBtn', 'notifMenu');
+
+  // 全站搜尋:手機版把搜尋框收成一個圖示按鈕,點擊後展開成頂部下拉的搜尋列
+  const searchToggleBtn = document.getElementById('topbarSearchToggleBtn');
+  const searchMobileBar = document.getElementById('topbarSearchMobile');
+  const searchMobileClose = document.getElementById('topbarSearchMobileClose');
+  const searchMobileInput = document.getElementById('globalSearchInputMobile');
+  function openMobileSearch(){
+    searchMobileBar.classList.add('show');
+    searchToggleBtn.setAttribute('aria-expanded', 'true');
+    searchMobileInput.focus();
+  }
+  function closeMobileSearch(){
+    searchMobileBar.classList.remove('show');
+    searchToggleBtn.setAttribute('aria-expanded', 'false');
+  }
+  if(searchToggleBtn && searchMobileBar && searchMobileClose && searchMobileInput){
+    searchToggleBtn.setAttribute('aria-expanded', 'false');
+    searchToggleBtn.addEventListener('click', openMobileSearch);
+    searchMobileClose.addEventListener('click', closeMobileSearch);
+    document.addEventListener('keydown', e=>{
+      if(e.key==='Escape' && searchMobileBar.classList.contains('show')) closeMobileSearch();
+    });
+  }
 
   const exportBtn = document.getElementById('exportBackupBtn');
   if(exportBtn) exportBtn.addEventListener('click', exportBackup);
