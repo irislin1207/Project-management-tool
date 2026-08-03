@@ -2301,6 +2301,9 @@ function openProjectPreviewModal(id){
     `;
   }
 
+  const relatedTodos = DATA.todos.filter(t=> t.projectId===p.id);
+  const relatedNotes = DATA.notes.filter(n=> n.projectId===p.id);
+
   const box = document.getElementById('modalBox');
   box.className = 'modal wide';
   box.innerHTML = `
@@ -2309,6 +2312,8 @@ function openProjectPreviewModal(id){
     </div>
     <div class="modal-body">
       <div class="form-grid">${fieldsHtml}</div>
+      ${pvRelatedSectionHtml('相關待辦', ICONS.todos, relatedTodos, 'todo', p.id)}
+      ${pvRelatedSectionHtml('相關記事', ICONS.notes, relatedNotes, 'note', p.id)}
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" id="mCloseBtn">關閉視窗</button>
@@ -2318,6 +2323,55 @@ function openProjectPreviewModal(id){
   openModalOverlay();
   document.getElementById('mCloseBtn').addEventListener('click', closeModal);
   document.getElementById('mEdit').addEventListener('click', ()=> openProjectModal(p.id));
+  bindPvRelatedSectionEvents(box, p.id);
+}
+
+/* ---------- 專案預覽:相關待辦／相關記事 區塊 ----------
+   從 DATA.todos / DATA.notes 依 projectId 反查,讓使用者在專案細節裡就能看到
+   關聯的待辦與記事,不用切頁面自己找。每個項目可點擊直接開啟編輯,
+   區塊右上角的「+」則會開啟新增視窗並預先帶入這個專案的關聯。 */
+function pvRelatedSectionHtml(title, icon, items, type, projectId){
+  const listHtml = items.length
+    ? items.map(item=>{
+        if(type==='todo'){
+          const overdue = !item.done && item.dueDate && new Date(item.dueDate+'T23:59:59') < new Date();
+          return `<button type="button" class="search-result-item pv-related-item" data-type="todo" data-id="${esc(item.id)}">
+            <span class="sr-title">${item.done?'✅ ':''}${esc(item.title||'-')}</span>
+            <span class="sr-meta" style="${overdue?'color:var(--red);':''}">${[item.dueDate?`到期 ${item.dueDate}`:'', item.priority].filter(Boolean).map(esc).join('・')}</span>
+          </button>`;
+        }
+        const c = noteColorInfo(item.color);
+        return `<button type="button" class="search-result-item pv-related-item" data-type="note" data-id="${esc(item.id)}" style="border-left:3px solid ${c.border};">
+          <span class="sr-title">${item.pinned?'📌 ':''}${esc(item.title||'(無標題)')}</span>
+          <span class="sr-meta">${esc((item.content||'').slice(0,40))}${(item.content||'').length>40?'…':''}</span>
+        </button>`;
+      }).join('')
+    : `<div class="form-hint" style="padding:8px 2px;">目前沒有關聯的${type==='todo'?'待辦事項':'記事'}</div>`;
+  return `<div class="form-field full" style="margin-top:6px;">
+    <label style="display:flex;align-items:center;justify-content:space-between;">
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-flex;width:16px;height:16px;color:var(--blue-700);">${icon}</span>${title}${items.length?`<span style="font-size:11.5px;font-weight:600;color:var(--text-muted);background:var(--blue-100);padding:2px 9px;border-radius:20px;">${items.length}</span>`:''}</span>
+      <button type="button" class="btn btn-ghost btn-sm pv-related-add" data-type="${type}" data-pid="${esc(projectId)}">＋ 新增</button>
+    </label>
+    <div style="background:var(--blue-050);border:1px solid var(--border);border-radius:10px;padding:4px;">${listHtml}</div>
+  </div>`;
+}
+function bindPvRelatedSectionEvents(box, projectId){
+  box.querySelectorAll('.pv-related-item').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const { type, id } = btn.dataset;
+      closeModal();
+      if(type==='todo') openTodoModal(id);
+      else if(type==='note') openNoteModal(id);
+    });
+  });
+  box.querySelectorAll('.pv-related-add').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const { type, pid } = btn.dataset;
+      closeModal();
+      if(type==='todo') openTodoModal(null, { projectId: pid });
+      else if(type==='note') openNoteModal(null, { projectId: pid });
+    });
+  });
 }
 
 /* ---------- Project Modal ---------- */
@@ -3231,6 +3285,13 @@ function openTodoModal(id, prefill){
           <datalist id="projList">${DATA.projects.map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist>
         </div>
         <div class="form-field full">
+          <label>關聯專案(選填,關聯後可在專案預覽中看到這筆待辦)</label>
+          <select id="f_projectId">
+            <option value="">不關聯專案</option>
+            ${DATA.projects.map(p=>`<option value="${p.id}" ${t.projectId===p.id?'selected':''}>${esc(p.name)}${p.client?`(${esc(p.client)})`:''}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field full">
           <label>進度狀態</label>
           <select id="f_progress">
             ${progressOptions.map(p=>`<option ${t.progress===p?'selected':''}>${p}</option>`).join('')}
@@ -3266,6 +3327,7 @@ function openTodoModal(id, prefill){
       client, category: document.getElementById('f_category').value.trim(), title,
       priority: document.getElementById('f_priority').value, progress: document.getElementById('f_progress').value.trim(),
       note: document.getElementById('f_note').value.trim(),
+      projectId: document.getElementById('f_projectId').value || '',
       done: t.done||false,
     };
     const idx = DATA.todos.findIndex(x=>x.id===t.id);
@@ -3273,6 +3335,7 @@ function openTodoModal(id, prefill){
     await persist('todos');
     closeModal();
     if(currentPage==='todos') renderTodosTable();
+    if(currentPage==='projects') renderProjectsTable();
     toast(editing?'已儲存變更':'已新增待辦');
   });
 }
@@ -3569,12 +3632,12 @@ async function confirmDeleteNote(id){
   toast('已刪除記事');
 }
 
-function openNoteModal(id){
+function openNoteModal(id, prefill){
   const editing = !!id;
-  const n = editing ? DATA.notes.find(x=>x.id===id) : {
+  const n = editing ? DATA.notes.find(x=>x.id===id) : Object.assign({
     id: uid(), title:'', content:'', client:'', projectId:'', category:'', color:'yellow', pinned:false,
     createdAt: todayISO(), updatedAt: todayISO(),
-  };
+  }, prefill||{});
   const box = document.getElementById('modalBox');
   box.className = 'modal';
   box.innerHTML = `
