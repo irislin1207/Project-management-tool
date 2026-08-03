@@ -503,6 +503,25 @@
   .contact-line svg{ width:13px;height:13px; color:var(--blue-500); flex:none; }
   .contact-actions{ position:absolute; top:14px; right:14px; display:flex; gap:5px; }
 
+  /* notes */
+  .notes-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .note-card{
+    padding:15px 16px; position:relative; display:flex; flex-direction:column; gap:8px;
+    cursor:pointer; border-left:5px solid var(--blue-300); min-height:150px;
+  }
+  .note-card:hover{ box-shadow:0 8px 20px rgba(62,90,112,0.14); transform:translateY(-2px); transition:.18s ease; }
+  .note-card .note-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
+  .note-card .note-title{ font-size:14.5px; font-weight:800; color:var(--blue-900); word-break:break-word; }
+  .note-card .note-pin{ flex:none; color:var(--blue-500); }
+  .note-card .note-pin.is-pinned{ color:var(--red); }
+  .note-card .note-content{
+    font-size:12.5px; color:var(--text-muted); line-height:1.6; flex:1;
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:5; overflow:hidden;
+  }
+  .note-card .note-meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11px; color:var(--text-faint); }
+  .note-card .note-actions{ position:absolute; top:12px; right:12px; display:flex; gap:5px; opacity:0; transition:.15s; }
+  .note-card:hover .note-actions{ opacity:1; }
+
   /* ---------- Add Wizard ---------- */
   .add-wizard-group{ display:flex; gap:10px; margin-bottom:16px; }
   .add-wizard-option{
@@ -527,6 +546,7 @@
   @media (max-width: 980px){
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
     .chart-row, .two-col, .form-grid, .contact-grid{ grid-template-columns:1fr; }
+    .notes-grid{ grid-template-columns:repeat(2,1fr); }
   }
   @media (max-width: 760px){
     :root{ --sidebar-w:64px; --topbar-h:56px; }
@@ -541,6 +561,7 @@
   }
   @media (max-width: 600px){
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    .notes-grid{ grid-template-columns:1fr; }
   }
 
   /* 動畫:尊重作業系統的「減少動態效果」設定,讓所有過場動畫、位移、彈出效果
@@ -748,6 +769,9 @@ const ICONS = {
   projects:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
   todos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 7 2 2 3-3"/><path d="M11 6h9"/><path d="m4 15 2 2 3-3"/><path d="M11 14h9"/></svg>`,
   contacts:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16.5 4.5c1.6.4 2.8 1.9 2.8 3.6 0 1.7-1.2 3.2-2.8 3.6"/><path d="M20 20c0-2.7-1.7-5-4-5.8"/></svg>`,
+  notes:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2h6l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M14 2v5h5"/><path d="M8 13h8M8 17h5"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 3h6l1 6 3 3v2H5v-2l3-3Z"/></svg>`,
+  pinFilled:`<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M12 17v5"/><path d="M9 3h6l1 6 3 3v2H5v-2l3-3Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
   edit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
   trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>`,
@@ -768,8 +792,8 @@ const ICONS = {
 };
 
 /* ---------------- State & Storage ---------------- */
-const STORE_KEYS = { projects:'pm-projects', todos:'pm-todos', contacts:'pm-contacts', clients:'pm-clients' };
-let DATA = { projects:[], todos:[], contacts:[], clients:[] };
+const STORE_KEYS = { projects:'pm-projects', todos:'pm-todos', contacts:'pm-contacts', clients:'pm-clients', notes:'pm-notes' };
+let DATA = { projects:[], todos:[], contacts:[], clients:[], notes:[] };
 let currentPage = 'dashboard';
 let currentWorkspace = 'sales'; // 'sales' (業務執行) | 'pm' (專案管理)
 let charts = {};
@@ -777,6 +801,7 @@ let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'' };
 let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案:開發中／保固中)
 let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
+let noteFilter = { q:'', pinnedOnly:false };
 let lastFocusedEl = null; // 無障礙:記住開啟 Modal 前的焦點位置,關閉時還原,方便鍵盤操作者回到原本位置
 
 /* ---------------- Firebase-backed storage layer ----------------
@@ -1093,6 +1118,7 @@ function clearAllFieldErrors(container){
 /* ---------------- Nav ---------------- */
 const NAV_SALES = [
   {id:'todos', label:'待辦事項', icon:ICONS.todos},
+  {id:'notes', label:'記事本', icon:ICONS.notes},
   {id:'contacts', label:'聯絡清單', icon:ICONS.contacts},
   {id:'quotes', label:'報價處理', icon:ICONS.money},
   {id:'contracts', label:'合約處理', icon:ICONS.briefcase},
@@ -1243,6 +1269,7 @@ function renderPage(extra){
   else if(currentPage==='expiring') root.innerHTML = expiringTpl();
   else if(currentPage==='todos') root.innerHTML = todosTpl();
   else if(currentPage==='contacts') root.innerHTML = contactsTpl();
+  else if(currentPage==='notes') root.innerHTML = notesTpl();
   else if(currentPage==='quotes') root.innerHTML = quotesTpl();
   else if(currentPage==='contracts') root.innerHTML = contractsTpl();
   root.querySelector('.page').classList.add('active');
@@ -1255,6 +1282,7 @@ function renderPage(extra){
   if(currentPage==='expiring') afterExpiringRender();
   if(currentPage==='todos') afterTodosRender(extra);
   if(currentPage==='contacts') afterContactsRender();
+  if(currentPage==='notes') afterNotesRender();
 }
 
 /* ============================================================
@@ -1538,6 +1566,7 @@ const PAGE_THEME = {
   expiring:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   todos:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   contacts:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  notes:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   quotes:     { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   contracts:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   maintenance:{ bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
@@ -1577,8 +1606,8 @@ function priorityBadge(p){
 }
 
 /* ============================================================
-   GLOBAL SEARCH(全站搜尋:專案／待辦事項／聯絡人)
-   直接在前端已載入的 DATA 裡做子字串比對,不分工作區,一次搜三種資料。
+   GLOBAL SEARCH(全站搜尋:專案／待辦事項／聯絡人／記事)
+   直接在前端已載入的 DATA 裡做子字串比對,不分工作區,一次搜四種資料。
    ============================================================ */
 const SEARCH_RESULT_LIMIT = 5;
 
@@ -1598,11 +1627,16 @@ function computeSearchResults(query){
     return [c.name, c.company, c.role, c.phone, c.email]
       .some(v=> (v||'').toLowerCase().includes(q));
   });
+  const matchedNotes = DATA.notes.filter(n=>{
+    return [n.title, n.content, n.client, n.category]
+      .some(v=> (v||'').toLowerCase().includes(q));
+  });
 
   return {
     projects: matchedProjects.slice(0, SEARCH_RESULT_LIMIT), projectsTotal: matchedProjects.length,
     todos: matchedTodos.slice(0, SEARCH_RESULT_LIMIT), todosTotal: matchedTodos.length,
     contacts: matchedContacts.slice(0, SEARCH_RESULT_LIMIT), contactsTotal: matchedContacts.length,
+    notes: matchedNotes.slice(0, SEARCH_RESULT_LIMIT), notesTotal: matchedNotes.length,
   };
 }
 
@@ -1620,7 +1654,7 @@ function searchResultGroupHtml(title, items, total, renderItem){
 
 function renderSearchResultsHtml(query, results){
   if(!results) return '';
-  const total = results.projectsTotal + results.todosTotal + results.contactsTotal;
+  const total = results.projectsTotal + results.todosTotal + results.contactsTotal + results.notesTotal;
   if(total===0){
     return `<div class="search-results-empty">找不到符合「${esc(query.trim())}」的結果</div>`;
   }
@@ -1639,7 +1673,12 @@ function renderSearchResultsHtml(query, results){
       <span class="sr-title">${esc(c.name)}</span>
       <span class="sr-meta">${[c.company, c.role].filter(Boolean).map(esc).join('・')}</span>
     </button>`);
-  return projectsHtml + todosHtml + contactsHtml;
+  const notesHtml = searchResultGroupHtml('記事本', results.notes, results.notesTotal, n=>`
+    <button type="button" class="search-result-item" role="option" data-type="note" data-id="${esc(n.id)}">
+      <span class="sr-title">${esc(n.title||'(無標題)')}</span>
+      <span class="sr-meta">${[n.client, n.category].filter(Boolean).map(esc).join('・')}</span>
+    </button>`);
+  return projectsHtml + todosHtml + contactsHtml + notesHtml;
 }
 
 function updateSearchPanel(inputEl, panelEl){
@@ -1708,6 +1747,12 @@ function openSearchResult(type, id){
       if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
       goPage('contacts');
       openContactModal(id);
+    })();
+  } else if(type==='note'){
+    (async ()=>{
+      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
+      goPage('notes');
+      openNoteModal(id);
     })();
   }
 }
@@ -2902,11 +2947,12 @@ function openImportModal(type){
 const ADD_WIZARD_CATEGORIES = [
   {id:'projects', label:'專案', icon:ICONS.projects},
   {id:'todos', label:'待辦事項', icon:ICONS.todos},
+  {id:'notes', label:'記事本', icon:ICONS.notes},
   {id:'contacts', label:'聯絡人', icon:ICONS.contacts},
 ];
 
 function openAddWizard(){
-  let selCategory = (['projects','todos','contacts'].includes(currentPage)) ? currentPage : 'projects';
+  let selCategory = (['projects','todos','contacts','notes'].includes(currentPage)) ? currentPage : 'projects';
   let selMode = 'single';
   let selProjType = (currentPage==='projects') ? projSubTab : 'maintenance';
 
@@ -2942,7 +2988,7 @@ function openAddWizard(){
           </div>
         </div>
       </div>
-      <div class="form-field">
+      <div class="form-field" id="wizModeField">
         <label>新增方式</label>
         <div class="add-wizard-group" id="wizModeGroup">
           <div class="add-wizard-option" data-mode="single">
@@ -2978,6 +3024,14 @@ function openAddWizard(){
       el.classList.toggle('selected', el.dataset.ptype===selProjType);
     });
     document.getElementById('wizProjTypeField').style.display = selCategory==='projects' ? '' : 'none';
+    // 記事本目前不支援批次匯入,只提供單筆新增
+    const modeField = document.getElementById('wizModeField');
+    if(selCategory==='notes'){
+      selMode = 'single';
+      modeField.style.display = 'none';
+    } else {
+      modeField.style.display = '';
+    }
   }
   box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
     el.addEventListener('click', ()=>{ selCategory = el.dataset.cat; refreshSelection(); });
@@ -2995,6 +3049,10 @@ function openAddWizard(){
     if(selCategory==='projects'){
       if(selMode==='batch') openImportModal(selProjType);
       else openProjectModal(null, selProjType);
+      return;
+    }
+    if(selCategory==='notes'){
+      openNoteModal();
       return;
     }
     if(selMode==='batch'){
@@ -3384,6 +3442,241 @@ function openContactModal(id){
 }
 
 /* ============================================================
+   NOTES PAGE (記事本)
+   ============================================================ */
+const NOTE_COLORS = [
+  {id:'yellow', label:'黃', bg:'#FDF3D8', border:'#E4C15B'},
+  {id:'blue',   label:'藍', bg:'#E4EEF4', border:'#7FA8BF'},
+  {id:'green',  label:'綠', bg:'#E7EFE6', border:'#8CAE85'},
+  {id:'pink',   label:'粉', bg:'#F6E6E6', border:'#CE9797'},
+  {id:'gray',   label:'灰', bg:'#EFEDEA', border:'#B7B0A6'},
+];
+function noteColorInfo(id){
+  return NOTE_COLORS.find(c=>c.id===id) || NOTE_COLORS[0];
+}
+const NOTE_CATEGORIES = ['會議記錄','客戶溝通','一般'];
+
+function notesTpl(){
+  return `
+  <div class="page active" id="page-notes">
+    ${pageHeaderHtml('notes', ICONS.notes, '記事本', `共 ${DATA.notes.length} 則記事`)}
+    <div class="filter-bar">
+      <div class="seg" id="noteFilterSeg">
+        <button data-v="all" class="${!noteFilter.pinnedOnly?'active':''}">全部</button>
+        <button data-v="pinned" class="${noteFilter.pinnedOnly?'active':''}">已釘選</button>
+      </div>
+      <label for="noteSearch" class="visually-hidden">搜尋記事</label>
+      <input type="text" id="noteSearch" placeholder="搜尋標題／內容／客戶" value="${esc(noteFilter.q)}">
+      <div class="filter-spacer"></div>
+    </div>
+    <div id="notesRoot"></div>
+  </div>`;
+}
+
+function afterNotesRender(){
+  renderNotesList();
+  document.getElementById('noteSearch').addEventListener('input', e=>{ noteFilter.q = e.target.value; renderNotesList(); });
+  document.querySelectorAll('#noteFilterSeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      noteFilter.pinnedOnly = (btn.dataset.v==='pinned');
+      document.querySelectorAll('#noteFilterSeg button').forEach(b=> b.classList.toggle('active', b===btn));
+      renderNotesList();
+    });
+  });
+}
+
+function filteredNotes(){
+  return DATA.notes.filter(n=>{
+    if(noteFilter.pinnedOnly && !n.pinned) return false;
+    if(noteFilter.q){
+      const q = noteFilter.q.toLowerCase();
+      const hit = [n.title, n.content, n.client].some(v=>(v||'').toLowerCase().includes(q));
+      if(!hit) return false;
+    }
+    return true;
+  }).sort((a,b)=>{
+    if(!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    return (b.updatedAt||'').localeCompare(a.updatedAt||'');
+  });
+}
+
+function renderNotesList(){
+  const root = document.getElementById('notesRoot');
+  const list = filteredNotes();
+  if(!list.length){
+    root.innerHTML = `<div class="card">${emptyState('目前沒有符合條件的記事,點選左側「新增」開始記錄吧', ICONS.notes)}</div>`;
+    return;
+  }
+  root.innerHTML = `<div class="notes-grid">
+    ${list.map(n=>{
+      const c = noteColorInfo(n.color);
+      const proj = n.projectId ? DATA.projects.find(p=>p.id===n.projectId) : null;
+      const metaBits = [];
+      if(n.client) metaBits.push(esc(n.client));
+      if(proj) metaBits.push(`關聯:${esc(proj.name)}`);
+      if(n.category) metaBits.push(esc(n.category));
+      return `<div class="card note-card" style="background:${c.bg};border-left-color:${c.border};" data-open="${n.id}">
+        <div class="note-actions">
+          <button class="icon-btn" data-pin="${n.id}" title="${n.pinned?'取消釘選':'釘選'}" aria-label="${n.pinned?'取消釘選':'釘選'}記事「${esc(n.title||'')}」">${n.pinned?ICONS.pinFilled:ICONS.pin}</button>
+          <button class="icon-btn danger" data-del="${n.id}" title="刪除記事" aria-label="刪除記事「${esc(n.title||'')}」">${ICONS.trash}</button>
+        </div>
+        <div class="note-top">
+          <div class="note-title">${esc(n.title||'(無標題)')}</div>
+        </div>
+        <div class="note-content">${esc(n.content||'')}</div>
+        <div class="note-meta">
+          ${metaBits.map(m=>`<span class="badge badge-gray">${m}</span>`).join('')}
+          <span style="margin-left:auto;">${esc(n.updatedAt||'')}</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  root.querySelectorAll('[data-open]').forEach(card=>{
+    card.addEventListener('click', e=>{
+      if(e.target.closest('[data-pin]') || e.target.closest('[data-del]')) return;
+      openNoteModal(card.dataset.open);
+    });
+  });
+  root.querySelectorAll('[data-pin]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      const n = DATA.notes.find(x=>x.id===b.dataset.pin);
+      if(!n) return;
+      n.pinned = !n.pinned;
+      persist('notes');
+      renderNotesList();
+      toast(n.pinned?'已釘選記事':'已取消釘選');
+    });
+  });
+  root.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteNote(b.dataset.del); });
+  });
+}
+
+async function confirmDeleteNote(id){
+  const n = DATA.notes.find(x=>x.id===id);
+  if(!n) return;
+  const ok = await confirmDialog({
+    title:'刪除記事',
+    message:`確定要刪除記事「${n.title||'(無標題)'}」嗎?`,
+    confirmLabel:'刪除', cancelLabel:'取消', danger:true,
+  });
+  if(!ok) return;
+  DATA.notes = DATA.notes.filter(x=>x.id!==id);
+  persist('notes');
+  renderNotesList();
+  toast('已刪除記事');
+}
+
+function openNoteModal(id){
+  const editing = !!id;
+  const n = editing ? DATA.notes.find(x=>x.id===id) : {
+    id: uid(), title:'', content:'', client:'', projectId:'', category:'', color:'yellow', pinned:false,
+    createdAt: todayISO(), updatedAt: todayISO(),
+  };
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${editing?'編輯記事':'新增記事'}</div>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>標題 <span style="color:var(--red);">*</span></label>
+          <input id="f_title" value="${esc(n.title)}" placeholder="記事標題">
+        </div>
+        <div class="form-field full">
+          <label>內容 <span style="color:var(--red);">*</span></label>
+          <textarea id="f_content" rows="6" placeholder="記錄內容...">${esc(n.content||'')}</textarea>
+        </div>
+        <div class="form-field">
+          <label>客戶名稱</label>
+          <input list="clientListNote" id="f_client" value="${esc(n.client||'')}" placeholder="輸入或選擇客戶">
+          <datalist id="clientListNote">${DATA.clients.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>關聯專案</label>
+          <select id="f_projectId">
+            <option value="">不關聯專案</option>
+            ${DATA.projects.map(p=>`<option value="${p.id}" ${n.projectId===p.id?'selected':''}>${esc(p.name)}${p.client?`(${esc(p.client)})`:''}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field">
+          <label>分類</label>
+          <input list="noteCatList" id="f_category" value="${esc(n.category||'')}" placeholder="輸入或選擇分類">
+          <datalist id="noteCatList">${NOTE_CATEGORIES.map(c=>`<option value="${c}">`).join('')}</datalist>
+        </div>
+        <div class="form-field">
+          <label>顏色標籤</label>
+          <div style="display:flex;gap:8px;align-items:center;padding-top:4px;">
+            ${NOTE_COLORS.map(c=>`
+              <button type="button" class="note-color-swatch" data-color="${c.id}" title="${c.label}"
+                style="width:28px;height:28px;border-radius:50%;cursor:pointer;background:${c.bg};border:2px solid ${(n.color||'yellow')===c.id?c.border:'transparent'};box-shadow:0 0 0 1px ${c.border} inset;"></button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-field full">
+          <label class="checkbox-row"><input type="checkbox" id="f_pinned" ${n.pinned?'checked':''}>釘選在最上面</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">${editing?'儲存變更':'新增記事'}</button>
+    </div>
+  `;
+  openModalOverlay();
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('f_title').addEventListener('input', e=> clearFieldError(e.target));
+  document.getElementById('f_content').addEventListener('input', e=> clearFieldError(e.target));
+
+  let selectedColor = n.color || 'yellow';
+  box.querySelectorAll('.note-color-swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      selectedColor = sw.dataset.color;
+      box.querySelectorAll('.note-color-swatch').forEach(s=>{
+        const info = noteColorInfo(s.dataset.color);
+        s.style.border = `2px solid ${s.dataset.color===selectedColor?info.border:'transparent'}`;
+      });
+    });
+  });
+
+  document.getElementById('mSave').addEventListener('click', async ()=>{
+    clearAllFieldErrors(box);
+    const titleInput = document.getElementById('f_title');
+    const contentInput = document.getElementById('f_content');
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    let hasError = false;
+    if(!title){ markFieldError(titleInput, '請填寫標題'); hasError = true; }
+    if(!content){ markFieldError(contentInput, '請填寫內容'); hasError = true; }
+    if(hasError){ toast('請確認標示為紅色的必填欄位'); (!title?titleInput:contentInput).focus(); return; }
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
+    const client = document.getElementById('f_client').value.trim();
+    if(client) ensureClient(client);
+    const rec = {
+      id: n.id, title, content,
+      client, projectId: document.getElementById('f_projectId').value || '',
+      category: document.getElementById('f_category').value.trim(),
+      color: selectedColor, pinned: document.getElementById('f_pinned').checked,
+      createdAt: n.createdAt || todayISO(), updatedAt: todayISO(),
+    };
+    const idx = DATA.notes.findIndex(x=>x.id===n.id);
+    if(idx>=0) DATA.notes[idx]=rec; else DATA.notes.push(rec);
+    await persist('notes');
+    closeModal();
+    if(currentPage==='notes') renderNotesList();
+    toast(editing?'已儲存變更':'已新增記事');
+  });
+}
+
+/* ============================================================
    INIT
    ============================================================ */
 document.getElementById('modalOverlay').addEventListener('click', e=>{
@@ -3430,7 +3723,7 @@ document.addEventListener('keydown', e=>{
 async function clearAllData(){
   const ok = await confirmDialog({
     title:'清除所有資料',
-    message:'確定要清空所有專案／待辦／聯絡人資料嗎?此動作無法復原(建議先匯出備份)。',
+    message:'確定要清空所有專案／待辦／聯絡人／記事資料嗎?此動作無法復原(建議先匯出備份)。',
     confirmLabel:'清空資料', cancelLabel:'取消', danger:true,
   });
   if(!ok) return;
@@ -3438,9 +3731,11 @@ async function clearAllData(){
   DATA.todos = [];
   DATA.contacts = [];
   DATA.clients = [];
+  DATA.notes = [];
   await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
   todoFilter = { priority:'all', q:'' };
   projFilter = { q:'', pm:'', sales:'' };
+  noteFilter = { q:'', pinnedOnly:false };
   goPage('dashboard');
   toast('已清空所有資料');
 }
@@ -3454,7 +3749,7 @@ function exportBackup(){
   try{
     const payload = {
       exportedAt: new Date().toISOString(),
-      projects: DATA.projects, todos: DATA.todos, contacts: DATA.contacts, clients: DATA.clients,
+      projects: DATA.projects, todos: DATA.todos, contacts: DATA.contacts, clients: DATA.clients, notes: DATA.notes,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
     const url = URL.createObjectURL(blob);
@@ -3478,11 +3773,11 @@ function importBackupFromFile(file){
   reader.onload = async ()=>{
     try{
       const obj = JSON.parse(reader.result);
-      const hasAny = Array.isArray(obj.projects) || Array.isArray(obj.todos) || Array.isArray(obj.contacts) || Array.isArray(obj.clients);
+      const hasAny = Array.isArray(obj.projects) || Array.isArray(obj.todos) || Array.isArray(obj.contacts) || Array.isArray(obj.clients) || Array.isArray(obj.notes);
       if(!hasAny){ toast('這個檔案格式看起來不對,請確認是本系統匯出的備份檔'); return; }
       const ok = await confirmDialog({
         title:'還原備份檔',
-        message:'確定要用這個備份檔還原嗎?目前畫面上的所有專案／待辦／聯絡人資料將會被覆蓋。',
+        message:'確定要用這個備份檔還原嗎?目前畫面上的所有專案／待辦／聯絡人／記事資料將會被覆蓋。',
         confirmLabel:'還原', cancelLabel:'取消', danger:true,
       });
       if(!ok) return;
@@ -3490,6 +3785,7 @@ function importBackupFromFile(file){
       DATA.todos = Array.isArray(obj.todos) ? obj.todos : [];
       DATA.contacts = Array.isArray(obj.contacts) ? obj.contacts : [];
       DATA.clients = Array.isArray(obj.clients) ? obj.clients : [];
+      DATA.notes = Array.isArray(obj.notes) ? obj.notes : [];
       await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
       goPage('dashboard');
       toast('已還原備份資料');
