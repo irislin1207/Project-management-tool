@@ -948,6 +948,15 @@ function ensureClient(name){
   }
 }
 
+/* 專案代碼全域重複檢查:維護專案／進行中專案共用同一個代碼命名空間,
+   比對時忽略大小寫與頭尾空白,並排除自己這筆(編輯時用)。空白代碼不檢查
+   (代碼是選填欄位,允許多筆都留空)。 */
+function isProjectCodeDuplicate(code, excludeId){
+  const norm = (code||'').trim().toLowerCase();
+  if(!norm) return false;
+  return DATA.projects.some(p=> p.id!==excludeId && (p.code||'').trim().toLowerCase()===norm);
+}
+
 function applyGoogleIdentity(user){
   const name = user.displayName || user.email || 'User';
   const nameEl = document.getElementById('topbarUser');
@@ -1250,7 +1259,7 @@ function renderNotifications(){
     </button>`;
   }).join('');
   list.querySelectorAll('.notif-item').forEach(btn=>{
-    btn.addEventListener('click', ()=> goPage('todos','all'));
+    btn.addEventListener('click', ()=>{ goPage('todos','all'); openTodoPreviewModal(btn.dataset.id); });
   });
 }
 
@@ -1740,7 +1749,7 @@ function openSearchResult(type, id){
     (async ()=>{
       if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
       goPage('todos');
-      openTodoModal(id);
+      openTodoPreviewModal(id);
     })();
   } else if(type==='contact'){
     (async ()=>{
@@ -2360,7 +2369,7 @@ function bindPvRelatedSectionEvents(box, projectId){
     btn.addEventListener('click', ()=>{
       const { type, id } = btn.dataset;
       closeModal();
-      if(type==='todo') openTodoModal(id);
+      if(type==='todo') openTodoPreviewModal(id);
       else if(type==='note') openNoteModal(id);
     });
   });
@@ -2500,6 +2509,7 @@ function openMaintenanceProjectModal(existing, editing){
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('f_client').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
+  document.getElementById('f_code').addEventListener('input', e=> clearFieldError(e.target));
 
   const defaultYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
   let rows = (p.installments && p.installments.length)
@@ -2566,12 +2576,14 @@ function openMaintenanceProjectModal(existing, editing){
     clearAllFieldErrors(box);
     const clientInput = document.getElementById('f_client');
     const nameInput = document.getElementById('f_name');
+    const codeInput = document.getElementById('f_code');
     const client = clientInput.value.trim();
     const name = nameInput.value.trim();
     let hasError = false;
     if(!client){ markFieldError(clientInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫合約名稱'); hasError = true; }
-    if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:nameInput).focus(); return; }
+    if(isProjectCodeDuplicate(codeInput.value, p.id)){ markFieldError(codeInput, '此代碼已存在'); hasError = true; }
+    if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:!name?nameInput:codeInput).focus(); return; }
     const saveBtn = document.getElementById('mSave');
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中…';
@@ -2716,6 +2728,7 @@ function openInProgressProjectModal(existing, editing){
   document.getElementById('mCancel').addEventListener('click', closeModal);
   document.getElementById('f_client').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
+  document.getElementById('f_code').addEventListener('input', e=> clearFieldError(e.target));
 
   document.getElementById('f_calcWarranty').addEventListener('click', ()=>{
     const accept = document.getElementById('f_acceptance').value;
@@ -2743,12 +2756,14 @@ function openInProgressProjectModal(existing, editing){
     clearAllFieldErrors(box);
     const clientInput = document.getElementById('f_client');
     const nameInput = document.getElementById('f_name');
+    const codeInput = document.getElementById('f_code');
     const client = clientInput.value.trim();
     const name = nameInput.value.trim();
     let hasError = false;
     if(!client){ markFieldError(clientInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫合約名稱'); hasError = true; }
-    if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:nameInput).focus(); return; }
+    if(isProjectCodeDuplicate(codeInput.value, p.id)){ markFieldError(codeInput, '此代碼已存在'); hasError = true; }
+    if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:!name?nameInput:codeInput).focus(); return; }
     const saveBtn = document.getElementById('mSave');
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中…';
@@ -2976,6 +2991,7 @@ function openImportModal(type){
   skipHeaderEl.addEventListener('change', updateInfo);
 
   const dataKey = (type==='maintenance'||type==='inprogress') ? 'projects' : type;
+  const isProjectImport = (type==='maintenance'||type==='inprogress');
   document.getElementById('mImport').addEventListener('click', async ()=>{
     const rowsAll = parseImportText(textArea.value);
     const rows = (skipHeaderEl.checked && rowsAll.length) ? rowsAll.slice(1) : rowsAll;
@@ -2983,15 +2999,31 @@ function openImportModal(type){
     const importBtn = document.getElementById('mImport');
     importBtn.disabled = true;
     importBtn.textContent = '匯入中…';
-    let added=0, skipped=0;
+    let added=0, skipped=0, skippedDup=0;
+    // 批次匯入的代碼重複檢查:除了跟資料庫既有專案比對,也要跟同一批次裡已經
+    // 準備匯入的列互相比對(避免同一批貼上的資料裡自己就有重複代碼卻沒被擋下)。
+    const seenCodes = new Set();
     rows.forEach(cells=>{
       const rec = buildImportRecord(type, cells);
-      if(rec){ DATA[dataKey].push(rec); added++; } else skipped++;
+      if(!rec){ skipped++; return; }
+      if(isProjectImport && rec.code && rec.code.trim()){
+        const normCode = rec.code.trim().toLowerCase();
+        if(isProjectCodeDuplicate(rec.code, null) || seenCodes.has(normCode)){
+          skippedDup++;
+          return;
+        }
+        seenCodes.add(normCode);
+      }
+      DATA[dataKey].push(rec);
+      added++;
     });
     if(added>0) await persist(dataKey);
     closeModal();
     renderPage();
-    toast(`已匯入 ${added} 筆${skipped?`,略過 ${skipped} 筆(必要欄位缺漏)`:''}`);
+    const notes = [];
+    if(skipped) notes.push(`${skipped} 筆(必要欄位缺漏)`);
+    if(skippedDup) notes.push(`${skippedDup} 筆(專案代碼重複)`);
+    toast(`已匯入 ${added} 筆${notes.length?`,略過 ${notes.join('、')}`:''}`);
   });
 }
 
@@ -3196,7 +3228,7 @@ function renderTodosTable(){
   const now = new Date();
   tbody.innerHTML = list.map(t=>{
     const overdue = !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now;
-    return `<tr style="${t.done?'opacity:.55;':''}">
+    return `<tr class="row-clickable" data-preview="${t.id}" style="${t.done?'opacity:.55;':''}">
       <td><label style="display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;"><input type="checkbox" class="todo-check" data-id="${t.id}" ${t.done?'checked':''} style="width:18px;height:18px;accent-color:var(--blue-700);cursor:pointer;" aria-label="標記待辦「${esc(t.title||'')}」為${t.done?'未完成':'已完成'}"></label></td>
       <td class="cell-muted" style="${overdue?'color:var(--red);font-weight:700;':''}">${esc(t.dueDate||'-')}${overdue?' ⚠':''}</td>
       <td class="cell-muted">${esc(t.updatedDate||'-')}</td>
@@ -3207,13 +3239,14 @@ function renderTodosTable(){
       <td>${t.progress?`<span class="badge badge-blue">${esc(t.progress)}</span>`:''}</td>
       <td class="cell-muted" style="max-width:200px;white-space:normal;">${esc(t.note||'')}</td>
       <td><div class="row-actions">
-        <button class="icon-btn" data-edit="${t.id}" title="編輯待辦" aria-label="編輯待辦「${esc(t.title||'')}」">${ICONS.edit}</button>
         <button class="icon-btn danger" data-del="${t.id}" title="刪除待辦" aria-label="刪除待辦「${esc(t.title||'')}」">${ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
 
+  tbody.querySelectorAll('[data-preview]').forEach(tr=> tr.addEventListener('click', ()=> openTodoPreviewModal(tr.dataset.preview)));
   tbody.querySelectorAll('.todo-check').forEach(cb=>{
+    cb.addEventListener('click', e=> e.stopPropagation());
     cb.addEventListener('change', e=>{
       const t = DATA.todos.find(x=>x.id===e.target.dataset.id);
       t.done = e.target.checked;
@@ -3223,8 +3256,47 @@ function renderTodosTable(){
       toast(t.done?'已標記完成':'已取消完成');
     });
   });
-  tbody.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openTodoModal(b.dataset.edit)));
-  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', ()=> confirmDeleteTodo(b.dataset.del)));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteTodo(b.dataset.del); }));
+}
+
+/* ---------- Todo Preview Modal ----------
+   比照專案總覽的「先預覽、再編輯」流程:整列點擊只開唯讀預覽,
+   要修改內容需再按「編輯」才切換到可編輯表單,避免誤觸表格就跳出一大堆輸入框。 */
+function openTodoPreviewModal(id){
+  const t = DATA.todos.find(x=>x.id===id);
+  if(!t) return;
+  const proj = t.projectId ? DATA.projects.find(p=>p.id===t.projectId) : null;
+
+  const fieldsHtml = `
+    ${pvField('到期日', esc(t.dueDate))}
+    ${pvField('優先順序', esc(t.priority))}
+    ${pvField('客戶名稱', esc(t.client))}
+    ${pvField('類別', esc(t.category))}
+    ${pvField('項目/專案', esc(t.title), true)}
+    ${pvField('關聯專案', proj ? esc(proj.name) : '', true)}
+    ${pvField('進度狀態', esc(t.progress))}
+    ${pvField('完成狀態', t.done ? '已完成' : '未完成')}
+    ${pvField('更新日', esc(t.updatedDate))}
+    ${pvField('備註說明', esc(t.note), true)}
+  `;
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">待辦事項預覽</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">${fieldsHtml}</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCloseBtn">關閉視窗</button>
+      <button class="btn btn-primary" id="mEdit">編輯</button>
+    </div>
+  `;
+  openModalOverlay();
+  document.getElementById('mCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('mEdit').addEventListener('click', ()=> openTodoModal(t.id));
 }
 
 async function confirmDeleteTodo(id){
