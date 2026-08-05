@@ -606,6 +606,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- ===== SheetJS(匯出 Excel .xlsx 用)===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBMShdFxrdIh3hI1Df6IdLwXCIJ8bTJf7Y",
@@ -689,11 +691,6 @@
         <button class="hmenu-item" id="settingsBtn" disabled title="即將推出">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           設定(即將推出)
-        </button>
-        <div class="hmenu-sep"></div>
-        <button class="hmenu-item danger" id="clearAllBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
-          清除所有資料
         </button>
         <div class="hmenu-sep"></div>
         <button class="hmenu-item danger" id="signOutBtn">
@@ -980,6 +977,60 @@ async function loadWorkspace(){
 }
 async function saveWorkspace(ws){
   try{ await fbStorageSet(WORKSPACE_KEY, ws); }catch(e){ console.error(e); }
+}
+
+/* ---------- 匯出提醒橫幅(記錄上次匯出時間) ----------
+   純前端架構沒有背景排程,無法真正做到「定期自動匯出」,退而求其次採用
+   「記錄上次匯出時間 + 超過門檻天數就在頁面顯示提醒橫幅」的方案,
+   由使用者自己看到提醒後手動按「立即匯出」。時間記錄存在 Firestore
+   (跨裝置同步),鍵值格式為 { receivables: 'YYYY-MM-DD', expiring: 'YYYY-MM-DD' }。 */
+const EXPORT_META_KEY = 'pm-export-meta';
+const EXPORT_REMINDER_DAYS = 7;
+let exportMeta = {};
+async function loadExportMeta(){
+  try{
+    const r = await fbStorageGet(EXPORT_META_KEY);
+    return (r && r.value) ? JSON.parse(r.value) : {};
+  }catch(e){ return {}; }
+}
+async function saveExportMeta(){
+  try{ await fbStorageSet(EXPORT_META_KEY, JSON.stringify(exportMeta)); }catch(e){ console.error(e); }
+}
+function daysSinceExport(key){
+  const iso = exportMeta[key];
+  if(!iso) return null;
+  const then = new Date(iso+'T00:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  return Math.floor((now-then)/(1000*60*60*24));
+}
+async function markExported(key, containerId, label){
+  exportMeta[key] = todayISO();
+  await saveExportMeta();
+  renderExportReminder(containerId, key, label);
+}
+function exportReminderHtml(key, label){
+  const days = daysSinceExport(key);
+  const overThreshold = days===null || days>=EXPORT_REMINDER_DAYS;
+  if(!overThreshold) return '';
+  const msg = days===null ? `尚未匯出過${label}` : `距離上次匯出${label}已 ${days} 天`;
+  return `<div class="card panel" style="margin-bottom:16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--red-bg);border-color:var(--red-soft);">
+    <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--red);font-weight:700;">
+      <span style="display:inline-flex;width:17px;height:17px;flex:none;">${ICONS.alert}</span>${msg},建議定期匯出備份
+    </div>
+    <button class="btn btn-danger btn-sm" data-export-now="${key}">立即匯出</button>
+  </div>`;
+}
+function renderExportReminder(containerId, key, label){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = exportReminderHtml(key, label);
+  const btn = el.querySelector('[data-export-now]');
+  if(btn){
+    btn.addEventListener('click', ()=>{
+      if(key==='receivables') exportReceivablesExcel();
+      else if(key==='expiring') exportExpiringExcel();
+    });
+  }
 }
 function updateWorkspaceMenuUI(){
   const label = document.getElementById('workspaceLabel');
@@ -1793,6 +1844,7 @@ function receivablesTpl(){
   return `
   <div class="page active" id="page-receivables">
     ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', `${thisYear} 年度・依開款月份查詢各專案收款期數明細`)}
+    <div id="rvExportReminder"></div>
     <div class="filter-bar">
       <div class="seg" id="rvStatusSeg">
         <button data-v="overdue" class="${receivFilter.status==='overdue'?'active':''}">已逾期</button>
@@ -1803,6 +1855,7 @@ function receivablesTpl(){
         ${opts.map(m=>`<option value="${m}" ${receivFilter.month===m?'selected':''}>${m} 月</option>`).join('')}
       </select>
       <div class="filter-spacer"></div>
+      <button class="btn btn-ghost btn-sm" id="rvExportBtn" style="color:${PAGE_THEME.receivables.color};border-color:${PAGE_THEME.receivables.bg};">${ICONS.upload}匯出 Excel</button>
       <span class="badge badge-blue" id="rvCountBadge"></span>
     </div>
     <div class="card panel">
@@ -1827,6 +1880,8 @@ function afterReceivablesRender(){
       renderReceivablesAll();
     });
   });
+  document.getElementById('rvExportBtn').addEventListener('click', exportReceivablesExcel);
+  renderExportReminder('rvExportReminder', 'receivables', '應收帳款');
 }
 
 function updateRvSegUI(){
@@ -1900,6 +1955,66 @@ function renderReceivablesMonthList(){
   });
 }
 
+/* ---------- XLSX 匯出共用小工具 ----------
+   統一用 SheetJS 把「表頭陣列 + 資料列陣列」轉成一份 .xlsx 並觸發下載,
+   欄寬簡單依內容長度自動抓一個大概值,避免每欄都擠成同一寬度。 */
+function exportRowsToExcel(filename, sheetName, headers, rows){
+  if(typeof XLSX==='undefined'){ toast('匯出元件載入失敗,請檢查網路連線後重新整理再試'); return; }
+  const wsData = [headers, ...rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = headers.map((h,i)=>{
+    const maxLen = Math.max(String(h).length, ...rows.map(r=> String(r[i]==null?'':r[i]).length));
+    return { wch: Math.min(Math.max(maxLen+2, 8), 40) };
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, filename);
+}
+
+/* 應收帳款匯出:依目前畫面上的檢視模式(已逾期／依月份)匯出對應清單與欄位,
+   跟使用者當下看到的表格內容一致,不會多匯出使用者沒在看的資料。 */
+function exportReceivablesExcel(){
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
+  if(receivFilter.status==='overdue'){
+    const list = computeOverdueReceivables();
+    if(!list.length){ toast('目前沒有逾期未收款項目可匯出'); return; }
+    const headers = ['客戶','專案','專案代碼','PM','應開款月份','期數','金額'];
+    const rows = list.map(r=> [r.client, r.name, r.code, r.pm, `${r.month}月`, `第${r.period}/${r.total}期`, r.amount]);
+    exportRowsToExcel(`應收帳款_已逾期_${stamp}.xlsx`, '已逾期', headers, rows);
+  } else {
+    const list = getAllInstallments().filter(x=>x.month===receivFilter.month)
+      .sort((a,b)=>{
+        if(a.received!==b.received) return a.received?1:-1;
+        return (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'});
+      });
+    if(!list.length){ toast(`${receivFilter.month} 月無應收款項目可匯出`); return; }
+    const headers = ['客戶','專案','專案代碼','PM','期數','金額','已收款'];
+    const rows = list.map(r=> [r.client, r.name, r.code, r.pm, `第${r.period}/${r.total}期`, r.amount, r.received?'是':'否']);
+    exportRowsToExcel(`應收帳款_${receivFilter.month}月_${stamp}.xlsx`, `${receivFilter.month}月`, headers, rows);
+  }
+  toast('已匯出 Excel 檔案');
+  markExported('receivables', 'rvExportReminder', '應收帳款');
+}
+
+/* 即將到期專案匯出:依目前畫面上選的 stat-card 篩選(全部／已逾期／本月／下月／後月)
+   匯出對應清單,欄位跟表格一致。 */
+function exportExpiringExcel(){
+  const list = computeFilteredExpiringList();
+  if(!list.length){ toast('目前沒有可匯出的資料'); return; }
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
+  const bucketLabel = expiringFilter==='all' ? '全部' : expiringFilter==='overdue' ? '已逾期' : `未來第${Number(expiringFilter)+1}個月`;
+  const headers = ['來源','客戶','合約名稱','專案代碼','專案經理','到期日','是否逾期','已完成'];
+  const rows = list.map(p=> [
+    isMaintenanceProject(p) ? '維護專案' : '進行中專案',
+    p.client, p.name, p.code, p.pm, p._expiryDate, p._isOverdue?'是':'否', p.renewalDone?'是':'否',
+  ]);
+  exportRowsToExcel(`即將到期專案_${bucketLabel}_${stamp}.xlsx`, bucketLabel, headers, rows);
+  toast('已匯出 Excel 檔案');
+  markExported('expiring', 'expExportReminder', '即將到期專案');
+}
+
 /* ============================================================
    EXPIRING PROJECTS PAGE (即將到期專案)
    ============================================================ */
@@ -1907,9 +2022,13 @@ function expiringTpl(){
   return `
   <div class="page active" id="page-expiring">
     ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案')}
+    <div id="expExportReminder"></div>
     <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
     <div class="card panel">
-      <div class="panel-title">即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></div>
+      <div class="panel-title">
+        <span>即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></span>
+        <button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:${PAGE_THEME.expiring.color};border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>
+      </div>
       <div id="expiringList"></div>
     </div>
   </div>`;
@@ -1920,6 +2039,23 @@ let expiringFilter = 'all';
 function afterExpiringRender(){
   expiringFilter = 'all';
   renderExpiringContent();
+  document.getElementById('expExportBtn').addEventListener('click', exportExpiringExcel);
+  renderExportReminder('expExportReminder', 'expiring', '即將到期專案');
+}
+
+/* 即將到期專案清單依目前的 stat-card 篩選(全部／已逾期／本月／下月／後月)回傳對應清單,
+   表格畫面渲染與 Excel 匯出共用同一份邏輯,確保匯出內容跟畫面上看到的一致。 */
+function computeFilteredExpiringList(){
+  const combined = computeExpiringPageList(3);
+  const now = new Date(); now.setHours(0,0,0,0);
+  if(expiringFilter==='all') return combined;
+  if(expiringFilter==='overdue') return combined.filter(p=>p._isOverdue);
+  return combined.filter(p=>{
+    if(p._isOverdue) return false;
+    const d = new Date(p._expiryDate+'T00:00:00');
+    const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
+    return diff===expiringFilter;
+  });
 }
 
 function renderExpiringContent(){
@@ -1959,14 +2095,7 @@ function renderExpiringContent(){
     });
   });
 
-  const filtered = expiringFilter==='all' ? combined
-    : expiringFilter==='overdue' ? combined.filter(p=>p._isOverdue)
-    : combined.filter(p=>{
-        if(p._isOverdue) return false;
-        const d = new Date(p._expiryDate+'T00:00:00');
-        const diff = (d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth());
-        return diff===expiringFilter;
-      });
+  const filtered = computeFilteredExpiringList();
 
   document.getElementById('expiringTotalTag').textContent = `共 ${filtered.length} 個專案`;
   const el = document.getElementById('expiringList');
@@ -3855,6 +3984,9 @@ document.addEventListener('keydown', e=>{
   }
 });
 
+/* 「清除所有資料」按鈕已依需求移除(保留匯出備份／還原備份作為資料救援管道)。
+   若之後需要恢復,可將下面整段取消註解,並在漢堡選單加回對應按鈕即可:
+
 async function clearAllData(){
   const ok = await confirmDialog({
     title:'清除所有資料',
@@ -3874,6 +4006,7 @@ async function clearAllData(){
   goPage('dashboard');
   toast('已清空所有資料');
 }
+*/
 
 /* ============================================================
    BACKUP EXPORT / RESTORE
@@ -3940,7 +4073,8 @@ async function init(){
     currentPage = validIds.includes(fromHash.page) ? fromHash.page : 'dashboard';
   }
   renderNav();
-  await loadAll();
+  const [, meta] = await Promise.all([loadAll(), loadExportMeta()]);
+  exportMeta = meta || {};
   renderPage();
   renderNotifications();
   updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效)時,同步修正回去
@@ -4010,8 +4144,6 @@ async function init(){
       importFileInput.value = '';
     });
   }
-  const clearAllBtn = document.getElementById('clearAllBtn');
-  if(clearAllBtn) clearAllBtn.addEventListener('click', clearAllData);
 
   const signOutBtn = document.getElementById('signOutBtn');
   if(signOutBtn) signOutBtn.addEventListener('click', ()=> fbAuth.signOut());
