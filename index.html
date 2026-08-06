@@ -178,7 +178,7 @@
     font-size:13.5px; font-weight:600; color:var(--blue-900); padding:10px 12px; border-radius:9px;
   }
   .hmenu-item:hover{ background:var(--blue-050); }
-  .hmenu-item svg{ width:16px;height:16px; color:var(--blue-700); flex:none; }
+  .hmenu-item svg{ width:16px; height:16px; color:var(--blue-700); flex:none; }
   .hmenu-item:disabled{ color:var(--text-faint); cursor:not-allowed; }
   .hmenu-item:disabled svg{ color:var(--text-faint); }
   .hmenu-item:disabled:hover{ background:transparent; }
@@ -688,9 +688,9 @@
           還原備份檔
         </button>
         <div class="hmenu-sep"></div>
-        <button class="hmenu-item" id="settingsBtn" disabled title="即將推出">
+        <button class="hmenu-item" id="settingsBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          設定(即將推出)
+          設定
         </button>
         <div class="hmenu-sep"></div>
         <button class="hmenu-item danger" id="signOutBtn">
@@ -786,6 +786,7 @@ const ICONS = {
   inbox:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-7Z"/></svg>`,
   single:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
   batch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="3" y="16" width="14" height="4" rx="1"/></svg>`,
+  settings:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 };
 
 /* ---------------- State & Storage ---------------- */
@@ -979,6 +980,330 @@ async function saveWorkspace(ws){
   try{ await fbStorageSet(WORKSPACE_KEY, ws); }catch(e){ console.error(e); }
 }
 
+/* ---------------- SETTINGS(設定)----------------
+   階段一:先建立完整的讀寫骨架與預設值,設定 Modal 內容會在後續階段逐步補上。
+   單一 key 集中存放,存檔時整包覆蓋,避免像 workspace/export-meta 那樣散落多個 key。 */
+const SETTINGS_KEY = 'pm-settings';
+const DEFAULT_SETTINGS = {
+  notifications: {
+    dueSoonDays: 3,
+    exportReminderEnabled: true,
+    exportReminderDays: 7,
+    showReceivablesInBell: false,
+    showExpiringInBell: false,
+  },
+  lists: {
+    todoCategories: ['合約','報價','發票','維護紀錄','會議','DD'],
+    noteCategories: ['會議記錄','客戶溝通','一般'],
+    todoProgressOptions: ['待處理','內部進行中','客戶進行中'],
+    departments: ['WM','AM'],
+  },
+  display: {
+    defaultWorkspace: 'sales',
+    rememberLastPage: true,
+    sidebarCollapsedDefault: false,
+    tableDensity: 'normal', // 'normal' | 'compact'
+    amountDecimal: false,
+  },
+};
+let SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+
+/* 淺層合併:確保就算 Firestore 裡存的是舊版設定(缺少新欄位),也會補上預設值,
+   避免之後任何讀取 SETTINGS.xxx.yyy 的地方碰到 undefined。 */
+function mergeSettings(base, loaded){
+  const out = {};
+  Object.keys(base).forEach(section=>{
+    out[section] = Object.assign({}, base[section], (loaded && loaded[section]) || {});
+  });
+  return out;
+}
+
+async function loadSettings(){
+  try{
+    const r = await fbStorageGet(SETTINGS_KEY);
+    const loaded = (r && r.value) ? JSON.parse(r.value) : null;
+    SETTINGS = mergeSettings(DEFAULT_SETTINGS, loaded);
+  }catch(e){
+    console.error(e);
+    SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  }
+}
+async function saveSettings(next){
+  SETTINGS = mergeSettings(DEFAULT_SETTINGS, next);
+  try{
+    await fbStorageSet(SETTINGS_KEY, JSON.stringify(SETTINGS));
+    return true;
+  }catch(e){
+    console.error(e);
+    return false;
+  }
+}
+/* 階段三:自訂清單共用讀取工具,任何寫死的 datalist/select 選項改讀這裡,
+   萬一 SETTINGS 尚未載入完成也有預設值可退回。 */
+function getListSetting(key){
+  return (SETTINGS && SETTINGS.lists && SETTINGS.lists[key]) || DEFAULT_SETTINGS.lists[key];
+}
+
+/* ---------- 設定 Modal(階段一:骨架 + 分頁殼子,內容留待後續階段填入) ---------- */
+const SETTINGS_TABS = [
+  { id:'notifications', label:'通知提醒' },
+  { id:'lists', label:'自訂清單' },
+  { id:'display', label:'顯示偏好' },
+];
+let settingsActiveTab = 'notifications';
+let settingsDraft = null; // 開啟 Modal 時複製一份 SETTINGS,存檔才寫回,取消則捨棄
+
+function settingsTabPlaceholderHtml(label){
+  return `<div class="form-hint" style="padding:24px 4px;text-align:center;">「${esc(label)}」功能開發中,將於後續階段陸續開放</div>`;
+}
+
+/* ---------- 階段二:通知提醒分頁 ---------- */
+function renderNotificationsTabHtml(){
+  const n = settingsDraft.notifications;
+  return `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>待辦到期提醒天數</label>
+        <input type="number" id="set_dueSoonDays" min="1" max="14" value="${n.dueSoonDays}">
+        <div class="form-hint">待辦事項到期日在幾天內時,會出現在右上角通知鈴鐺的「即將到期」清單中(範圍 1–14 天)</div>
+      </div>
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_exportReminderEnabled" ${n.exportReminderEnabled?'checked':''}>啟用備份提醒</label>
+        <div class="form-hint">開啟後,「應收帳款」「即將到期專案」頁面若太久沒有匯出 Excel,會在頁面頂部顯示紅色提醒橫幅</div>
+      </div>
+      <div class="form-field full">
+        <label>備份提醒門檻天數</label>
+        <input type="number" id="set_exportReminderDays" min="1" max="30" value="${n.exportReminderDays}" ${n.exportReminderEnabled?'':'disabled'}>
+        <div class="form-hint">距離上次匯出超過這個天數,就會顯示提醒橫幅(範圍 1–30 天)</div>
+      </div>
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_showReceivablesInBell" ${n.showReceivablesInBell?'checked':''}>通知鈴鐺納入「逾期應收帳款」</label>
+        <div class="form-hint">開啟後,已逾期未收款的項目也會顯示在通知鈴鐺清單中,點擊可直接跳轉至應收帳款頁面</div>
+      </div>
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_showExpiringInBell" ${n.showExpiringInBell?'checked':''}>通知鈴鐺納入「即將到期專案」</label>
+        <div class="form-hint">開啟後,已逾期或近三個月內到期的專案也會顯示在通知鈴鐺清單中,點擊可直接跳轉至即將到期專案頁面</div>
+      </div>
+    </div>
+  `;
+}
+function bindNotificationsTabEvents(){
+  const dueSoonInput = document.getElementById('set_dueSoonDays');
+  const enabledInput = document.getElementById('set_exportReminderEnabled');
+  const daysInput = document.getElementById('set_exportReminderDays');
+  const recvInput = document.getElementById('set_showReceivablesInBell');
+  const expInput = document.getElementById('set_showExpiringInBell');
+  if(dueSoonInput) dueSoonInput.addEventListener('input', e=>{
+    settingsDraft.notifications.dueSoonDays = Math.min(14, Math.max(1, Number(e.target.value)||3));
+  });
+  if(enabledInput) enabledInput.addEventListener('change', e=>{
+    settingsDraft.notifications.exportReminderEnabled = e.target.checked;
+    if(daysInput) daysInput.disabled = !e.target.checked;
+  });
+  if(daysInput) daysInput.addEventListener('input', e=>{
+    settingsDraft.notifications.exportReminderDays = Math.min(30, Math.max(1, Number(e.target.value)||7));
+  });
+  if(recvInput) recvInput.addEventListener('change', e=>{ settingsDraft.notifications.showReceivablesInBell = e.target.checked; });
+  if(expInput) expInput.addEventListener('change', e=>{ settingsDraft.notifications.showExpiringInBell = e.target.checked; });
+}
+
+function renderSettingsTabContent(){
+  const body = document.getElementById('settingsTabBody');
+  if(!body) return;
+  if(settingsActiveTab==='notifications'){
+    body.innerHTML = renderNotificationsTabHtml();
+    bindNotificationsTabEvents();
+  }
+  else if(settingsActiveTab==='lists'){
+    body.innerHTML = renderListsTabHtml();
+    bindListsTabEvents();
+  }
+  else if(settingsActiveTab==='display') body.innerHTML = settingsTabPlaceholderHtml('顯示偏好');
+}
+
+/* ---------- 階段三:標籤清單編輯器(通用元件) ----------
+   待辦類別、記事分類、進度狀態、部門選項共用同一套「新增／刪除 chip」UI。
+   sortable=true 時額外支援拖曳排序(用於進度狀態,順序本身有意義)。
+   刪除前若該值目前有資料在使用,會先跳出確認筆數的提示,而不是直接砍掉。 */
+function renderTagListEditorHtml(fieldId){
+  return `
+    <div class="tag-list-editor">
+      <div class="tag-list-chips" id="${fieldId}_chips" style="display:flex;flex-wrap:wrap;"></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <input type="text" id="${fieldId}_input" placeholder="輸入新項目後按 Enter 或點新增" style="flex:1;">
+        <button type="button" class="btn btn-ghost btn-sm" id="${fieldId}_addBtn" style="flex:none;">＋ 新增</button>
+      </div>
+    </div>
+  `;
+}
+function renderTagChips(fieldId, items, sortable){
+  const wrap = document.getElementById(`${fieldId}_chips`);
+  if(!wrap) return;
+  if(!items.length){
+    wrap.innerHTML = `<div class="form-hint" style="padding:4px 2px 8px;">目前沒有任何項目,請在下方新增</div>`;
+    return;
+  }
+  wrap.innerHTML = items.map((v,i)=>`
+    <span class="tag-chip" draggable="${sortable?'true':'false'}" data-idx="${i}"
+      style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 12px;border-radius:20px;background:var(--blue-100);color:var(--blue-900);font-size:12.5px;font-weight:700;margin:0 6px 6px 0;${sortable?'cursor:grab;':''}">
+      ${sortable?'<span aria-hidden="true" style="opacity:.5;">⠿</span>':''}${esc(v)}
+      <button type="button" class="tag-chip-del" data-idx="${i}" aria-label="刪除「${esc(v)}」"
+        style="appearance:none;border:none;background:transparent;cursor:pointer;color:var(--text-muted);font-size:15px;line-height:1;padding:0 2px;display:flex;">×</button>
+    </span>`).join('');
+}
+function setupTagListEditor(fieldId, listKey, opts){
+  opts = opts || {};
+  const sortable = !!opts.sortable;
+  const usageCounter = opts.usageCounter;
+
+  function items(){ return settingsDraft.lists[listKey]; }
+
+  function bindChipEvents(){
+    const wrap = document.getElementById(`${fieldId}_chips`);
+    if(!wrap) return;
+    wrap.querySelectorAll('.tag-chip-del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const idx = Number(btn.dataset.idx);
+        const val = items()[idx];
+        const count = usageCounter ? usageCounter(val) : 0;
+        if(count>0){
+          const ok = await confirmDialog({
+            title:'刪除項目',
+            message:`「${val}」目前有 ${count} 筆資料使用中,確定要刪除嗎?已使用的資料不會被更動,但之後新增/編輯時選單裡將不會再出現這個選項。`,
+            confirmLabel:'刪除', cancelLabel:'取消', danger:true,
+          });
+          if(!ok) return;
+        }
+        items().splice(idx,1);
+        rerender();
+      });
+    });
+    if(sortable){
+      let dragIdx = null;
+      wrap.querySelectorAll('.tag-chip').forEach(chip=>{
+        chip.addEventListener('dragstart', ()=>{ dragIdx = Number(chip.dataset.idx); });
+        chip.addEventListener('dragover', e=> e.preventDefault());
+        chip.addEventListener('drop', e=>{
+          e.preventDefault();
+          const dropIdx = Number(chip.dataset.idx);
+          if(dragIdx===null || dragIdx===dropIdx) return;
+          const arr = items();
+          const [moved] = arr.splice(dragIdx,1);
+          arr.splice(dropIdx,0,moved);
+          dragIdx = null;
+          rerender();
+        });
+      });
+    }
+  }
+  function rerender(){
+    renderTagChips(fieldId, items(), sortable);
+    bindChipEvents();
+  }
+
+  const input = document.getElementById(`${fieldId}_input`);
+  const addBtn = document.getElementById(`${fieldId}_addBtn`);
+  function addItem(){
+    const v = input.value.trim();
+    if(!v) return;
+    if(items().includes(v)){ toast('這個項目已經存在'); return; }
+    items().push(v);
+    input.value = '';
+    rerender();
+  }
+  if(addBtn) addBtn.addEventListener('click', addItem);
+  if(input) input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addItem(); } });
+
+  rerender();
+}
+
+function renderListsTabHtml(){
+  return `
+    <div class="form-field full">
+      <label>待辦事項類別</label>
+      ${renderTagListEditorHtml('todoCat')}
+      <div class="form-hint">用於「新增/編輯待辦事項」表單中的類別下拉建議</div>
+    </div>
+    <div class="form-field full" style="margin-top:18px;">
+      <label>記事本分類</label>
+      ${renderTagListEditorHtml('noteCat')}
+      <div class="form-hint">用於「新增/編輯記事」表單中的分類下拉建議</div>
+    </div>
+    <div class="form-field full" style="margin-top:18px;">
+      <label>待辦進度狀態(可拖曳排序)</label>
+      ${renderTagListEditorHtml('progressOpt')}
+      <div class="form-hint">用於「新增/編輯待辦事項」表單中的進度狀態選單,拖曳 chip 可調整順序</div>
+    </div>
+    <div class="form-field full" style="margin-top:18px;">
+      <label>部門選項</label>
+      ${renderTagListEditorHtml('dept')}
+      <div class="form-hint">用於「新增/編輯專案」表單中的部門下拉建議</div>
+    </div>
+  `;
+}
+function bindListsTabEvents(){
+  setupTagListEditor('todoCat', 'todoCategories', {
+    usageCounter: v => DATA.todos.filter(t=>t.category===v).length,
+  });
+  setupTagListEditor('noteCat', 'noteCategories', {
+    usageCounter: v => DATA.notes.filter(n=>n.category===v).length,
+  });
+  setupTagListEditor('progressOpt', 'todoProgressOptions', {
+    sortable: true,
+    usageCounter: v => DATA.todos.filter(t=>t.progress===v).length,
+  });
+  setupTagListEditor('dept', 'departments', {
+    usageCounter: v => DATA.projects.filter(p=>p.department===v).length,
+  });
+}
+
+function openSettingsModal(){
+  settingsDraft = JSON.parse(JSON.stringify(SETTINGS));
+  settingsActiveTab = 'notifications';
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title" style="display:flex;align-items:center;gap:8px;"><span style="display:inline-flex;width:18px;height:18px;color:var(--blue-700);">${ICONS.settings}</span>設定</div>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="seg" id="settingsTabSeg" style="margin-bottom:16px;">
+        ${SETTINGS_TABS.map(t=>`<button data-v="${t.id}" class="${settingsActiveTab===t.id?'active':''}">${t.label}</button>`).join('')}
+      </div>
+      <div id="settingsTabBody"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCancel">取消</button>
+      <button class="btn btn-primary" id="mSave">儲存設定</button>
+    </div>
+  `;
+  openModalOverlay();
+  renderSettingsTabContent();
+
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.querySelectorAll('#settingsTabSeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      settingsActiveTab = btn.dataset.v;
+      document.querySelectorAll('#settingsTabSeg button').forEach(b=> b.classList.toggle('active', b===btn));
+      renderSettingsTabContent();
+    });
+  });
+  document.getElementById('mSave').addEventListener('click', async ()=>{
+    const saveBtn = document.getElementById('mSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
+    const ok = await saveSettings(settingsDraft);
+    closeModal();
+    if(ok){
+      renderNotifications();
+      renderPage(); // 讓目前頁面上的匯出提醒橫幅等設定相依內容立即反映最新設定
+    }
+    toast(ok ? '已儲存設定' : '儲存失敗,請稍後再試');
+  });
+}
+
 /* ---------- 匯出提醒橫幅(記錄上次匯出時間) ----------
    純前端架構沒有背景排程,無法真正做到「定期自動匯出」,退而求其次採用
    「記錄上次匯出時間 + 超過門檻天數就在頁面顯示提醒橫幅」的方案,
@@ -1009,8 +1334,11 @@ async function markExported(key, containerId, label){
   renderExportReminder(containerId, key, label);
 }
 function exportReminderHtml(key, label){
+  const notif = (SETTINGS && SETTINGS.notifications) || DEFAULT_SETTINGS.notifications;
+  if(notif.exportReminderEnabled===false) return ''; // 使用者在設定裡關閉了備份提醒
   const days = daysSinceExport(key);
-  const overThreshold = days===null || days>=EXPORT_REMINDER_DAYS;
+  const thresholdDays = notif.exportReminderDays || EXPORT_REMINDER_DAYS;
+  const overThreshold = days===null || days>=thresholdDays;
   if(!overThreshold) return '';
   const msg = days===null ? `尚未匯出過${label}` : `距離上次匯出${label}已 ${days} 天`;
   return `<div class="card panel" style="margin-bottom:16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--red-bg);border-color:var(--red-soft);">
@@ -1269,20 +1597,48 @@ function setupClickMenu(wrapId, btnId, menuId){
   });
 }
 
-/* ---------------- Notifications (bell) ---------------- */
+/* ---------------- Notifications (bell) ----------------
+   階段二:到期提醒天數改讀設定值,並依設定決定是否額外納入
+   「逾期應收帳款」「即將到期專案」兩種來源。每個項目統一標準化成
+   { type, id, title, client, date, kind } 的形狀,方便下方共用渲染與點擊跳轉。 */
 function getNotificationItems(){
   const now = new Date();
-  const soon = new Date(now); soon.setDate(soon.getDate()+3);
+  const notif = (SETTINGS && SETTINGS.notifications) || DEFAULT_SETTINGS.notifications;
+  const dueSoonDays = notif.dueSoonDays || 3;
+  const soon = new Date(now); soon.setDate(soon.getDate()+dueSoonDays);
   const items = [];
+
   DATA.todos.forEach(t=>{
     if(t.done || !t.dueDate) return;
     const d = new Date(t.dueDate+'T23:59:59');
-    if(d < now) items.push({...t, kind:'overdue'});
-    else if(d <= soon) items.push({...t, kind:'soon'});
+    if(d < now) items.push({ type:'todo', id:t.id, title:t.title||'-', client:t.client, date:t.dueDate, kind:'overdue' });
+    else if(d <= soon) items.push({ type:'todo', id:t.id, title:t.title||'-', client:t.client, date:t.dueDate, kind:'soon' });
   });
-  items.sort((a,b)=> (a.dueDate||'').localeCompare(b.dueDate||''));
+
+  if(notif.showReceivablesInBell){
+    computeOverdueReceivables().forEach(r=>{
+      items.push({ type:'receivable', id:`${r.projectId}|${r.instId}`, title:`${r.name} 第${r.period}期`, client:r.client, date:`${r.month} 月`, kind:'overdue' });
+    });
+  }
+
+  if(notif.showExpiringInBell){
+    computeOverdueExpiring().forEach(p=>{
+      items.push({ type:'expiring', id:p.id, title:p.name, client:p.client, date:p._expiryDate, kind:'overdue' });
+    });
+    computeUpcomingExpiring(3).forEach(p=>{
+      items.push({ type:'expiring', id:p.id, title:p.name, client:p.client, date:p._expiryDate, kind:'soon' });
+    });
+  }
+
+  // 已逾期的項目排最前面,同類再依日期文字概略排序
+  items.sort((a,b)=>{
+    if(a.kind!==b.kind) return a.kind==='overdue' ? -1 : 1;
+    return (a.date||'').localeCompare(b.date||'');
+  });
   return items;
 }
+
+const NOTIF_TYPE_LABEL = { todo:'待辦事項', receivable:'應收帳款', expiring:'到期專案' };
 
 function renderNotifications(){
   const items = getNotificationItems();
@@ -1298,20 +1654,45 @@ function renderNotifications(){
   const list = document.getElementById('notifList');
   if(!list) return;
   if(!items.length){
-    list.innerHTML = `<div class="notif-empty">目前沒有即將到期或逾期的待辦事項</div>`;
+    list.innerHTML = `<div class="notif-empty">目前沒有即將到期或逾期的項目</div>`;
     return;
   }
-  list.innerHTML = items.map(t=>{
-    const tag = t.kind==='overdue' ? '已逾期' : '即將到期';
-    const meta = [t.client, `${tag}・${t.dueDate}`].filter(Boolean).join('・');
-    return `<button class="notif-item ${t.kind==='overdue'?'is-overdue':''}" data-id="${esc(t.id)}">
-      <span class="nt">${esc(t.title||'-')}</span>
-      <span class="nm">${esc(meta)}</span>
+  list.innerHTML = items.map(it=>{
+    const tag = it.kind==='overdue' ? '已逾期' : '即將到期';
+    const metaBits = [it.client, `${NOTIF_TYPE_LABEL[it.type]||''}・${tag}${it.date?'・'+it.date:''}`].filter(Boolean);
+    return `<button class="notif-item ${it.kind==='overdue'?'is-overdue':''}" data-type="${esc(it.type)}" data-id="${esc(it.id)}">
+      <span class="nt">${esc(it.title||'-')}</span>
+      <span class="nm">${esc(metaBits.join('・'))}</span>
     </button>`;
   }).join('');
   list.querySelectorAll('.notif-item').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ goPage('todos','all'); openTodoPreviewModal(btn.dataset.id); });
+    btn.addEventListener('click', ()=> handleNotificationClick(btn.dataset.type, btn.dataset.id));
   });
+}
+
+/* 通知項目點擊跳轉:待辦→業務執行工作區的待辦頁並開預覽;
+   應收帳款→專案管理工作區的應收帳款頁(切到「已逾期」檢視模式);
+   即將到期專案→專案管理工作區的即將到期專案頁。
+   切工作區時不推歷史紀錄,緊接著的 goPage() 才是使用者真正要去的頁面。 */
+function handleNotificationClick(type, id){
+  if(type==='todo'){
+    (async ()=>{
+      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
+      goPage('todos','all');
+      openTodoPreviewModal(id);
+    })();
+  } else if(type==='receivable'){
+    (async ()=>{
+      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
+      receivFilter.status = 'overdue';
+      goPage('receivables');
+    })();
+  } else if(type==='expiring'){
+    (async ()=>{
+      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
+      goPage('expiring');
+    })();
+  }
 }
 
 function goPage(id, extra){
@@ -2004,7 +2385,7 @@ function exportExpiringExcel(){
   if(!list.length){ toast('目前沒有可匯出的資料'); return; }
   const d = new Date();
   const stamp = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
-  const bucketLabel = expiringFilter==='all' ? '全部' : expiringFilter==='overdue' ? '已逾期' : `未來第${Number(expiringFilter)+1}個月`;
+  const bucketLabel = expiringFilter === 'all' ? '全部' : expiringFilter==='overdue' ? '已逾期' : `未來第${Number(expiringFilter)+1}個月`;
   const headers = ['來源','客戶','合約名稱','專案代碼','專案經理','到期日','是否逾期','已完成'];
   const rows = list.map(p=> [
     isMaintenanceProject(p) ? '維護專案' : '進行中專案',
@@ -2561,7 +2942,7 @@ function openMaintenanceProjectModal(existing, editing){
         <div class="form-field">
           <label>部門</label>
           <input list="deptList" id="f_department" value="${esc(p.department||'')}" placeholder="WM／AM">
-          <datalist id="deptList"><option value="WM"><option value="AM"></datalist>
+          <datalist id="deptList">${getListSetting('departments').map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
         </div>
         <div class="form-field">
           <label>業務</label>
@@ -2797,7 +3178,7 @@ function openInProgressProjectModal(existing, editing){
         <div class="form-field">
           <label>部門</label>
           <input list="deptListIp" id="f_department" value="${esc(p.department||'')}" placeholder="WM／AM">
-          <datalist id="deptListIp"><option value="WM"><option value="AM"></datalist>
+          <datalist id="deptListIp">${getListSetting('departments').map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
         </div>
         <div class="form-field">
           <label>業務</label>
@@ -3451,8 +3832,11 @@ function openTodoModal(id, prefill){
   }, prefill||{});
   const box = document.getElementById('modalBox');
   box.className = 'modal';
-  const categories = ['合約','報價','發票','維護紀錄','會議','DD'];
-  const progressOptions = ['待處理','內部進行中','客戶進行中'];
+  const categories = getListSetting('todoCategories');
+  const progressOptions = getListSetting('todoProgressOptions');
+  // 若這筆待辦目前的進度狀態已被使用者從自訂清單中刪除,仍把它加進選單,
+  // 避免下拉選單直接跳掉目前的值,導致使用者一存檔就默默改掉原本的進度狀態
+  const progressOptionsForSelect = (t.progress && !progressOptions.includes(t.progress)) ? [...progressOptions, t.progress] : progressOptions;
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯待辦事項':'新增待辦事項'}</div>
@@ -3495,7 +3879,7 @@ function openTodoModal(id, prefill){
         <div class="form-field full">
           <label>進度狀態</label>
           <select id="f_progress">
-            ${progressOptions.map(p=>`<option ${t.progress===p?'selected':''}>${p}</option>`).join('')}
+            ${progressOptionsForSelect.map(p=>`<option ${t.progress===p?'selected':''}>${p}</option>`).join('')}
           </select>
         </div>
         <div class="form-field full">
@@ -3718,7 +4102,7 @@ const NOTE_COLORS = [
 function noteColorInfo(id){
   return NOTE_COLORS.find(c=>c.id===id) || NOTE_COLORS[0];
 }
-const NOTE_CATEGORIES = ['會議記錄','客戶溝通','一般'];
+/* 記事分類清單已改為可在設定頁自訂,見 getListSetting('noteCategories') */
 
 function notesTpl(){
   return `
@@ -3871,7 +4255,7 @@ function openNoteModal(id, prefill){
         <div class="form-field">
           <label>分類</label>
           <input list="noteCatList" id="f_category" value="${esc(n.category||'')}" placeholder="輸入或選擇分類">
-          <datalist id="noteCatList">${NOTE_CATEGORIES.map(c=>`<option value="${c}">`).join('')}</datalist>
+          <datalist id="noteCatList">${getListSetting('noteCategories').map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
         </div>
         <div class="form-field">
           <label>顏色標籤</label>
@@ -4075,6 +4459,7 @@ async function init(){
   renderNav();
   const [, meta] = await Promise.all([loadAll(), loadExportMeta()]);
   exportMeta = meta || {};
+  await loadSettings();
   renderPage();
   renderNotifications();
   updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效)時,同步修正回去
@@ -4144,6 +4529,9 @@ async function init(){
       importFileInput.value = '';
     });
   }
+
+  const settingsBtn = document.getElementById('settingsBtn');
+  if(settingsBtn) settingsBtn.addEventListener('click', openSettingsModal);
 
   const signOutBtn = document.getElementById('signOutBtn');
   if(signOutBtn) signOutBtn.addEventListener('click', ()=> fbAuth.signOut());
