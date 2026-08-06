@@ -297,7 +297,6 @@
   body.sidebar-collapsed .nav-tab span.label,
   body.sidebar-collapsed .nav-collapse-btn span.label,
   body.sidebar-collapsed .nav-meta span.label,
-  body.sidebar-collapsed .workspace-switcher,
   body.sidebar-collapsed .sidenav-add-btn span.label{ display:none; }
   body.sidebar-collapsed .nav-tab{ justify-content:center; padding:11px 8px; }
   body.sidebar-collapsed .nav-tabs{ padding-left:0; border-left:none; margin-left:0; }
@@ -306,6 +305,13 @@
   body.sidebar-collapsed .nav-collapse-btn svg{ transform:rotate(180deg); }
   body.sidebar-collapsed .nav-meta{ justify-content:center; padding:10px 0 4px; }
   body.sidebar-collapsed .nav-meta .sync-dot{ margin-right:0; }
+  /* UX 修正:側邊欄收合時,工作區切換器改成只顯示圖示(而非完全隱藏),
+     否則使用者收合側邊欄後就完全沒有入口可以切換「業務執行／專案管理」。
+     下拉選單本身維持完整文字寬度,不受收合影響。 */
+  body.sidebar-collapsed .ws-trigger{ justify-content:center; padding:0; }
+  body.sidebar-collapsed .ws-trigger .ws-label,
+  body.sidebar-collapsed .ws-trigger .ws-arrow{ display:none; }
+  body.sidebar-collapsed .ws-menu{ left:0; min-width:180px; }
 
   /* ---------- Layout ---------- */
   #pages{ margin-left:var(--sidebar-w); margin-top:var(--topbar-h); min-height:calc(100vh - var(--topbar-h)); overflow-x:hidden; }
@@ -394,10 +400,12 @@
     -webkit-line-clamp:3; overflow:hidden; text-overflow:ellipsis;
   }
   .row-actions{ display:flex; gap:8px; }
-  /* 階段四:表格密度「緊湊」模式,由設定頁的顯示偏好控制(body.density-compact) */
+  /* 階段四:表格密度「緊湊」模式,由設定頁的顯示偏好控制(body.density-compact)。
+     UX 修正:icon-btn 縮小範圍限定在 <table> 內,避免波及聯絡人卡片、記事卡片
+     等原本就不是「表格」的按鈕,讓設定的作用範圍名符其實。 */
   body.density-compact thead th{ padding:6px 10px; }
   body.density-compact tbody td{ padding:6px 10px; }
-  body.density-compact .icon-btn{ width:30px; height:30px; }
+  body.density-compact table .icon-btn{ width:30px; height:30px; }
   .icon-btn{
     /* 觸控:原本 28×28px 偏小,調到 36×36px(在密集表格中兼顧可讀性與可點性) */
     width:36px;height:36px; border-radius:9px; border:1px solid var(--border); background:#fff;
@@ -1211,10 +1219,18 @@ function renderTagChips(fieldId, items, sortable){
     wrap.innerHTML = `<div class="form-hint" style="padding:4px 2px 8px;">目前沒有任何項目,請在下方新增</div>`;
     return;
   }
+  // 無障礙修正:拖曳排序滑鼠可用,但鍵盤／螢幕報讀軟體使用者無法拖曳,
+  // 所以額外提供「上移／下移」按鈕作為鍵盤可操作的替代排序方式,首尾項目自動 disable。
   wrap.innerHTML = items.map((v,i)=>`
     <span class="tag-chip" draggable="${sortable?'true':'false'}" data-idx="${i}"
-      style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 12px;border-radius:20px;background:var(--blue-100);color:var(--blue-900);font-size:12.5px;font-weight:700;margin:0 6px 6px 0;${sortable?'cursor:grab;':''}">
+      style="display:inline-flex;align-items:center;gap:4px;padding:5px 8px 5px 12px;border-radius:20px;background:var(--blue-100);color:var(--blue-900);font-size:12.5px;font-weight:700;margin:0 6px 6px 0;${sortable?'cursor:grab;':''}">
       ${sortable?'<span aria-hidden="true" style="opacity:.5;">⠿</span>':''}${esc(v)}
+      ${sortable?`
+      <button type="button" class="tag-chip-up" data-idx="${i}" aria-label="將「${esc(v)}」上移" ${i===0?'disabled':''}
+        style="appearance:none;border:none;background:transparent;cursor:pointer;color:var(--text-muted);font-size:12px;line-height:1;padding:0 1px;display:flex;${i===0?'opacity:.35;cursor:not-allowed;':''}">▲</button>
+      <button type="button" class="tag-chip-down" data-idx="${i}" aria-label="將「${esc(v)}」下移" ${i===items.length-1?'disabled':''}
+        style="appearance:none;border:none;background:transparent;cursor:pointer;color:var(--text-muted);font-size:12px;line-height:1;padding:0 1px;display:flex;${i===items.length-1?'opacity:.35;cursor:not-allowed;':''}">▼</button>
+      `:''}
       <button type="button" class="tag-chip-del" data-idx="${i}" aria-label="刪除「${esc(v)}」"
         style="appearance:none;border:none;background:transparent;cursor:pointer;color:var(--text-muted);font-size:15px;line-height:1;padding:0 2px;display:flex;">×</button>
     </span>`).join('');
@@ -1225,6 +1241,14 @@ function setupTagListEditor(fieldId, listKey, opts){
   const usageCounter = opts.usageCounter;
 
   function items(){ return settingsDraft.lists[listKey]; }
+
+  function moveItem(idx, dir){
+    const arr = items();
+    const target = idx + dir;
+    if(target<0 || target>=arr.length) return;
+    [arr[idx], arr[target]] = [arr[target], arr[idx]];
+    rerender();
+  }
 
   function bindChipEvents(){
     const wrap = document.getElementById(`${fieldId}_chips`);
@@ -1247,6 +1271,12 @@ function setupTagListEditor(fieldId, listKey, opts){
       });
     });
     if(sortable){
+      wrap.querySelectorAll('.tag-chip-up').forEach(btn=>{
+        btn.addEventListener('click', ()=> moveItem(Number(btn.dataset.idx), -1));
+      });
+      wrap.querySelectorAll('.tag-chip-down').forEach(btn=>{
+        btn.addEventListener('click', ()=> moveItem(Number(btn.dataset.idx), 1));
+      });
       let dragIdx = null;
       wrap.querySelectorAll('.tag-chip').forEach(chip=>{
         chip.addEventListener('dragstart', ()=>{ dragIdx = Number(chip.dataset.idx); });
@@ -1284,6 +1314,7 @@ function setupTagListEditor(fieldId, listKey, opts){
 
   rerender();
 }
+
 
 function renderListsTabHtml(){
   return `
@@ -1444,8 +1475,16 @@ function renderExportReminder(containerId, key, label){
   }
 }
 function updateWorkspaceMenuUI(){
+  const wsName = currentWorkspace==='pm' ? '專案管理' : '業務執行';
   const label = document.getElementById('workspaceLabel');
-  if(label) label.textContent = currentWorkspace==='pm' ? '專案管理' : '業務執行';
+  if(label) label.textContent = wsName;
+  // UX 修正:側邊欄收合時 .ws-label 文字會被隱藏,若沒有 aria-label,
+  // 螢幕報讀軟體與收合狀態下的滑鼠停留(title)都會失去「目前工作區」這個資訊
+  const trigger = document.getElementById('workspaceTriggerBtn');
+  if(trigger){
+    trigger.setAttribute('aria-label', `切換工作區,目前為${wsName}`);
+    trigger.title = `切換工作區(目前:${wsName})`;
+  }
   document.querySelectorAll('.ws-menu-item').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.ws===currentWorkspace);
   });
