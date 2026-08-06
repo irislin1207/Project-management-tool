@@ -394,6 +394,10 @@
     -webkit-line-clamp:3; overflow:hidden; text-overflow:ellipsis;
   }
   .row-actions{ display:flex; gap:8px; }
+  /* 階段四:表格密度「緊湊」模式,由設定頁的顯示偏好控制(body.density-compact) */
+  body.density-compact thead th{ padding:6px 10px; }
+  body.density-compact tbody td{ padding:6px 10px; }
+  body.density-compact .icon-btn{ width:30px; height:30px; }
   .icon-btn{
     /* 觸控:原本 28×28px 偏小,調到 36×36px(在密集表格中兼顧可讀性與可點性) */
     width:36px;height:36px; border-radius:9px; border:1px solid var(--border); background:#fff;
@@ -821,7 +825,14 @@ async function fbStorageSet(key, value){
 }
 
 const uid = () => 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-const money = (n) => '$' + (Math.round(Number(n)||0)).toLocaleString('zh-TW');
+/* 金額顯示格式(整數／保留小數)改由設定頁的顯示偏好控制,money() 每次呼叫都即時讀取目前設定 */
+const money = (n) => {
+  const num = Number(n)||0;
+  const amountDecimal = !!(SETTINGS && SETTINGS.display && SETTINGS.display.amountDecimal);
+  return amountDecimal
+    ? '$' + num.toLocaleString('zh-TW', { minimumFractionDigits:2, maximumFractionDigits:2 })
+    : '$' + Math.round(num).toLocaleString('zh-TW');
+};
 const pad2 = n => String(n).padStart(2,'0');
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
 function parseAmountStr(s){
@@ -1118,7 +1129,64 @@ function renderSettingsTabContent(){
     body.innerHTML = renderListsTabHtml();
     bindListsTabEvents();
   }
-  else if(settingsActiveTab==='display') body.innerHTML = settingsTabPlaceholderHtml('顯示偏好');
+  else if(settingsActiveTab==='display'){
+    body.innerHTML = renderDisplayTabHtml();
+    bindDisplayTabEvents();
+  }
+}
+
+/* ---------- 階段四:顯示與介面偏好分頁 ---------- */
+function renderDisplayTabHtml(){
+  const d = settingsDraft.display;
+  return `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_rememberLastPage" ${d.rememberLastPage?'checked':''}>記住上次瀏覽的工作區與頁面</label>
+        <div class="form-hint">開啟後,登入時會自動回到您上次離開時的工作區與頁面;關閉後則一律從下方指定的預設工作區開始</div>
+      </div>
+      <div class="form-field full">
+        <label>預設工作區</label>
+        <select id="set_defaultWorkspace" ${d.rememberLastPage?'disabled':''}>
+          <option value="sales" ${d.defaultWorkspace==='sales'?'selected':''}>業務執行</option>
+          <option value="pm" ${d.defaultWorkspace==='pm'?'selected':''}>專案管理</option>
+        </select>
+        <div class="form-hint">僅在關閉「記住上次瀏覽的工作區與頁面」時生效</div>
+      </div>
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_sidebarCollapsedDefault" ${d.sidebarCollapsedDefault?'checked':''}>側邊欄預設收合</label>
+        <div class="form-hint">與側邊欄左上角的收合按鈕連動,會記住您目前的收合狀態</div>
+      </div>
+      <div class="form-field full">
+        <label>表格密度</label>
+        <select id="set_tableDensity">
+          <option value="normal" ${d.tableDensity==='normal'?'selected':''}>標準</option>
+          <option value="compact" ${d.tableDensity==='compact'?'selected':''}>緊湊(適合資料量較大的表格,如應收帳款、待辦事項)</option>
+        </select>
+      </div>
+      <div class="form-field full">
+        <label>金額顯示格式</label>
+        <select id="set_amountDecimal">
+          <option value="0" ${!d.amountDecimal?'selected':''}>整數(例如 $1,234)</option>
+          <option value="1" ${d.amountDecimal?'selected':''}>保留小數(例如 $1,234.00)</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+function bindDisplayTabEvents(){
+  const rememberInput = document.getElementById('set_rememberLastPage');
+  const wsSelect = document.getElementById('set_defaultWorkspace');
+  const sidebarInput = document.getElementById('set_sidebarCollapsedDefault');
+  const densitySelect = document.getElementById('set_tableDensity');
+  const amountSelect = document.getElementById('set_amountDecimal');
+  if(rememberInput) rememberInput.addEventListener('change', e=>{
+    settingsDraft.display.rememberLastPage = e.target.checked;
+    if(wsSelect) wsSelect.disabled = e.target.checked;
+  });
+  if(wsSelect) wsSelect.addEventListener('change', e=>{ settingsDraft.display.defaultWorkspace = e.target.value; });
+  if(sidebarInput) sidebarInput.addEventListener('change', e=>{ settingsDraft.display.sidebarCollapsedDefault = e.target.checked; });
+  if(densitySelect) densitySelect.addEventListener('change', e=>{ settingsDraft.display.tableDensity = e.target.value; });
+  if(amountSelect) amountSelect.addEventListener('change', e=>{ settingsDraft.display.amountDecimal = (e.target.value==='1'); });
 }
 
 /* ---------- 階段三:標籤清單編輯器(通用元件) ----------
@@ -1220,14 +1288,14 @@ function setupTagListEditor(fieldId, listKey, opts){
 function renderListsTabHtml(){
   return `
     <div class="form-field full">
-      <label>待辦事項類別</label>
+      <label>待辦事項類別(可拖曳排序)</label>
       ${renderTagListEditorHtml('todoCat')}
-      <div class="form-hint">用於「新增/編輯待辦事項」表單中的類別下拉建議</div>
+      <div class="form-hint">用於「新增/編輯待辦事項」表單中的類別下拉建議,拖曳 chip 可調整順序</div>
     </div>
     <div class="form-field full" style="margin-top:18px;">
-      <label>記事本分類</label>
+      <label>記事本分類(可拖曳排序)</label>
       ${renderTagListEditorHtml('noteCat')}
-      <div class="form-hint">用於「新增/編輯記事」表單中的分類下拉建議</div>
+      <div class="form-hint">用於「新增/編輯記事」表單中的分類下拉建議,拖曳 chip 可調整順序</div>
     </div>
     <div class="form-field full" style="margin-top:18px;">
       <label>待辦進度狀態(可拖曳排序)</label>
@@ -1235,17 +1303,19 @@ function renderListsTabHtml(){
       <div class="form-hint">用於「新增/編輯待辦事項」表單中的進度狀態選單,拖曳 chip 可調整順序</div>
     </div>
     <div class="form-field full" style="margin-top:18px;">
-      <label>部門選項</label>
+      <label>部門選項(可拖曳排序)</label>
       ${renderTagListEditorHtml('dept')}
-      <div class="form-hint">用於「新增/編輯專案」表單中的部門下拉建議</div>
+      <div class="form-hint">用於「新增/編輯專案」表單中的部門下拉建議,拖曳 chip 可調整順序</div>
     </div>
   `;
 }
 function bindListsTabEvents(){
   setupTagListEditor('todoCat', 'todoCategories', {
+    sortable: true,
     usageCounter: v => DATA.todos.filter(t=>t.category===v).length,
   });
   setupTagListEditor('noteCat', 'noteCategories', {
+    sortable: true,
     usageCounter: v => DATA.notes.filter(n=>n.category===v).length,
   });
   setupTagListEditor('progressOpt', 'todoProgressOptions', {
@@ -1253,6 +1323,7 @@ function bindListsTabEvents(){
     usageCounter: v => DATA.todos.filter(t=>t.progress===v).length,
   });
   setupTagListEditor('dept', 'departments', {
+    sortable: true,
     usageCounter: v => DATA.projects.filter(p=>p.department===v).length,
   });
 }
@@ -1297,11 +1368,23 @@ function openSettingsModal(){
     const ok = await saveSettings(settingsDraft);
     closeModal();
     if(ok){
+      applyDisplaySettings(); // 側邊欄收合狀態、表格密度等立即套用
       renderNotifications();
-      renderPage(); // 讓目前頁面上的匯出提醒橫幅等設定相依內容立即反映最新設定
+      renderPage(); // 讓目前頁面上的匯出提醒橫幅、金額格式等設定相依內容立即反映最新設定
     }
     toast(ok ? '已儲存設定' : '儲存失敗,請稍後再試');
   });
+}
+
+/* ---------- 階段四:套用顯示偏好(側邊欄收合狀態、表格密度) ----------
+   金額格式(amountDecimal)由 money() 每次呼叫時即時讀取 SETTINGS,不需要在這裡處理。
+   此函式在 init() 時呼叫一次套用初始狀態,設定頁儲存後也會再呼叫一次立即生效。 */
+function applyDisplaySettings(){
+  const d = (SETTINGS && SETTINGS.display) || DEFAULT_SETTINGS.display;
+  document.body.classList.toggle('sidebar-collapsed', !!d.sidebarCollapsedDefault);
+  document.body.classList.toggle('density-compact', d.tableDensity==='compact');
+  const collapseBtn = document.getElementById('collapseBtn');
+  if(collapseBtn) collapseBtn.title = document.body.classList.contains('sidebar-collapsed') ? '展開側邊欄' : '收合側邊欄';
 }
 
 /* ---------- 匯出提醒橫幅(記錄上次匯出時間) ----------
@@ -1555,6 +1638,9 @@ function toggleSidebar(){
   const collapsed = document.body.classList.toggle('sidebar-collapsed');
   const btn = document.getElementById('collapseBtn');
   if(btn) btn.title = collapsed ? '展開側邊欄' : '收合側邊欄';
+  // 記住使用者目前的收合狀態,下次登入沿用(對應設定頁的「側邊欄預設收合」)
+  SETTINGS.display.sidebarCollapsedDefault = collapsed;
+  saveSettings(SETTINGS);
 }
 
 /* ---------------- Touch-friendly click-to-open menus ----------------
@@ -4450,19 +4536,31 @@ function importBackupFromFile(file){
 }
 
 async function init(){
+  // 階段四:「記住上次頁面」「預設工作區」都要看設定值才能決定啟動行為,
+  // 所以資料／設定要先載入完成,才能決定 currentWorkspace / currentPage。
+  const [, meta] = await Promise.all([loadAll(), loadExportMeta(), loadSettings()]);
+  exportMeta = meta || {};
+  applyDisplaySettings();
+
   const fromHash = parseUrlHash();
-  currentWorkspace = fromHash ? fromHash.ws : await loadWorkspace();
-  if(fromHash){
+  const rememberLastPage = SETTINGS.display.rememberLastPage !== false;
+  if(rememberLastPage && fromHash){
+    currentWorkspace = fromHash.ws;
     const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
     currentPage = validIds.includes(fromHash.page) ? fromHash.page : 'dashboard';
+  } else if(rememberLastPage){
+    currentWorkspace = await loadWorkspace();
+    currentPage = 'dashboard';
+  } else {
+    // 使用者關閉了「記住上次瀏覽的工作區與頁面」,一律從設定的預設工作區的儀表板開始
+    currentWorkspace = SETTINGS.display.defaultWorkspace==='pm' ? 'pm' : 'sales';
+    currentPage = 'dashboard';
   }
+
   renderNav();
-  const [, meta] = await Promise.all([loadAll(), loadExportMeta()]);
-  exportMeta = meta || {};
-  await loadSettings();
   renderPage();
   renderNotifications();
-  updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效)時,同步修正回去
+  updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效,或關閉了記住頁面)時,同步修正回去
 
   const collapseBtn = document.getElementById('collapseBtn');
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
