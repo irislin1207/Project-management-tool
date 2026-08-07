@@ -255,36 +255,22 @@
   .nav-tab.active{ box-shadow:0 4px 12px rgba(47,65,86,0.3); }
   .nav-tab svg{width:18px;height:18px;flex:none;}
   .nav-tab span.label{ writing-mode:horizontal-tb; display:inline-block; }
+  /* 開發中分頁的「敬請期待」小標籤 */
+  .nav-soon-badge{
+    margin-left:auto; flex:none; font-size:10px; font-weight:800; letter-spacing:.3px;
+    color:var(--text-muted); background:var(--beige); border:1px solid var(--border);
+    padding:2px 7px; border-radius:20px; white-space:nowrap;
+  }
+  .nav-tab.active .nav-soon-badge{ background:rgba(255,255,255,0.25); color:#fff; border-color:rgba(255,255,255,0.35); }
+  body.sidebar-collapsed .nav-soon-badge{ display:none; }
+  /* 側邊欄分組標題(業務執行／專案管理),階段一新增 */
+  .nav-group-title{
+    font-size:10.5px; font-weight:800; color:var(--text-muted); text-transform:uppercase;
+    letter-spacing:.6px; padding:14px 12px 5px; white-space:nowrap;
+  }
+  .nav-group-title:first-child{ padding-top:2px; }
+  body.sidebar-collapsed .nav-group-title{ display:none; }
   .nav-meta{ font-size:11.5px; color:var(--text-muted); white-space:nowrap; padding:10px 12px 4px; display:flex; align-items:center; }
-  .workspace-switcher{ position:relative; margin-bottom:12px; }
-  .ws-trigger{
-    width:100%; appearance:none; border:none; cursor:pointer; font-family:inherit;
-    display:flex; align-items:center; gap:8px; text-align:left;
-    background:var(--navy);
-    color:#fff; border-radius:11px; padding:0 12px; height:42px;
-    box-shadow:0 4px 12px rgba(154,111,46,0.35);
-    transition:filter .15s ease;
-  }
-  .ws-trigger:hover{ filter:brightness(1.08); }
-  .ws-trigger .ws-pin{ width:17px;height:17px; flex:none; }
-  .ws-trigger .ws-label{ flex:1; font-size:13px; font-weight:800; letter-spacing:.3px; white-space:nowrap; }
-  .ws-trigger .ws-arrow{ width:15px;height:15px; flex:none; transition:transform .15s ease; }
-  .workspace-switcher.open .ws-arrow{ transform:rotate(180deg); }
-  .ws-menu{
-    position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:70;
-    background:#fff; border-radius:12px; box-shadow:0 14px 34px rgba(30,45,55,0.24);
-    border:1px solid var(--border); padding:6px;
-    opacity:0; visibility:hidden; transform:translateY(-6px);
-    transition:opacity .15s ease, transform .15s ease, visibility .15s;
-  }
-  .workspace-switcher.open .ws-menu{ opacity:1; visibility:visible; transform:translateY(0); }
-  .ws-menu-item{
-    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
-    appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
-    font-size:13px; font-weight:700; color:var(--blue-900); padding:9px 10px; border-radius:9px;
-  }
-  .ws-menu-item:hover{ background:var(--blue-050); }
-  .ws-menu-item.active{ background:var(--sky); color:var(--navy); }
   .sync-dot{
     width:7px;height:7px;border-radius:50%; display:inline-block; margin-right:6px; flex:none;
     background:var(--teal); box-shadow:0 0 0 3px rgba(86,124,141,0.2);
@@ -305,13 +291,6 @@
   body.sidebar-collapsed .nav-collapse-btn svg{ transform:rotate(180deg); }
   body.sidebar-collapsed .nav-meta{ justify-content:center; padding:10px 0 4px; }
   body.sidebar-collapsed .nav-meta .sync-dot{ margin-right:0; }
-  /* UX 修正:側邊欄收合時,工作區切換器改成只顯示圖示(而非完全隱藏),
-     否則使用者收合側邊欄後就完全沒有入口可以切換「業務執行／專案管理」。
-     下拉選單本身維持完整文字寬度,不受收合影響。 */
-  body.sidebar-collapsed .ws-trigger{ justify-content:center; padding:0; }
-  body.sidebar-collapsed .ws-trigger .ws-label,
-  body.sidebar-collapsed .ws-trigger .ws-arrow{ display:none; }
-  body.sidebar-collapsed .ws-menu{ left:0; min-width:180px; }
 
   /* ---------- Layout ---------- */
   #pages{ margin-left:var(--sidebar-w); margin-top:var(--topbar-h); min-height:calc(100vh - var(--topbar-h)); overflow-x:hidden; }
@@ -737,17 +716,6 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
     <span class="label">儀表板</span>
   </button>
-  <div class="workspace-switcher" id="workspaceSwitcher">
-    <button type="button" class="ws-trigger" id="workspaceTriggerBtn">
-      <svg class="ws-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span class="ws-label" id="workspaceLabel">業務執行</span>
-      <svg class="ws-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-    </button>
-    <div class="ws-menu" id="workspaceMenu">
-      <button type="button" class="ws-menu-item" data-ws="sales">業務執行</button>
-      <button type="button" class="ws-menu-item" data-ws="pm">專案管理</button>
-    </div>
-  </div>
   <div class="nav-tabs" id="navTabs"></div>
   <div class="nav-meta"><span class="sync-dot"></span><span class="label" id="syncStatus">已同步</span></div>
   <button class="sidenav-add-btn" id="globalAddBtn" title="新增" aria-label="新增">
@@ -805,7 +773,6 @@ const ICONS = {
 const STORE_KEYS = { projects:'pm-projects', todos:'pm-todos', contacts:'pm-contacts', clients:'pm-clients', notes:'pm-notes' };
 let DATA = { projects:[], todos:[], contacts:[], clients:[], notes:[] };
 let currentPage = 'dashboard';
-let currentWorkspace = 'sales'; // 'sales' (業務執行) | 'pm' (專案管理)
 let charts = {};
 let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'' };
@@ -988,17 +955,6 @@ function applyGoogleIdentity(user){
   }
 }
 
-const WORKSPACE_KEY = 'pm-workspace';
-async function loadWorkspace(){
-  try{
-    const r = await fbStorageGet(WORKSPACE_KEY);
-    return (r && r.value==='pm') ? 'pm' : 'sales';
-  }catch(e){ return 'sales'; }
-}
-async function saveWorkspace(ws){
-  try{ await fbStorageSet(WORKSPACE_KEY, ws); }catch(e){ console.error(e); }
-}
-
 /* ---------------- SETTINGS(設定)----------------
    階段一:先建立完整的讀寫骨架與預設值,設定 Modal 內容會在後續階段逐步補上。
    單一 key 集中存放,存檔時整包覆蓋,避免像 workspace/export-meta 那樣散落多個 key。 */
@@ -1018,7 +974,11 @@ const DEFAULT_SETTINGS = {
     departments: ['WM','AM'],
   },
   display: {
-    defaultWorkspace: 'sales',
+    // 階段四(側邊欄整併):defaultWorkspace 這個欄位名稱維持不變(向下相容舊資料),
+    // 但語意已經從「預設工作區」改成「預設分頁」,存放的是 pageId(如 'dashboard'、'todos')。
+    // 若使用者的舊資料裡還留著舊版的 'sales'/'pm',畫面上的下拉選單找不到對應選項時
+    // 會自然落回第一個選項,不會報錯,init() 也會驗證有效性並退回 'dashboard'。
+    defaultWorkspace: 'dashboard',
     rememberLastPage: true,
     sidebarCollapsedDefault: false,
     tableDensity: 'normal', // 'normal' | 'compact'
@@ -1143,22 +1103,34 @@ function renderSettingsTabContent(){
   }
 }
 
-/* ---------- 階段四:顯示與介面偏好分頁 ---------- */
+/* ---------- 顯示與介面偏好分頁 ---------- */
 function renderDisplayTabHtml(){
   const d = settingsDraft.display;
+  // 階段四:「預設工作區」改成「預設分頁」,選項改列出側邊欄全部分頁(依分組),
+  // 開發中(soon:true)的分頁不列入可選範圍,避免使用者把登入首頁設成一個空頁面。
+  let pageOptionsHtml = `<option value="dashboard" ${d.defaultWorkspace==='dashboard'?'selected':''}>儀表板</option>`;
+  let lastGroup = null;
+  NAV_ALL.filter(n=>!n.soon).forEach(n=>{
+    if(n.group!==lastGroup){
+      if(lastGroup!==null) pageOptionsHtml += `</optgroup>`;
+      pageOptionsHtml += `<optgroup label="${esc(n.group)}">`;
+      lastGroup = n.group;
+    }
+    pageOptionsHtml += `<option value="${n.id}" ${d.defaultWorkspace===n.id?'selected':''}>${esc(n.label)}</option>`;
+  });
+  if(lastGroup!==null) pageOptionsHtml += `</optgroup>`;
   return `
     <div class="form-grid">
       <div class="form-field full">
-        <label class="checkbox-row"><input type="checkbox" id="set_rememberLastPage" ${d.rememberLastPage?'checked':''}>記住上次瀏覽的工作區與頁面</label>
-        <div class="form-hint">開啟後,登入時會自動回到您上次離開時的工作區與頁面;關閉後則一律從下方指定的預設工作區開始</div>
+        <label class="checkbox-row"><input type="checkbox" id="set_rememberLastPage" ${d.rememberLastPage?'checked':''}>記住上次瀏覽的頁面</label>
+        <div class="form-hint">開啟後,登入時會自動回到您上次離開時的頁面;關閉後則一律從下方指定的預設分頁開始</div>
       </div>
       <div class="form-field full">
-        <label>預設工作區</label>
+        <label>預設分頁</label>
         <select id="set_defaultWorkspace" ${d.rememberLastPage?'disabled':''}>
-          <option value="sales" ${d.defaultWorkspace==='sales'?'selected':''}>業務執行</option>
-          <option value="pm" ${d.defaultWorkspace==='pm'?'selected':''}>專案管理</option>
+          ${pageOptionsHtml}
         </select>
-        <div class="form-hint">僅在關閉「記住上次瀏覽的工作區與頁面」時生效</div>
+        <div class="form-hint">僅在關閉「記住上次瀏覽的頁面」時生效,登入後會直接進入這個分頁</div>
       </div>
       <div class="form-field full">
         <label class="checkbox-row"><input type="checkbox" id="set_sidebarCollapsedDefault" ${d.sidebarCollapsedDefault?'checked':''}>側邊欄預設收合</label>
@@ -1474,34 +1446,11 @@ function renderExportReminder(containerId, key, label){
     });
   }
 }
-function updateWorkspaceMenuUI(){
-  const wsName = currentWorkspace==='pm' ? '專案管理' : '業務執行';
-  const label = document.getElementById('workspaceLabel');
-  if(label) label.textContent = wsName;
-  // UX 修正:側邊欄收合時 .ws-label 文字會被隱藏,若沒有 aria-label,
-  // 螢幕報讀軟體與收合狀態下的滑鼠停留(title)都會失去「目前工作區」這個資訊
-  const trigger = document.getElementById('workspaceTriggerBtn');
-  if(trigger){
-    trigger.setAttribute('aria-label', `切換工作區,目前為${wsName}`);
-    trigger.title = `切換工作區(目前:${wsName})`;
-  }
-  document.querySelectorAll('.ws-menu-item').forEach(btn=>{
-    btn.classList.toggle('active', btn.dataset.ws===currentWorkspace);
-  });
-}
-function toggleWorkspaceMenu(forceState){
-  const wrap = document.getElementById('workspaceSwitcher');
-  if(!wrap) return;
-  const next = typeof forceState==='boolean' ? forceState : !wrap.classList.contains('open');
-  wrap.classList.toggle('open', next);
-}
-/* ---------------- 導覽:把目前頁面／工作區同步到網址列 ----------------
-   格式:#<workspace>/<page>,例如 #pm/receivables、#sales/todos。
+/* ---------------- 導覽:把目前頁面同步到網址列(階段二:格式簡化為 #<page>) ----------------
    用 replaceState 而不是直接改 location.hash,避免每次切換頁面都往瀏覽器
-   歷史紀錄多塞一筆(那個交給下一步的上一頁/下一頁支援再處理),
-   但網址仍會即時反映目前位置,重新整理或分享連結都能回到同一頁。 */
+   歷史紀錄多塞一筆,但網址仍會即時反映目前位置,重新整理或分享連結都能回到同一頁。 */
 function updateUrlHash(push){
-  const hash = '#' + currentWorkspace + '/' + currentPage;
+  const hash = '#' + currentPage;
   if(location.hash === hash) return;
   if(push){
     history.pushState(null, '', hash);
@@ -1511,24 +1460,7 @@ function updateUrlHash(push){
 }
 function parseUrlHash(){
   const h = location.hash.replace(/^#/, '');
-  if(!h) return null;
-  const [ws, page] = h.split('/');
-  if(ws!=='sales' && ws!=='pm') return null;
-  return { ws, page: page || 'dashboard' };
-}
-
-async function switchWorkspace(ws, opts){
-  if(ws===currentWorkspace) return;
-  currentWorkspace = ws;
-  saveWorkspace(ws);
-  updateWorkspaceMenuUI();
-  const validIds = getCurrentNav().map(n=>n.id);
-  if(!validIds.includes(currentPage)) currentPage = 'dashboard';
-  renderNav();
-  renderPage();
-  const pushHistory = !opts || opts.pushHistory !== false;
-  updateUrlHash(pushHistory);
-  toast(ws==='pm' ? '已切換至「專案管理」工作區' : '已切換至「業務執行」工作區');
+  return h || null;
 }
 
 /* ---------------- Toast ---------------- */
@@ -1626,40 +1558,47 @@ function clearAllFieldErrors(container){
 }
 
 /* ---------------- Nav ---------------- */
-const NAV_SALES = [
-  {id:'todos', label:'待辦事項', icon:ICONS.todos},
-  {id:'notes', label:'記事本', icon:ICONS.notes},
-  {id:'contacts', label:'聯絡清單', icon:ICONS.contacts},
-  {id:'quotes', label:'報價處理', icon:ICONS.money},
-  {id:'contracts', label:'合約處理', icon:ICONS.briefcase},
-];
-const NAV_PM = [
-  {id:'projects', label:'專案總覽', icon:ICONS.projects},
-  {id:'receivables', label:'應收帳款', icon:ICONS.money},
-  {id:'expiring', label:'即將到期專案', icon:ICONS.calendar},
+/* ---------------- 側邊欄:單一導覽清單 + 視覺分組 ----------------
+   合併原本的 NAV_SALES / NAV_PM 為一份清單,用 group 欄位標示分組(業務執行／專案管理)。
+   工作區切換器與 currentWorkspace 已於階段二移除,現在是單一扁平化的頁面路由,
+   getCurrentNav() 固定回傳全部項目。 */
+const NAV_ALL = [
+  {id:'todos', label:'待辦事項', icon:ICONS.todos, group:'業務執行'},
+  {id:'notes', label:'記事本', icon:ICONS.notes, group:'業務執行'},
+  {id:'contacts', label:'聯絡清單', icon:ICONS.contacts, group:'業務執行'},
+  {id:'quotes', label:'報價處理', icon:ICONS.money, group:'業務執行', soon:true},
+  {id:'contracts', label:'合約處理', icon:ICONS.briefcase, group:'業務執行', soon:true},
+  {id:'projects', label:'專案總覽', icon:ICONS.projects, group:'專案管理'},
+  {id:'receivables', label:'應收帳款', icon:ICONS.money, group:'專案管理'},
+  {id:'expiring', label:'即將到期專案', icon:ICONS.calendar, group:'專案管理'},
 ];
 function getCurrentNav(){
-  return currentWorkspace==='pm' ? NAV_PM : NAV_SALES;
-}
-function pageWorkspace(pageId){
-  if(NAV_PM.some(n=>n.id===pageId)) return 'pm';
-  if(NAV_SALES.some(n=>n.id===pageId)) return 'sales';
-  return null;
+  return NAV_ALL;
 }
 /* Blue-family shades (light -> dark) so tabs read as one cohesive
    palette instead of unrelated hues, while still being visually distinct. */
 function renderNav(){
   const el = document.getElementById('navTabs');
   const navList = getCurrentNav();
-  el.innerHTML = navList.map(n=>{
+  let lastGroup = null;
+  const html = [];
+  navList.forEach(n=>{
+    if(n.group!==lastGroup){
+      html.push(`<div class="nav-group-title">${esc(n.group)}</div>`);
+      lastGroup = n.group;
+    }
     const active = currentPage===n.id;
     const styleAttr = active
       ? `style="background:var(--teal);color:#fff;"`
       : '';
-    return `<button class="nav-tab ${active?'active':''}" ${styleAttr} data-page="${n.id}" title="${n.label}" aria-label="${n.label}">
-      ${n.icon}<span class="label">${n.label}</span>
-    </button>`;
-  }).join('');
+    // 開發中的分頁(如報價處理／合約處理)在標題旁加上「敬請期待」小標籤,
+    // 讓使用者一眼就知道這是尚未完成的功能,而不用點進去才發現是空頁面
+    const soonBadge = n.soon ? `<span class="nav-soon-badge">敬請期待</span>` : '';
+    html.push(`<button class="nav-tab ${active?'active':''}" ${styleAttr} data-page="${n.id}" title="${n.label}${n.soon?'(敬請期待)':''}" aria-label="${n.label}${n.soon?',敬請期待,功能開發中':''}">
+      ${n.icon}<span class="label">${n.label}</span>${soonBadge}
+    </button>`);
+  });
+  el.innerHTML = html.join('');
   el.querySelectorAll('.nav-tab').forEach(btn=>{
     btn.addEventListener('click', ()=> goPage(btn.dataset.page));
   });
@@ -1670,7 +1609,6 @@ function renderNav(){
     homeBtn.style.background = homeActive ? 'var(--teal)' : '';
     homeBtn.style.color = homeActive ? '#fff' : '';
   }
-  updateWorkspaceMenuUI();
 }
 
 function toggleSidebar(){
@@ -1795,28 +1733,17 @@ function renderNotifications(){
   });
 }
 
-/* 通知項目點擊跳轉:待辦→業務執行工作區的待辦頁並開預覽;
-   應收帳款→專案管理工作區的應收帳款頁(切到「已逾期」檢視模式);
-   即將到期專案→專案管理工作區的即將到期專案頁。
-   切工作區時不推歷史紀錄,緊接著的 goPage() 才是使用者真正要去的頁面。 */
+/* 通知項目點擊跳轉:待辦→待辦頁並開預覽;應收帳款→應收帳款頁(切到「已逾期」檢視模式);
+   即將到期專案→即將到期專案頁。階段二後不再需要先切工作區,直接 goPage() 即可。 */
 function handleNotificationClick(type, id){
   if(type==='todo'){
-    (async ()=>{
-      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
-      goPage('todos','all');
-      openTodoPreviewModal(id);
-    })();
+    goPage('todos','all');
+    openTodoPreviewModal(id);
   } else if(type==='receivable'){
-    (async ()=>{
-      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
-      receivFilter.status = 'overdue';
-      goPage('receivables');
-    })();
+    receivFilter.status = 'overdue';
+    goPage('receivables');
   } else if(type==='expiring'){
-    (async ()=>{
-      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
-      goPage('expiring');
-    })();
+    goPage('expiring');
   }
 }
 
@@ -2083,14 +2010,10 @@ function afterDashboardRender(){
   ].join('');
 
   document.querySelectorAll('[data-goto]').forEach(card=>{
-    card.addEventListener('click', async ()=>{
+    card.addEventListener('click', ()=>{
       const v = card.dataset.goto;
       if(!v) return;
       const [page, filter] = v.split(':');
-      const ws = pageWorkspace(page);
-      if(ws && ws!==currentWorkspace){
-        await switchWorkspace(ws, { pushHistory:false });
-      }
       goPage(page, filter);
     });
   });
@@ -2289,37 +2212,24 @@ function setupGlobalSearch(inputId, panelId){
   });
 }
 
-/* 點擊搜尋結果:切到對應工作區＋頁面,並直接開啟該筆資料的預覽／編輯 Modal。
-   切工作區那一步不推歷史紀錄,緊接著的 goPage() 才是使用者真正要去的頁面, 
-   避免瀏覽器上一頁時卡在一個閃現過的中繼畫面(跟儀表板小卡片的做法一致)。 */
+/* 點擊搜尋結果:直接跳轉到對應頁面,並開啟該筆資料的預覽／編輯 Modal。
+   階段二後不再需要先切工作區,單一 goPage() 即可到位。 */
 function openSearchResult(type, id){
   if(type==='project'){
     const p = DATA.projects.find(x=>x.id===id);
     if(!p) return;
     projSubTab = p.projType || 'maintenance';
-    (async ()=>{
-      if(currentWorkspace!=='pm') await switchWorkspace('pm', { pushHistory:false });
-      goPage('projects');
-      openProjectPreviewModal(id);
-    })();
+    goPage('projects');
+    openProjectPreviewModal(id);
   } else if(type==='todo'){
-    (async ()=>{
-      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
-      goPage('todos');
-      openTodoPreviewModal(id);
-    })();
+    goPage('todos');
+    openTodoPreviewModal(id);
   } else if(type==='contact'){
-    (async ()=>{
-      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
-      goPage('contacts');
-      openContactModal(id);
-    })();
+    goPage('contacts');
+    openContactModal(id);
   } else if(type==='note'){
-    (async ()=>{
-      if(currentWorkspace!=='sales') await switchWorkspace('sales', { pushHistory:false });
-      goPage('notes');
-      openNoteModal(id);
-    })();
+    goPage('notes');
+    openNoteModal(id);
   }
 }
 
@@ -4456,18 +4366,14 @@ document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target.id==='modalOverlay') closeModal();
 });
 
-/* 導覽:瀏覽器上一頁/下一頁按鈕觸發時,依網址列還原對應的工作區與頁面。
+/* 導覽:瀏覽器上一頁/下一頁按鈕觸發時,依網址列還原對應的頁面。
    這裡只重新渲染畫面,不再呼叫 updateUrlHash() 推新的歷史紀錄,
    避免使用者按上一頁卻又被推回下一頁的情況。 */
 window.addEventListener('popstate', ()=>{
   if(!appInitialized) return; // 尚未登入完成、init() 還沒跑過時不處理
   const parsed = parseUrlHash();
-  currentWorkspace = parsed ? parsed.ws : currentWorkspace;
   const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
-  let page = parsed ? parsed.page : currentPage;
-  if(!validIds.includes(page)) page = 'dashboard';
-  currentPage = page;
-  updateWorkspaceMenuUI();
+  currentPage = (parsed && validIds.includes(parsed)) ? parsed : 'dashboard';
   renderNav();
   renderPage();
 });
@@ -4575,25 +4481,22 @@ function importBackupFromFile(file){
 }
 
 async function init(){
-  // 階段四:「記住上次頁面」「預設工作區」都要看設定值才能決定啟動行為,
-  // 所以資料／設定要先載入完成,才能決定 currentWorkspace / currentPage。
+  // 「記住上次頁面」要看設定值才能決定啟動行為,所以資料／設定要先載入完成。
   const [, meta] = await Promise.all([loadAll(), loadExportMeta(), loadSettings()]);
   exportMeta = meta || {};
   applyDisplaySettings();
 
   const fromHash = parseUrlHash();
   const rememberLastPage = SETTINGS.display.rememberLastPage !== false;
+  const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
   if(rememberLastPage && fromHash){
-    currentWorkspace = fromHash.ws;
-    const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
-    currentPage = validIds.includes(fromHash.page) ? fromHash.page : 'dashboard';
+    currentPage = validIds.includes(fromHash) ? fromHash : 'dashboard';
   } else if(rememberLastPage){
-    currentWorkspace = await loadWorkspace();
     currentPage = 'dashboard';
   } else {
-    // 使用者關閉了「記住上次瀏覽的工作區與頁面」,一律從設定的預設工作區的儀表板開始
-    currentWorkspace = SETTINGS.display.defaultWorkspace==='pm' ? 'pm' : 'sales';
-    currentPage = 'dashboard';
+    // 階段四:使用者關閉了「記住上次瀏覽的頁面」→ 一律進入設定裡指定的「預設分頁」。
+    // 若設定值是失效的頁面代碼(例如舊版遺留的 'sales'/'pm'),優雅退回儀表板,不報錯。
+    currentPage = validIds.includes(SETTINGS.display.defaultWorkspace) ? SETTINGS.display.defaultWorkspace : 'dashboard';
   }
 
   renderNav();
@@ -4609,21 +4512,6 @@ async function init(){
 
   const globalAddBtn = document.getElementById('globalAddBtn');
   if(globalAddBtn) globalAddBtn.addEventListener('click', openAddWizard);
-
-  const wsTrigger = document.getElementById('workspaceTriggerBtn');
-  if(wsTrigger) wsTrigger.addEventListener('click', e=>{ e.stopPropagation(); toggleWorkspaceMenu(); });
-  document.querySelectorAll('.ws-menu-item').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      e.stopPropagation();
-      toggleWorkspaceMenu(false);
-      switchWorkspace(btn.dataset.ws);
-    });
-  });
-  document.addEventListener('click', e=>{
-    const wrap = document.getElementById('workspaceSwitcher');
-    if(wrap && wrap.classList.contains('open') && !wrap.contains(e.target)) toggleWorkspaceMenu(false);
-  });
-  updateWorkspaceMenuUI();
 
   // 觸控與互動:讓漢堡選單／通知選單在觸控裝置上也能點擊開關,不再只依賴 hover
   setupClickMenu('hamburgerWrap', 'hamburgerBtn', 'hamburgerMenu');
