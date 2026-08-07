@@ -1566,8 +1566,6 @@ const NAV_ALL = [
   {id:'todos', label:'待辦事項', icon:ICONS.todos, group:'業務執行'},
   {id:'notes', label:'記事本', icon:ICONS.notes, group:'業務執行'},
   {id:'contacts', label:'聯絡清單', icon:ICONS.contacts, group:'業務執行'},
-  {id:'quotes', label:'報價處理', icon:ICONS.money, group:'業務執行', soon:true},
-  {id:'contracts', label:'合約處理', icon:ICONS.briefcase, group:'業務執行', soon:true},
   {id:'projects', label:'專案總覽', icon:ICONS.projects, group:'專案管理'},
   {id:'receivables', label:'應收帳款', icon:ICONS.money, group:'專案管理'},
   {id:'expiring', label:'即將到期專案', icon:ICONS.calendar, group:'專案管理'},
@@ -1763,8 +1761,6 @@ function renderPage(extra){
   else if(currentPage==='todos') root.innerHTML = todosTpl();
   else if(currentPage==='contacts') root.innerHTML = contactsTpl();
   else if(currentPage==='notes') root.innerHTML = notesTpl();
-  else if(currentPage==='quotes') root.innerHTML = quotesTpl();
-  else if(currentPage==='contracts') root.innerHTML = contractsTpl();
   root.querySelector('.page').classList.add('active');
   const theme = PAGE_THEME[currentPage] || PAGE_THEME.dashboard;
   root.style.background = theme.pageBg || 'var(--bg)';
@@ -2056,8 +2052,6 @@ const PAGE_THEME = {
   todos:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   contacts:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   notes:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
-  quotes:     { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
-  contracts:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   maintenance:{ bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   inprogress: { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
 };
@@ -2231,24 +2225,6 @@ function openSearchResult(type, id){
     goPage('notes');
     openNoteModal(id);
   }
-}
-
-/* ============================================================
-   QUOTES / CONTRACTS (業務執行 — 佔位頁面,功能開發中)
-   ============================================================ */
-function quotesTpl(){
-  return `
-  <div class="page active" id="page-quotes">
-    ${pageHeaderHtml('quotes', ICONS.money, '報價處理', '此功能開發中,敬請期待')}
-    <div class="card panel">${emptyState('報價處理功能即將推出', ICONS.money)}</div>
-  </div>`;
-}
-function contractsTpl(){
-  return `
-  <div class="page active" id="page-contracts">
-    ${pageHeaderHtml('contracts', ICONS.briefcase, '合約處理', '此功能開發中,敬請期待')}
-    <div class="card panel">${emptyState('合約處理功能即將推出', ICONS.briefcase)}</div>
-  </div>`;
 }
 
 /* ============================================================
