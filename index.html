@@ -966,6 +966,7 @@ const DEFAULT_SETTINGS = {
     exportReminderDays: 7,
     showReceivablesInBell: false,
     showExpiringInBell: false,
+    showMaintReminderInBell: false,
   },
   lists: {
     todoCategories: ['合約','報價','發票','維護紀錄','會議','DD'],
@@ -1063,6 +1064,10 @@ function renderNotificationsTabHtml(){
         <label class="checkbox-row"><input type="checkbox" id="set_showExpiringInBell" ${n.showExpiringInBell?'checked':''}>通知鈴鐺納入「即將到期專案」</label>
         <div class="form-hint">開啟後,已逾期或近三個月內到期的專案也會顯示在通知鈴鐺清單中,點擊可直接跳轉至即將到期專案頁面</div>
       </div>
+      <div class="form-field full">
+        <label class="checkbox-row"><input type="checkbox" id="set_showMaintReminderInBell" ${n.showMaintReminderInBell?'checked':''}>通知鈴鐺納入「維護紀錄提醒」</label>
+        <div class="form-hint">開啟後,已逾期未發送的維護紀錄提醒也會顯示在通知鈴鐺清單中,點擊可直接跳轉至維護紀錄提醒頁面</div>
+      </div>
     </div>
   `;
 }
@@ -1072,6 +1077,7 @@ function bindNotificationsTabEvents(){
   const daysInput = document.getElementById('set_exportReminderDays');
   const recvInput = document.getElementById('set_showReceivablesInBell');
   const expInput = document.getElementById('set_showExpiringInBell');
+  const maintInput = document.getElementById('set_showMaintReminderInBell');
   if(dueSoonInput) dueSoonInput.addEventListener('input', e=>{
     settingsDraft.notifications.dueSoonDays = Math.min(14, Math.max(1, Number(e.target.value)||3));
   });
@@ -1084,6 +1090,7 @@ function bindNotificationsTabEvents(){
   });
   if(recvInput) recvInput.addEventListener('change', e=>{ settingsDraft.notifications.showReceivablesInBell = e.target.checked; });
   if(expInput) expInput.addEventListener('change', e=>{ settingsDraft.notifications.showExpiringInBell = e.target.checked; });
+  if(maintInput) maintInput.addEventListener('change', e=>{ settingsDraft.notifications.showMaintReminderInBell = e.target.checked; });
 }
 
 function renderSettingsTabContent(){
@@ -1569,6 +1576,7 @@ const NAV_ALL = [
   {id:'projects', label:'專案總覽', icon:ICONS.projects, group:'專案管理'},
   {id:'receivables', label:'應收帳款', icon:ICONS.money, group:'專案管理'},
   {id:'expiring', label:'即將到期專案', icon:ICONS.calendar, group:'專案管理'},
+  {id:'maintReminders', label:'維護紀錄提醒', icon:ICONS.mail, group:'專案管理'},
 ];
 function getCurrentNav(){
   return NAV_ALL;
@@ -1660,7 +1668,7 @@ function setupClickMenu(wrapId, btnId, menuId){
 
 /* ---------------- Notifications (bell) ----------------
    階段二:到期提醒天數改讀設定值,並依設定決定是否額外納入
-   「逾期應收帳款」「即將到期專案」兩種來源。每個項目統一標準化成
+   「逾期應收帳款」「即將到期專案」「維護紀錄提醒」三種來源。每個項目統一標準化成
    { type, id, title, client, date, kind } 的形狀,方便下方共用渲染與點擊跳轉。 */
 function getNotificationItems(){
   const now = new Date();
@@ -1691,6 +1699,12 @@ function getNotificationItems(){
     });
   }
 
+  if(notif.showMaintReminderInBell){
+    computeOverdueMaintReminders().forEach(r=>{
+      items.push({ type:'maintReminder', id:r.id, title:r.name, client:r.client, date:r.dueDate, kind:'overdue' });
+    });
+  }
+
   // 已逾期的項目排最前面,同類再依日期文字概略排序
   items.sort((a,b)=>{
     if(a.kind!==b.kind) return a.kind==='overdue' ? -1 : 1;
@@ -1699,7 +1713,7 @@ function getNotificationItems(){
   return items;
 }
 
-const NOTIF_TYPE_LABEL = { todo:'待辦事項', receivable:'應收帳款', expiring:'到期專案' };
+const NOTIF_TYPE_LABEL = { todo:'待辦事項', receivable:'應收帳款', expiring:'到期專案', maintReminder:'維護紀錄提醒' };
 
 function renderNotifications(){
   const items = getNotificationItems();
@@ -1732,7 +1746,7 @@ function renderNotifications(){
 }
 
 /* 通知項目點擊跳轉:待辦→待辦頁並開預覽;應收帳款→應收帳款頁(切到「已逾期」檢視模式);
-   即將到期專案→即將到期專案頁。階段二後不再需要先切工作區,直接 goPage() 即可。 */
+   即將到期專案→即將到期專案頁;維護紀錄提醒→維護紀錄提醒頁。階段二後不再需要先切工作區,直接 goPage() 即可。 */
 function handleNotificationClick(type, id){
   if(type==='todo'){
     goPage('todos','all');
@@ -1742,6 +1756,8 @@ function handleNotificationClick(type, id){
     goPage('receivables');
   } else if(type==='expiring'){
     goPage('expiring');
+  } else if(type==='maintReminder'){
+    goPage('maintReminders');
   }
 }
 
@@ -1758,6 +1774,7 @@ function renderPage(extra){
   else if(currentPage==='projects') root.innerHTML = projectsTpl();
   else if(currentPage==='receivables') root.innerHTML = receivablesTpl();
   else if(currentPage==='expiring') root.innerHTML = expiringTpl();
+  else if(currentPage==='maintReminders') root.innerHTML = maintRemindersTpl();
   else if(currentPage==='todos') root.innerHTML = todosTpl();
   else if(currentPage==='contacts') root.innerHTML = contactsTpl();
   else if(currentPage==='notes') root.innerHTML = notesTpl();
@@ -1769,6 +1786,7 @@ function renderPage(extra){
   if(currentPage==='projects') afterProjectsRender();
   if(currentPage==='receivables') afterReceivablesRender();
   if(currentPage==='expiring') afterExpiringRender();
+  if(currentPage==='maintReminders') afterMaintRemindersRender();
   if(currentPage==='todos') afterTodosRender(extra);
   if(currentPage==='contacts') afterContactsRender();
   if(currentPage==='notes') afterNotesRender();
@@ -1897,6 +1915,86 @@ function computeExpiringPageList(monthsAhead=3){
     map.set(p.id, Object.assign({}, p, { _isOverdue: d < now }));
   });
   return Array.from(map.values());
+}
+
+/* ============================================================
+   維護紀錄提醒(Maintenance Reminder)— 週期計算與清單
+   ============================================================ */
+function reminderCycleMonthsOf(p){
+  if(p.reminderCycle==='monthly') return 1;
+  if(p.reminderCycle==='quarterly') return 3;
+  return Number(p.reminderCycleMonths)||3;
+}
+
+/* 從起算基準日開始,依週期月數往後推算,找出「小於等於今天」的最後一次應提醒日,
+   再往後推一次週期,得到下一次應提醒日。若尚未到第一次週期,下一次提醒日就是基準日往後推一個週期。 */
+function computeNextReminderDate(p){
+  if(!p.reminderEnabled || !p.reminderAnchorDate) return null;
+  const cycleMonths = reminderCycleMonthsOf(p);
+  if(!cycleMonths) return null;
+  const anchor = new Date(normDate(p.reminderAnchorDate)+'T00:00:00');
+  if(isNaN(anchor.getTime())) return null;
+
+  // 若有發送紀錄,以最後一次發送日為起算點;否則以基準日為起算點
+  const log = (p.reminderLog||[]).slice().sort((a,b)=> (a.dueDate||'').localeCompare(b.dueDate||''));
+  let base = log.length ? new Date(normDate(log[log.length-1].dueDate)+'T00:00:00') : anchor;
+  if(isNaN(base.getTime())) base = anchor;
+
+  let next = new Date(base);
+  next.setMonth(next.getMonth()+cycleMonths);
+  return `${next.getFullYear()}-${pad2(next.getMonth()+1)}-${pad2(next.getDate())}`;
+}
+
+/* 信件內容中的維護期間 {{period}}:提醒日往前推「週期月數」個月,格式 YYYYMM-YYYYMM */
+function computeReminderPeriodLabel(p, dueDateStr){
+  const cycleMonths = reminderCycleMonthsOf(p);
+  const due = new Date(normDate(dueDateStr)+'T00:00:00');
+  if(isNaN(due.getTime())) return '';
+  const end = new Date(due); end.setMonth(end.getMonth()-1); // 提醒月的前一個月為期間結束月
+  const start = new Date(end); start.setMonth(start.getMonth()-(cycleMonths-1));
+  const fmt = d => `${d.getFullYear()}${pad2(d.getMonth()+1)}`;
+  return `${fmt(start)}-${fmt(end)}`;
+}
+
+function computeMaintReminderList(){
+  const now = new Date(); now.setHours(0,0,0,0);
+  return DATA.projects
+    .filter(p=> isMaintenanceProject(p) && p.reminderEnabled && !p.terminated)
+    .map(p=>{
+      const dueDate = computeNextReminderDate(p);
+      return { id:p.id, client:p.client, name:p.name, code:p.code, pm:p.pm, dueDate, project:p,
+        _isOverdue: dueDate ? (new Date(dueDate+'T00:00:00') < now) : false };
+    })
+    .filter(r=> r.dueDate)
+    .sort((a,b)=> (a.dueDate||'').localeCompare(b.dueDate||''));
+}
+
+function computeOverdueMaintReminders(){
+  return computeMaintReminderList().filter(r=>r._isOverdue);
+}
+
+/* 套用變數並回傳(信件內容, 未辨識變數清單) */
+function renderReminderTemplate(p, dueDateStr){
+  const period = computeReminderPeriodLabel(p, dueDateStr);
+  const template = p.reminderTemplate || '';
+  const KNOWN_VARS = { period };
+  const unresolved = new Set();
+  const content = template.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (m, key)=>{
+    if(Object.prototype.hasOwnProperty.call(KNOWN_VARS, key)) return KNOWN_VARS[key];
+    unresolved.add(key);
+    return m;
+  });
+  return { content, unresolved: Array.from(unresolved) };
+}
+
+function markMaintReminderSent(projectId){
+  const p = DATA.projects.find(x=>x.id===projectId);
+  if(!p) return;
+  const dueDate = computeNextReminderDate(p);
+  if(!dueDate) return;
+  p.reminderLog = p.reminderLog || [];
+  p.reminderLog.push({ dueDate, sentDate: todayISO(), periodLabel: computeReminderPeriodLabel(p, dueDate), status:'sent' });
+  persist('projects');
 }
 
 function computeStats(){
@@ -2049,6 +2147,7 @@ const PAGE_THEME = {
   projects:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   receivables:{ bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   expiring:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
+  maintReminders: { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   todos:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   contacts:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   notes:      { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
@@ -2608,6 +2707,160 @@ function openExpiringRenewalDialog(proj){
 }
 
 /* ============================================================
+   MAINTENANCE REMINDERS PAGE (維護紀錄提醒)
+   ============================================================ */
+function maintRemindersTpl(){
+  return `
+  <div class="page active" id="page-maintReminders">
+    ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期,定期提醒發信向 PM 索取維護紀錄')}
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);" id="mrStatGrid"></div>
+    <div class="card panel">
+      <div class="panel-title">
+        <span>提醒清單<span class="tag" id="mrTotalTag" style="background:${PAGE_THEME.maintReminders.bg};color:${PAGE_THEME.maintReminders.color};"></span></span>
+      </div>
+      <div id="mrList"></div>
+    </div>
+  </div>`;
+}
+
+let mrFilter = 'all'; // 'all' | 'overdue' | 'thisMonth'
+
+function afterMaintRemindersRender(){
+  mrFilter = 'all';
+  renderMaintRemindersContent();
+}
+
+function computeFilteredMaintReminders(){
+  const list = computeMaintReminderList();
+  if(mrFilter==='overdue') return list.filter(r=>r._isOverdue);
+  if(mrFilter==='thisMonth'){
+    const now = new Date();
+    return list.filter(r=>{
+      if(r._isOverdue) return false;
+      const d = new Date(r.dueDate+'T00:00:00');
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    });
+  }
+  return list;
+}
+
+function renderMaintRemindersContent(){
+  const all = computeMaintReminderList();
+  const overdueCount = all.filter(r=>r._isOverdue).length;
+  const now = new Date();
+  const thisMonthCount = all.filter(r=> !r._isOverdue && new Date(r.dueDate+'T00:00:00').getFullYear()===now.getFullYear() && new Date(r.dueDate+'T00:00:00').getMonth()===now.getMonth()).length;
+
+  const cardDefs = [
+    {bucket:'all', label:'已啟用提醒的專案', value:all.length, icon:ICONS.mail, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:'overdue', label:'已逾期未發送', value:overdueCount, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
+    {bucket:'thisMonth', label:'本月待發送', value:thisMonthCount, icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
+  ];
+  document.getElementById('mrStatGrid').innerHTML = cardDefs.map(c=>{
+    const isActive = mrFilter===c.bucket;
+    const html = statCardHtml({label:c.label, value:c.value, icon:c.icon, color:c.color, bg:c.bg, accent:c.accent});
+    return html.replace('class="card stat-card"', `class="card stat-card${isActive?' is-active':''}" data-bucket="${c.bucket}"`);
+  }).join('');
+  document.querySelectorAll('#mrStatGrid [data-bucket]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      mrFilter = card.dataset.bucket;
+      renderMaintRemindersContent();
+    });
+  });
+
+  const filtered = computeFilteredMaintReminders();
+  document.getElementById('mrTotalTag').textContent = `共 ${filtered.length} 筆`;
+  const el = document.getElementById('mrList');
+  if(!filtered.length){
+    el.innerHTML = emptyState('此範圍內沒有需要提醒的專案。可在「維護專案」編輯畫面中啟用「維護紀錄提醒」', ICONS.mail);
+  } else {
+    el.innerHTML = `<table><thead><tr><th>客戶</th><th>合約名稱</th><th>PM</th><th>下次提醒日</th><th>上次發送日</th><th>狀態</th><th></th></tr></thead><tbody>
+      ${filtered.map(r=>{
+        const log = (r.project.reminderLog||[]).slice().sort((a,b)=>(a.sentDate||'').localeCompare(b.sentDate||''));
+        const lastSent = log.length ? log[log.length-1].sentDate : '';
+        const statusBadge = r._isOverdue
+          ? `<span class="badge badge-red"><span class="badge-dot"></span>已逾期</span>`
+          : `<span class="badge badge-blue"><span class="badge-dot"></span>待處理</span>`;
+        return `<tr style="${r._isOverdue?'':''}">
+          <td>${esc(r.client)}</td>
+          <td><b>${esc(r.name)}</b></td>
+          <td>${esc(r.pm)}</td>
+          <td class="cell-muted" style="${r._isOverdue?'color:var(--red);font-weight:700;':''}">${esc(r.dueDate)}${r._isOverdue?' ⚠':''}</td>
+          <td class="cell-muted">${esc(lastSent||'-')}</td>
+          <td>${statusBadge}</td>
+          <td><div class="row-actions">
+            <button class="btn btn-ghost btn-sm" data-gen="${r.id}">產生信件</button>
+          </div></td>
+        </tr>`;
+      }).join('')}
+    </tbody></table>`;
+    el.querySelectorAll('[data-gen]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const r = filtered.find(x=>x.id===btn.dataset.gen);
+        if(r) openMaintReminderEmailModal(r);
+      });
+    });
+  }
+}
+
+/* 產生信件內容 Modal:套版顯示 + 複製按鈕 + 標記已發送 */
+function openMaintReminderEmailModal(r){
+  const p = r.project;
+  const { content, unresolved } = renderReminderTemplate(p, r.dueDate);
+  const box = document.getElementById('modalBox');
+  box.className = 'modal wide';
+  const warnHtml = unresolved.length
+    ? `<div style="background:var(--red-bg);color:var(--red);border-radius:10px;padding:10px 12px;font-size:12.5px;font-weight:700;margin-bottom:12px;">⚠ 有未辨識的變數:${unresolved.map(v=>`{{${esc(v)}}}`).join('、')},請確認模板內容</div>`
+    : '';
+  const emptyHtml = !p.reminderTemplate
+    ? `<div class="form-hint" style="padding:10px 2px;">這個專案尚未設定信件模板,請先到「編輯專案」→「維護紀錄提醒設定」中填寫。</div>`
+    : '';
+  box.innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">信件內容 — ${esc(p.name)}</div>
+      <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
+    </div>
+    <div class="modal-body">
+      ${warnHtml}
+      ${emptyHtml}
+      <div class="form-field full">
+        <label>維護期間</label>
+        <div class="preview-value">${esc(computeReminderPeriodLabel(p, r.dueDate))}</div>
+      </div>
+      <div class="form-field full">
+        <label>信件內容(可直接複製)</label>
+        <textarea id="mrEmailContent" rows="10" style="white-space:pre-wrap;">${esc(content)}</textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="mCloseBtn">關閉</button>
+      <button class="btn btn-ghost" id="mCopy">複製信件內容</button>
+      <button class="btn btn-primary" id="mMarkSent">標記已發送</button>
+    </div>
+  `;
+  openModalOverlay();
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  document.getElementById('mCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('mCopy').addEventListener('click', async ()=>{
+    const ta = document.getElementById('mrEmailContent');
+    try{
+      await navigator.clipboard.writeText(ta.value);
+      toast('已複製信件內容');
+    }catch(e){
+      ta.select();
+      document.execCommand('copy');
+      toast('已複製信件內容');
+    }
+  });
+  document.getElementById('mMarkSent').addEventListener('click', ()=>{
+    markMaintReminderSent(p.id);
+    closeModal();
+    if(currentPage==='maintReminders') renderMaintRemindersContent();
+    renderNotifications();
+    toast('已標記為已發送,下次提醒日已自動更新');
+  });
+}
+
+/* ============================================================
    PROJECTS PAGE
    ============================================================ */
 function projectsTpl(){
@@ -2783,6 +3036,16 @@ function pvInstallmentsTable(p){
   </div>`;
 }
 
+function pvReminderInfo(p){
+  if(!p.reminderEnabled) return `<div class="form-field full"><label>維護紀錄提醒</label><div class="preview-value empty">未啟用</div></div>`;
+  const nextDate = computeNextReminderDate(p);
+  const cycleLabel = p.reminderCycle==='monthly' ? '每月' : p.reminderCycle==='quarterly' ? '每季' : `每 ${p.reminderCycleMonths||3} 個月`;
+  return `<div class="form-field full">
+    <label>維護紀錄提醒</label>
+    <div class="preview-value">已啟用・週期:${esc(cycleLabel)}・下次提醒日:${esc(nextDate||'—')}</div>
+  </div>`;
+}
+
 function openProjectPreviewModal(id){
   const p = DATA.projects.find(x=>x.id===id);
   if(!p) return;
@@ -2809,6 +3072,7 @@ function openProjectPreviewModal(id){
       ${pvField('已終止', p.terminated?'是':'否')}
       ${pvField('發票期數說明', esc(p.invoiceNote), true)}
       ${pvInstallmentsTable(p)}
+      ${pvReminderInfo(p)}
       ${pvField('備註', esc(p.note), true)}
     `;
   } else {
@@ -2919,6 +3183,7 @@ function openMaintenanceProjectModal(existing, editing){
     startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
     pm:'', sales:'', terminated:false, note:'', installments:[],
     department:'', contractNo:'', contact:'', invoiceNote:'',
+    reminderEnabled:false, reminderCycle:'quarterly', reminderCycleMonths:3, reminderAnchorDate:todayISO(), reminderTemplate:'', reminderLog:[],
   };
   const clientList = DATA.clients;
   const existingInstallments = p.installments || [];
@@ -3014,6 +3279,36 @@ function openMaintenanceProjectModal(existing, editing){
           <div class="install-total" id="installTotal"></div>
         </div>
 
+        <div class="installment-box">
+          <div class="installment-head">
+            <div class="lbl">維護紀錄提醒設定</div>
+            <label class="checkbox-row"><input type="checkbox" id="f_reminderEnabled" ${p.reminderEnabled?'checked':''}>啟用此提醒</label>
+          </div>
+          <div id="reminderFields" style="display:${p.reminderEnabled?'grid':'none'};grid-template-columns:1fr 1fr;gap:14px 16px;">
+            <div class="form-field">
+              <label>提醒週期</label>
+              <select id="f_reminderCycle">
+                <option value="monthly" ${p.reminderCycle==='monthly'?'selected':''}>每月</option>
+                <option value="quarterly" ${(!p.reminderCycle||p.reminderCycle==='quarterly')?'selected':''}>每季(3個月)</option>
+                <option value="custom" ${p.reminderCycle==='custom'?'selected':''}>自訂月數</option>
+              </select>
+            </div>
+            <div class="form-field" id="reminderCustomMonthsField" style="display:${p.reminderCycle==='custom'?'flex':'none'};">
+              <label>自訂間隔月數</label>
+              <input id="f_reminderCycleMonths" type="number" min="1" max="24" value="${p.reminderCycleMonths||3}">
+            </div>
+            <div class="form-field">
+              <label>起算基準日</label>
+              <input id="f_reminderAnchor" type="date" value="${p.reminderAnchorDate||todayISO()}">
+            </div>
+            <div class="form-field full">
+              <label>信件模板全文</label>
+              <textarea id="f_reminderTemplate" rows="6" placeholder="貼上信件內容,並用 {{period}} 代表維護期間(將自動帶入,如 202604-202606)">${esc(p.reminderTemplate||'')}</textarea>
+              <div class="form-hint">可用變數:{{period}} → 自動帶入維護期間(如 202604-202606)。PM 姓名、系統名稱等固定內容請直接寫在模板文字裡。</div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-field full">
           <label>備註</label>
           <textarea id="f_note" placeholder="其他備註說明">${esc(p.note||'')}</textarea>
@@ -3031,6 +3326,15 @@ function openMaintenanceProjectModal(existing, editing){
   document.getElementById('f_client').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_code').addEventListener('input', e=> clearFieldError(e.target));
+
+  document.getElementById('f_reminderEnabled').addEventListener('change', e=>{
+    document.getElementById('reminderFields').style.display = e.target.checked ? 'grid' : 'none';
+    if(e.target.checked) clearFieldError(document.getElementById('f_reminderTemplate'));
+  });
+  document.getElementById('f_reminderCycle').addEventListener('change', e=>{
+    document.getElementById('reminderCustomMonthsField').style.display = e.target.value==='custom' ? 'flex' : 'none';
+  });
+  document.getElementById('f_reminderTemplate').addEventListener('input', e=> clearFieldError(e.target));
 
   const defaultYear = p.startDate ? new Date(normDate(p.startDate)+'T00:00:00').getFullYear() : new Date().getFullYear();
   let rows = (p.installments && p.installments.length)
@@ -3104,6 +3408,12 @@ function openMaintenanceProjectModal(existing, editing){
     if(!client){ markFieldError(clientInput, '請填寫客戶名稱'); hasError = true; }
     if(!name){ markFieldError(nameInput, '請填寫合約名稱'); hasError = true; }
     if(isProjectCodeDuplicate(codeInput.value, p.id)){ markFieldError(codeInput, '此代碼已存在'); hasError = true; }
+    const reminderEnabled = document.getElementById('f_reminderEnabled').checked;
+    const reminderTemplateInput = document.getElementById('f_reminderTemplate');
+    if(reminderEnabled && !reminderTemplateInput.value.trim()){
+      markFieldError(reminderTemplateInput, '啟用提醒時請填寫信件模板');
+      hasError = true;
+    }
     if(hasError){ toast('請確認標示為紅色的必填欄位'); (!client?clientInput:!name?nameInput:codeInput).focus(); return; }
     const saveBtn = document.getElementById('mSave');
     saveBtn.disabled = true;
@@ -3141,6 +3451,12 @@ function openMaintenanceProjectModal(existing, editing){
       invoiceNote: document.getElementById('f_invoiceNote').value.trim(),
       installments: finalInstallments,
       renewalDone: p.renewalDone || false,
+      reminderEnabled,
+      reminderCycle: document.getElementById('f_reminderCycle').value,
+      reminderCycleMonths: Number(document.getElementById('f_reminderCycleMonths').value)||3,
+      reminderAnchorDate: document.getElementById('f_reminderAnchor').value || todayISO(),
+      reminderTemplate: reminderTemplateInput.value,
+      reminderLog: p.reminderLog || [],
     };
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
@@ -3148,6 +3464,8 @@ function openMaintenanceProjectModal(existing, editing){
     await persist('projects');
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
+    if(currentPage==='maintReminders') renderMaintRemindersContent();
+    renderNotifications();
     toast(editing?'已儲存變更':'已新增維護專案');
   });
 }
@@ -3436,6 +3754,7 @@ function buildImportRecord(type, cells){
       contractNo:(contractNo||'').trim(), invoiceNote:(invoiceNote||'').trim(), contact:(contact||'').trim(),
       note:(note||'').trim(),
       installments,
+      reminderEnabled:false, reminderCycle:'quarterly', reminderCycleMonths:3, reminderAnchorDate:parsedStart||todayISO(), reminderTemplate:'', reminderLog:[],
     };
   }
   if(type==='inprogress'){
