@@ -780,6 +780,8 @@ let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (
 let receivFilter = { status:'overdue', month: new Date().getMonth()+1 };
 let noteFilter = { q:'', pinnedOnly:false };
 let lastFocusedEl = null; // 無障礙:記住開啟 Modal 前的焦點位置,關閉時還原,方便鍵盤操作者回到原本位置
+let modalDirty = false; // 目前開啟的 Modal 表單是否有已輸入但尚未儲存的內容(離開前需確認,避免手滑誤觸遮罩/Esc 導致內容消失)
+let modalDraftKey = null; // 目前表單對應的草稿 localStorage key;僅「全新新增」的專案/待辦表單使用,編輯既有資料或已帶入預設值的表單不啟用草稿
 
 /* ---------------- Firebase-backed storage layer ----------------
    取代原本的 window.storage(Claude artifact 專屬 API)。
@@ -2181,6 +2183,9 @@ function themedTag(pageKey, text){
   return `<span class="tag" style="background:${theme.bg};color:${theme.color};">${text}</span>`;
 }
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* 待辦事項「關聯專案」欄位改用可輸入搜尋(input+datalist)取代下拉選單後,共用的顯示格式:
+   「合約名稱(客戶名稱)」,存檔時也用同樣的格式去比對回專案 id。 */
+function projectDisplayLabel(p){ return `${p.name}${p.client?`(${p.client})`:''}`; }
 function priorityBadge(p){
   if(p==='本週') return `<span class="badge badge-red"><span class="badge-dot"></span>本週</span>`;
   if(p==='本月') return `<span class="badge badge-blue"><span class="badge-dot"></span>本月</span>`;
@@ -3321,8 +3326,9 @@ function openMaintenanceProjectModal(existing, editing){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  setupModalDraft(box, (!existing) ? 'draft_project_maintenance' : null);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
   document.getElementById('f_client').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_code').addEventListener('input', e=> clearFieldError(e.target));
@@ -3462,6 +3468,7 @@ function openMaintenanceProjectModal(existing, editing){
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
     await persist('projects');
+    clearModalDraft('draft_project_maintenance');
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     if(currentPage==='maintReminders') renderMaintRemindersContent();
@@ -3563,8 +3570,9 @@ function openInProgressProjectModal(existing, editing){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  setupModalDraft(box, (!existing) ? 'draft_project_inprogress' : null);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
   document.getElementById('f_client').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_code').addEventListener('input', e=> clearFieldError(e.target));
@@ -3624,6 +3632,7 @@ function openInProgressProjectModal(existing, editing){
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
     await persist('projects');
+    clearModalDraft('draft_project_inprogress');
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     toast(editing?'已儲存變更':'已新增進行中專案');
@@ -3636,6 +3645,8 @@ function openInProgressProjectModal(existing, editing){
    讓鍵盤／螢幕報讀軟體使用者能立刻知道焦點已經進入 Modal。 */
 function openModalOverlay(){
   lastFocusedEl = document.activeElement;
+  modalDirty = false;
+  modalDraftKey = null;
   document.getElementById('modalOverlay').classList.add('show');
   const box = document.getElementById('modalBox');
   const firstField = box.querySelector('input, select, textarea');
@@ -3651,6 +3662,82 @@ function closeModal(){
     lastFocusedEl.focus();
   }
   lastFocusedEl = null;
+  modalDirty = false;
+  modalDraftKey = null;
+}
+
+/* ---------------- 離開前確認 + 表單草稿(防止新增專案/待辦時誤觸關閉導致內容消失) ----------------
+   點擊 Modal 外側遮罩或按 Esc,原本會直接關閉並清空表單,手機上很容易手滑誤觸。
+   requestCloseModal() 取代原本直接呼叫 closeModal() 的地方:若表單有已輸入內容(modalDirty),
+   會先跳出確認;沒有輸入過的表單(或唯讀預覽、確認視窗等)行為維持原樣,直接關閉。
+   這裡刻意使用瀏覽器原生 confirm(),因為它不會像站內 confirmDialog() 一樣覆蓋掉 #modalBox 目前的表單內容
+   (confirmDialog 是把 modalBox 整個換成確認文字,使用者若選擇「不要放棄」就沒有表單可以復原了)。 */
+function requestCloseModal(){
+  if(modalDirty){
+    const discard = window.confirm('您有尚未儲存的內容,確定要放棄並關閉嗎?');
+    if(!discard) return;
+    if(modalDraftKey) clearModalDraft(modalDraftKey);
+  }
+  closeModal();
+}
+
+function markModalDirty(){ modalDirty = true; }
+
+/* 只蒐集 id 以 f_ 開頭的欄位(表單裡的一般輸入/下拉/textarea 都遵循這個命名慣例)。
+   收款期數、信件模板等動態列表不在此範圍內,草稿僅保障最常見的文字/選項欄位不遺失。 */
+function collectDraftFieldValues(box){
+  const data = {};
+  box.querySelectorAll('[id^="f_"]').forEach(el=>{
+    if(!el.id) return;
+    data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
+  });
+  return data;
+}
+function applyDraftFieldValues(box, data){
+  Object.keys(data).forEach(fid=>{
+    const el = box.querySelector('#'+fid);
+    if(!el) return;
+    if(el.type==='checkbox') el.checked = !!data[fid];
+    else el.value = data[fid];
+  });
+}
+function clearModalDraft(draftKey){
+  if(!draftKey) return;
+  try{ localStorage.removeItem(draftKey); }catch(e){}
+}
+
+/* 供各「新增」表單呼叫:掛上離開前確認 + 自動存草稿(輸入停頓後即存),
+   並在掛上監聽前,先偵測 localStorage 是否已有上次未完成的草稿,詢問是否要繼續編輯。
+   draftKey 傳 null 時,只啟用離開前確認,不做草稿儲存(用於編輯既有資料的表單)。 */
+let draftAutosaveTimer = null;
+function setupModalDraft(box, draftKey){
+  modalDraftKey = draftKey;
+  if(draftKey){
+    let saved = null;
+    try{ const raw = localStorage.getItem(draftKey); if(raw) saved = JSON.parse(raw); }catch(e){ saved = null; }
+    if(saved){
+      const restore = window.confirm('偵測到上次未完成的新增草稿,是否要繼續編輯?\n(選擇「取消」則捨棄草稿,從空白表單開始)');
+      if(restore){
+        applyDraftFieldValues(box, saved);
+        modalDirty = true;
+      } else {
+        clearModalDraft(draftKey);
+      }
+    }
+  }
+  box.addEventListener('input', ()=>{
+    markModalDirty();
+    if(!draftKey) return;
+    clearTimeout(draftAutosaveTimer);
+    draftAutosaveTimer = setTimeout(()=>{
+      try{ localStorage.setItem(draftKey, JSON.stringify(collectDraftFieldValues(box))); }catch(e){}
+    }, 800);
+  });
+  box.addEventListener('change', ()=>{
+    markModalDirty();
+    if(!draftKey) return;
+    try{ localStorage.setItem(draftKey, JSON.stringify(collectDraftFieldValues(box))); }catch(e){}
+  });
 }
 
 /* ============================================================
@@ -4011,7 +4098,7 @@ function todosTpl(){
     <div class="card table-wrap">
       <table>
         <thead><tr>
-          <th></th><th>到期日</th><th>更新日</th><th>客戶名稱</th><th>類別</th><th>項目/專案</th><th>優先順序</th><th>進度狀態</th><th>備註說明</th><th></th>
+          <th></th><th>到期日</th><th>更新日</th><th>客戶名稱</th><th>類別</th><th>項目名稱</th><th>優先順序</th><th>進度狀態</th><th>備註說明</th><th></th>
         </tr></thead>
         <tbody id="todosTbody"></tbody>
       </table>
@@ -4112,7 +4199,7 @@ function openTodoPreviewModal(id){
     ${pvField('優先順序', esc(t.priority))}
     ${pvField('客戶名稱', esc(t.client))}
     ${pvField('類別', esc(t.category))}
-    ${pvField('項目/專案', esc(t.title), true)}
+    ${pvField('項目名稱', esc(t.title), true)}
     ${pvField('關聯專案', proj ? esc(proj.name) : '', true)}
     ${pvField('進度狀態', esc(t.progress))}
     ${pvField('完成狀態', t.done ? '已完成' : '未完成')}
@@ -4167,6 +4254,8 @@ function openTodoModal(id, prefill){
   // 若這筆待辦目前的進度狀態已被使用者從自訂清單中刪除,仍把它加進選單,
   // 避免下拉選單直接跳掉目前的值,導致使用者一存檔就默默改掉原本的進度狀態
   const progressOptionsForSelect = (t.progress && !progressOptions.includes(t.progress)) ? [...progressOptions, t.progress] : progressOptions;
+  const relatedProject = t.projectId ? DATA.projects.find(x=>x.id===t.projectId) : null;
+  const relatedProjLabel = relatedProject ? projectDisplayLabel(relatedProject) : '';
   box.innerHTML = `
     <div class="modal-head">
       <div class="modal-title">${editing?'編輯待辦事項':'新增待辦事項'}</div>
@@ -4195,16 +4284,14 @@ function openTodoModal(id, prefill){
           <datalist id="catList">${categories.map(c=>`<option value="${c}">`).join('')}</datalist>
         </div>
         <div class="form-field full">
-          <label>項目/專案 <span style="color:var(--red);">*</span></label>
+          <label>項目名稱 <span style="color:var(--red);">*</span></label>
           <input list="projList" id="f_title" value="${esc(t.title)}" placeholder="輸入項目名稱,或關聯專案總覽中的專案">
           <datalist id="projList">${DATA.projects.map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist>
         </div>
         <div class="form-field full">
-          <label>關聯專案(選填,關聯後可在專案預覽中看到這筆待辦)</label>
-          <select id="f_projectId">
-            <option value="">不關聯專案</option>
-            ${DATA.projects.map(p=>`<option value="${p.id}" ${t.projectId===p.id?'selected':''}>${esc(p.name)}${p.client?`(${esc(p.client)})`:''}</option>`).join('')}
-          </select>
+          <label>關聯專案(選填,可直接輸入搜尋;找不到完全符合的名稱時視為不關聯,關聯後可在專案預覽中看到這筆待辦)</label>
+          <input list="relatedProjList" id="f_projectId" value="${esc(relatedProjLabel)}" placeholder="輸入客戶或合約名稱搜尋">
+          <datalist id="relatedProjList">${DATA.projects.map(p=>`<option value="${esc(projectDisplayLabel(p))}">`).join('')}</datalist>
         </div>
         <div class="form-field full">
           <label>進度狀態</label>
@@ -4224,30 +4311,36 @@ function openTodoModal(id, prefill){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  setupModalDraft(box, (!editing && !prefill) ? 'draft_todo' : null);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
   document.getElementById('f_title').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('mSave').addEventListener('click', async ()=>{
     clearAllFieldErrors(box);
     const titleInput = document.getElementById('f_title');
     const title = titleInput.value.trim();
-    if(!title){ markFieldError(titleInput, '請填寫項目/專案名稱'); toast('請確認標示為紅色的必填欄位'); titleInput.focus(); return; }
+    if(!title){ markFieldError(titleInput, '請填寫項目名稱'); toast('請確認標示為紅色的必填欄位'); titleInput.focus(); return; }
     const saveBtn = document.getElementById('mSave');
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中…';
     const client = document.getElementById('f_client').value.trim();
     ensureClient(client);
+    // 關聯專案改成可輸入搜尋:依輸入文字精準比對「合約名稱(客戶名稱)」找回對應專案 id,
+    // 找不到完全符合的項目(例如打錯字或刻意清空)一律視為不關聯,不做模糊猜測。
+    const projInputVal = document.getElementById('f_projectId').value.trim();
+    const matchedProject = projInputVal ? DATA.projects.find(x=> projectDisplayLabel(x)===projInputVal) : null;
     const rec = {
       id: t.id, dueDate: document.getElementById('f_due').value, updatedDate: todayISO(),
       client, category: document.getElementById('f_category').value.trim(), title,
       priority: document.getElementById('f_priority').value, progress: document.getElementById('f_progress').value.trim(),
       note: document.getElementById('f_note').value.trim(),
-      projectId: document.getElementById('f_projectId').value || '',
+      projectId: matchedProject ? matchedProject.id : '',
       done: t.done||false,
     };
     const idx = DATA.todos.findIndex(x=>x.id===t.id);
     if(idx>=0) DATA.todos[idx]=rec; else DATA.todos.push(rec);
     await persist('todos');
+    clearModalDraft('draft_todo');
     closeModal();
     if(currentPage==='todos') renderTodosTable();
     if(currentPage==='projects') renderProjectsTable();
@@ -4658,7 +4751,7 @@ function openNoteModal(id, prefill){
    INIT
    ============================================================ */
 document.getElementById('modalOverlay').addEventListener('click', e=>{
-  if(e.target.id==='modalOverlay') closeModal();
+  if(e.target.id==='modalOverlay') requestCloseModal();
 });
 
 /* 導覽:瀏覽器上一頁/下一頁按鈕觸發時,依網址列還原對應的頁面。
@@ -4674,7 +4767,7 @@ window.addEventListener('popstate', ()=>{
 });
 
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeModal(); return; }
+  if(e.key==='Escape'){ requestCloseModal(); return; }
   // 無障礙:Modal 開啟時把 Tab 鍵焦點鎖在視窗內,避免鍵盤使用者 Tab 到背景看不見的元素
   if(e.key!=='Tab') return;
   const overlay = document.getElementById('modalOverlay');
