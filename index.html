@@ -3965,117 +3965,125 @@ const ADD_WIZARD_CATEGORIES = [
 ];
 
 function openAddWizard(){
-  let selCategory = (['projects','todos','contacts','notes'].includes(currentPage)) ? currentPage : 'projects';
-  let selMode = 'single';
-  let selProjType = (currentPage==='projects') ? projSubTab : 'maintenance';
+  renderWizardCategoryStep();
+}
 
+/* 共用的精靈畫面外殼:每一層各自獨立渲染,畫面內容固定不含隱藏欄位,
+   因此不同層之間不會有多餘空白;層與層切換時高度本來就會不同(屬正常分頁切換),
+   跟先前「同一畫面內容忽隱忽現」造成的跳動感不同。showBack 為 true 時左上角顯示返回上一層按鈕。 */
+function wizardShell(title, bodyHtml, showBack, onBack){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
   box.innerHTML = `
     <div class="modal-head">
-      <div class="modal-title">新增資料</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${showBack?`<button class="icon-btn" id="wizBackBtn" aria-label="上一步" title="上一步" style="width:32px;height:32px;flex:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>`:''}
+        <div class="modal-title">${esc(title)}</div>
+      </div>
       <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
-    <div class="modal-body">
-      <div class="form-field" style="margin-bottom:14px;">
-        <label>選擇類別</label>
-        <div class="add-wizard-group" id="wizCategoryGroup">
-          ${ADD_WIZARD_CATEGORIES.map(c=>`
-            <div class="add-wizard-option" data-cat="${c.id}">
-              <div class="icon">${c.icon}</div>
-              <div class="lbl">${c.label}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div class="form-field" id="wizProjTypeField" style="margin-bottom:14px;visibility:hidden;">
-        <label>專案類型</label>
-        <div class="add-wizard-group" id="wizProjTypeGroup">
-          <div class="add-wizard-option" data-ptype="maintenance">
-            <div class="icon">${ICONS.money}</div>
-            <div class="lbl">維護專案</div>
-          </div>
-          <div class="add-wizard-option" data-ptype="inprogress">
-            <div class="icon">${ICONS.clock}</div>
-            <div class="lbl">進行中專案</div>
-            <div class="sub">開發中／保固中</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-field" id="wizModeField">
-        <label>新增方式</label>
-        <div class="add-wizard-group" id="wizModeGroup">
-          <div class="add-wizard-option" data-mode="single">
-            <div class="icon">${ICONS.single}</div>
-            <div class="lbl">單筆新增</div>
-            <div class="sub">逐欄位手動填寫</div>
-          </div>
-          <div class="add-wizard-option" data-mode="batch">
-            <div class="icon">${ICONS.batch}</div>
-            <div class="lbl">批次匯入</div>
-            <div class="sub">貼上多筆資料</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" id="mCancel">取消</button>
-      <button class="btn btn-primary" id="mNext">下一步</button>
-    </div>
+    <div class="modal-body">${bodyHtml}</div>
   `;
   openModalOverlay();
   document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  if(showBack) document.getElementById('wizBackBtn').addEventListener('click', onBack);
+  return box;
+}
 
-  function refreshSelection(){
-    box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
-      el.classList.toggle('selected', el.dataset.cat===selCategory);
-    });
-    box.querySelectorAll('#wizModeGroup [data-mode]').forEach(el=>{
-      el.classList.toggle('selected', el.dataset.mode===selMode);
-    });
-    box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
-      el.classList.toggle('selected', el.dataset.ptype===selProjType);
-    });
-    // 「專案類型」「新增方式」兩區塊改用 visibility(而非 display)切換顯示,
-    // 讓不同類別之間切換時保留原本的版面空間,視窗高度維持一致,不會跳動。
-    document.getElementById('wizProjTypeField').style.visibility = selCategory==='projects' ? 'visible' : 'hidden';
-    // 記事本目前不支援批次匯入,只提供單筆新增
-    const modeField = document.getElementById('wizModeField');
-    if(selCategory==='notes'){
-      selMode = 'single';
-      modeField.style.visibility = 'hidden';
-    } else {
-      modeField.style.visibility = 'visible';
-    }
-  }
+/* 第一層:選擇類別。點「記事本」因為沒有子類型也不支援批次匯入,直接開新增記事,不需要再往下一層。 */
+function renderWizardCategoryStep(){
+  const bodyHtml = `
+    <div class="form-field" style="margin-bottom:0;">
+      <label>選擇類別</label>
+      <div class="add-wizard-group" id="wizCategoryGroup">
+        ${ADD_WIZARD_CATEGORIES.map(c=>`
+          <div class="add-wizard-option" data-cat="${c.id}">
+            <div class="icon">${c.icon}</div>
+            <div class="lbl">${c.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  const box = wizardShell('新增資料', bodyHtml, false, null);
   box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
-    el.addEventListener('click', ()=>{ selCategory = el.dataset.cat; refreshSelection(); });
+    el.addEventListener('click', ()=>{
+      const cat = el.dataset.cat;
+      if(cat==='notes'){
+        closeModal();
+        openNoteModal();
+      } else if(cat==='projects'){
+        renderWizardProjTypeStep();
+      } else {
+        renderWizardModeStep(cat, null);
+      }
+    });
   });
-  box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
-    el.addEventListener('click', ()=>{ selProjType = el.dataset.ptype; refreshSelection(); });
-  });
-  box.querySelectorAll('#wizModeGroup [data-mode]').forEach(el=>{
-    el.addEventListener('click', ()=>{ selMode = el.dataset.mode; refreshSelection(); });
-  });
-  refreshSelection();
+}
 
-  document.getElementById('mNext').addEventListener('click', ()=>{
-    closeModal();
-    if(selCategory==='projects'){
-      if(selMode==='batch') openImportModal(selProjType);
-      else openProjectModal(null, selProjType);
-      return;
-    }
-    if(selCategory==='notes'){
-      openNoteModal();
-      return;
-    }
-    if(selMode==='batch'){
-      openImportModal(selCategory);
-    } else {
-      if(selCategory==='todos') openTodoModal();
-      else if(selCategory==='contacts') openContactModal();
-    }
+/* 第二層(僅「專案」類別會出現):選擇專案類型,選完直接跳到第三層選新增方式。 */
+function renderWizardProjTypeStep(){
+  const bodyHtml = `
+    <div class="form-field" style="margin-bottom:0;">
+      <label>選擇專案類型</label>
+      <div class="add-wizard-group" id="wizProjTypeGroup">
+        <div class="add-wizard-option" data-ptype="maintenance">
+          <div class="icon">${ICONS.money}</div>
+          <div class="lbl">維護專案</div>
+        </div>
+        <div class="add-wizard-option" data-ptype="inprogress">
+          <div class="icon">${ICONS.clock}</div>
+          <div class="lbl">進行中專案</div>
+          <div class="sub">開發中／保固中</div>
+        </div>
+      </div>
+    </div>
+  `;
+  const box = wizardShell('新增專案', bodyHtml, true, ()=> renderWizardCategoryStep());
+  box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
+    el.addEventListener('click', ()=> renderWizardModeStep('projects', el.dataset.ptype));
+  });
+}
+
+/* 最後一層:選擇新增方式(單筆/批次),選完直接開啟對應表單或匯入視窗並關閉精靈。 */
+function renderWizardModeStep(category, projType){
+  const catLabel = (ADD_WIZARD_CATEGORIES.find(c=>c.id===category)||{}).label || '';
+  const bodyHtml = `
+    <div class="form-field" style="margin-bottom:0;">
+      <label>新增方式</label>
+      <div class="add-wizard-group" id="wizModeGroup">
+        <div class="add-wizard-option" data-mode="single">
+          <div class="icon">${ICONS.single}</div>
+          <div class="lbl">單筆新增</div>
+          <div class="sub">逐欄位手動填寫</div>
+        </div>
+        <div class="add-wizard-option" data-mode="batch">
+          <div class="icon">${ICONS.batch}</div>
+          <div class="lbl">批次匯入</div>
+          <div class="sub">貼上多筆資料</div>
+        </div>
+      </div>
+    </div>
+  `;
+  const backFn = category==='projects' ? (()=> renderWizardProjTypeStep()) : (()=> renderWizardCategoryStep());
+  const box = wizardShell(`新增${catLabel}`, bodyHtml, true, backFn);
+  box.querySelectorAll('#wizModeGroup [data-mode]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const mode = el.dataset.mode;
+      closeModal();
+      if(category==='projects'){
+        if(mode==='batch') openImportModal(projType);
+        else openProjectModal(null, projType);
+        return;
+      }
+      if(mode==='batch'){
+        openImportModal(category);
+      } else {
+        if(category==='todos') openTodoModal();
+        else if(category==='contacts') openContactModal();
+      }
+    });
   });
 }
 
