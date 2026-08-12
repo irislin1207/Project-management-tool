@@ -1228,6 +1228,7 @@ function setupTagListEditor(fieldId, listKey, opts){
     const target = idx + dir;
     if(target<0 || target>=arr.length) return;
     [arr[idx], arr[target]] = [arr[target], arr[idx]];
+    markModalDirty();
     rerender();
   }
 
@@ -1240,14 +1241,15 @@ function setupTagListEditor(fieldId, listKey, opts){
         const val = items()[idx];
         const count = usageCounter ? usageCounter(val) : 0;
         if(count>0){
-          const ok = await confirmDialog({
-            title:'刪除項目',
-            message:`「${val}」目前有 ${count} 筆資料使用中,確定要刪除嗎?已使用的資料不會被更動,但之後新增/編輯時選單裡將不會再出現這個選項。`,
-            confirmLabel:'刪除', cancelLabel:'取消', danger:true,
-          });
+          // 注意:這裡故意使用瀏覽器原生 confirm(),而不是站內共用的 confirmDialog()。
+          // confirmDialog 會整個覆蓋掉 #modalBox(單一共用視窗容器),但這個刪除動作
+          // 是巢狀發生在「設定」視窗開啟中,若改用 confirmDialog 會把外層設定視窗
+          // 的內容整個清空、視窗跟著消失(即使使用者選擇取消也一樣),造成閃退。
+          const ok = window.confirm(`「${val}」目前有 ${count} 筆資料使用中,確定要刪除嗎?已使用的資料不會被更動,但之後新增/編輯時選單裡將不會再出現這個選項。`);
           if(!ok) return;
         }
         items().splice(idx,1);
+        markModalDirty();
         rerender();
       });
     });
@@ -1270,6 +1272,7 @@ function setupTagListEditor(fieldId, listKey, opts){
           const [moved] = arr.splice(dragIdx,1);
           arr.splice(dropIdx,0,moved);
           dragIdx = null;
+          markModalDirty();
           rerender();
         });
       });
@@ -1288,6 +1291,7 @@ function setupTagListEditor(fieldId, listKey, opts){
     if(items().includes(v)){ toast('這個項目已經存在'); return; }
     items().push(v);
     input.value = '';
+    markModalDirty();
     rerender();
   }
   if(addBtn) addBtn.addEventListener('click', addItem);
@@ -1364,8 +1368,13 @@ function openSettingsModal(){
   openModalOverlay();
   renderSettingsTabContent();
 
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
+  // 離開前確認:設定內容分散在多個分頁、由多個獨立函式綁定事件,
+  // 這裡改用「事件委派」在最外層 box 上統一攔截 input/change,
+  // 不論使用者改的是哪個分頁裡的哪個欄位都會標記為已異動。
+  document.getElementById('settingsTabBody').addEventListener('input', markModalDirty);
+  document.getElementById('settingsTabBody').addEventListener('change', markModalDirty);
   document.querySelectorAll('#settingsTabSeg button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       settingsActiveTab = btn.dataset.v;
@@ -1378,6 +1387,7 @@ function openSettingsModal(){
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中…';
     const ok = await saveSettings(settingsDraft);
+    modalDirty = false;
     closeModal();
     if(ok){
       applyDisplaySettings(); // 側邊欄收合狀態、表格密度等立即套用
@@ -2843,8 +2853,9 @@ function openMaintReminderEmailModal(r){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCloseBtn').addEventListener('click', requestCloseModal);
+  document.getElementById('mrEmailContent').addEventListener('input', markModalDirty);
   document.getElementById('mCopy').addEventListener('click', async ()=>{
     const ta = document.getElementById('mrEmailContent');
     try{
@@ -2858,6 +2869,7 @@ function openMaintReminderEmailModal(r){
   });
   document.getElementById('mMarkSent').addEventListener('click', ()=>{
     markMaintReminderSent(p.id);
+    modalDirty = false;
     closeModal();
     if(currentPage==='maintReminders') renderMaintRemindersContent();
     renderNotifications();
@@ -3398,6 +3410,7 @@ function openMaintenanceProjectModal(existing, editing){
     const last = rows[rows.length-1];
     rows.push({ year: last?last.year:defaultYear, month:1, amount:0 });
     renderInstallRows();
+    markModalDirty();
   });
   document.getElementById('f_auto').addEventListener('change', renderInstallRows);
   document.getElementById('f_amount').addEventListener('input', renderInstallRows);
@@ -3469,6 +3482,7 @@ function openMaintenanceProjectModal(existing, editing){
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
     await persist('projects');
     clearModalDraft('draft_project_maintenance');
+    modalDirty = false;
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     if(currentPage==='maintReminders') renderMaintRemindersContent();
@@ -3533,16 +3547,16 @@ function openInProgressProjectModal(existing, editing){
           <input id="f_maintRate" value="${esc(p.maintenanceRate||'')}" placeholder="例如:15%(保固後續約用)">
         </div>
         <div class="form-field">
-          <label>保固到期</label>
-          <input id="f_warrantyEnd" type="date" value="${p.warrantyEndDate||''}">
+          <label>驗收日期</label>
+          <input id="f_acceptance" type="date" value="${p.acceptanceDate||''}">
         </div>
         <div class="form-field">
           <label>保固期限</label>
           <input id="f_warrantyPeriod" value="${esc(p.warrantyPeriod||'')}" placeholder="例如:1年 或 12個月">
         </div>
         <div class="form-field">
-          <label>驗收日期</label>
-          <input id="f_acceptance" type="date" value="${p.acceptanceDate||''}">
+          <label>保固到期</label>
+          <input id="f_warrantyEnd" type="date" value="${p.warrantyEndDate||''}">
         </div>
         <div class="form-field" style="justify-content:flex-end;">
           <button type="button" class="btn btn-ghost btn-sm" id="f_calcWarranty">依驗收日＋保固期限自動帶入到期日</button>
@@ -3596,6 +3610,7 @@ function openInProgressProjectModal(existing, editing){
     d.setMonth(d.getMonth()+Math.round(monthsTotal));
     const iso = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
     document.getElementById('f_warrantyEnd').value = iso;
+    markModalDirty();
     toast('已自動帶入保固到期日');
   });
 
@@ -3633,6 +3648,7 @@ function openInProgressProjectModal(existing, editing){
     if(idx>=0) DATA.projects[idx] = rec; else DATA.projects.push(rec);
     await persist('projects');
     clearModalDraft('draft_project_inprogress');
+    modalDirty = false;
     closeModal();
     if(currentPage==='projects') renderProjectsTable();
     toast(editing?'已儲存變更':'已新增進行中專案');
@@ -3642,12 +3658,19 @@ function openInProgressProjectModal(existing, editing){
 /* 無障礙:統一的 Modal 開啟入口。呼叫端先把內容寫進 #modalBox,再呼叫這個函式,
    會記住目前的焦點位置、顯示遮罩,並把鍵盤焦點移到視窗內第一個可操作元素
    (優先移到第一個輸入欄位,沒有的話退而求其次移到第一個按鈕),
-   讓鍵盤／螢幕報讀軟體使用者能立刻知道焦點已經進入 Modal。 */
+   讓鍵盤／螢幕報讀軟體使用者能立刻知道焦點已經進入 Modal。
+   注意:這裡「不」重設 modalDirty/modalDraftKey——若目前已經有一層 Modal 開著
+   (例如表單開啟中又跳出刪除確認這種巢狀情境),不應該把外層表單的『尚未儲存』
+   狀態悄悄清空。只有在目前沒有 Modal 開啟時,才視為全新一層並重置狀態。 */
 function openModalOverlay(){
-  lastFocusedEl = document.activeElement;
-  modalDirty = false;
-  modalDraftKey = null;
-  document.getElementById('modalOverlay').classList.add('show');
+  const overlay = document.getElementById('modalOverlay');
+  const alreadyOpen = overlay.classList.contains('show');
+  if(!alreadyOpen){
+    lastFocusedEl = document.activeElement;
+    modalDirty = false;
+    modalDraftKey = null;
+  }
+  overlay.classList.add('show');
   const box = document.getElementById('modalBox');
   const firstField = box.querySelector('input, select, textarea');
   const firstFocusable = firstField || box.querySelector('button, [href], [tabindex]:not([tabindex="-1"])');
@@ -3903,8 +3926,8 @@ function openImportModal(type){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
 
   const textArea = document.getElementById('importText');
   const skipHeaderEl = document.getElementById('importSkipHeader');
@@ -3914,8 +3937,8 @@ function openImportModal(type){
     const dataRows = (skipHeaderEl.checked && rows.length) ? rows.slice(1) : rows;
     infoEl.textContent = dataRows.length ? `偵測到 ${dataRows.length} 筆資料列` : '尚未貼上資料';
   };
-  textArea.addEventListener('input', updateInfo);
-  skipHeaderEl.addEventListener('change', updateInfo);
+  textArea.addEventListener('input', ()=>{ updateInfo(); markModalDirty(); });
+  skipHeaderEl.addEventListener('change', ()=>{ updateInfo(); markModalDirty(); });
 
   const dataKey = (type==='maintenance'||type==='inprogress') ? 'projects' : type;
   const isProjectImport = (type==='maintenance'||type==='inprogress');
@@ -3945,6 +3968,7 @@ function openImportModal(type){
       added++;
     });
     if(added>0) await persist(dataKey);
+    modalDirty = false;
     closeModal();
     renderPage();
     const notes = [];
@@ -4351,6 +4375,7 @@ function openTodoModal(id, prefill){
     if(idx>=0) DATA.todos[idx]=rec; else DATA.todos.push(rec);
     await persist('todos');
     clearModalDraft('draft_todo');
+    modalDirty = false;
     closeModal();
     if(currentPage==='todos') renderTodosTable();
     if(currentPage==='projects') renderProjectsTable();
@@ -4488,8 +4513,9 @@ function openContactModal(id){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  setupModalDraft(box, null);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
   document.getElementById('f_company').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_name').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('mSave').addEventListener('click', async ()=>{
@@ -4516,6 +4542,7 @@ function openContactModal(id){
     const idx = DATA.contacts.findIndex(x=>x.id===c.id);
     if(idx>=0) DATA.contacts[idx]=rec; else DATA.contacts.push(rec);
     await persist('contacts');
+    modalDirty = false;
     closeModal();
     if(currentPage==='contacts') renderContactsList();
     toast(editing?'已儲存變更':'已新增聯絡人');
@@ -4710,8 +4737,9 @@ function openNoteModal(id, prefill){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mCancel').addEventListener('click', closeModal);
+  setupModalDraft(box, null);
+  document.getElementById('mClose').addEventListener('click', requestCloseModal);
+  document.getElementById('mCancel').addEventListener('click', requestCloseModal);
   document.getElementById('f_title').addEventListener('input', e=> clearFieldError(e.target));
   document.getElementById('f_content').addEventListener('input', e=> clearFieldError(e.target));
 
@@ -4723,6 +4751,7 @@ function openNoteModal(id, prefill){
         const info = noteColorInfo(s.dataset.color);
         s.style.border = `2px solid ${s.dataset.color===selectedColor?info.border:'transparent'}`;
       });
+      markModalDirty();
     });
   });
 
@@ -4751,6 +4780,7 @@ function openNoteModal(id, prefill){
     const idx = DATA.notes.findIndex(x=>x.id===n.id);
     if(idx>=0) DATA.notes[idx]=rec; else DATA.notes.push(rec);
     await persist('notes');
+    modalDirty = false;
     closeModal();
     if(currentPage==='notes') renderNotesList();
     toast(editing?'已儲存變更':'已新增記事');
@@ -4777,11 +4807,27 @@ window.addEventListener('popstate', ()=>{
 });
 
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ requestCloseModal(); return; }
+  const overlay = document.getElementById('modalOverlay');
+  const modalOpen = overlay.classList.contains('show');
+  if(e.key==='Escape'){
+    if(!modalOpen) return;
+    // 無障礙與防手滑:若焦點目前在視窗內的輸入欄位/下拉選單/文字框上,
+    // Escape 很可能只是使用者想關掉日期選擇器、datalist 建議清單或取消輸入焦點,
+    // 而不是想關閉整個表單視窗。這種情況下先讓欄位失焦,不觸發視窗關閉;
+    // 使用者若真的要關閉視窗,再按一次 Escape(此時焦點已不在輸入欄位上)即可。
+    const active = document.activeElement;
+    const isFormField = active && overlay.contains(active) &&
+      (active.tagName==='INPUT' || active.tagName==='SELECT' || active.tagName==='TEXTAREA');
+    if(isFormField){
+      active.blur();
+      return;
+    }
+    requestCloseModal();
+    return;
+  }
   // 無障礙:Modal 開啟時把 Tab 鍵焦點鎖在視窗內,避免鍵盤使用者 Tab 到背景看不見的元素
   if(e.key!=='Tab') return;
-  const overlay = document.getElementById('modalOverlay');
-  if(!overlay.classList.contains('show')) return;
+  if(!modalOpen) return;
   const box = document.getElementById('modalBox');
   const focusable = Array.from(box.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
     .filter(el=> !el.disabled && el.offsetParent!==null);
