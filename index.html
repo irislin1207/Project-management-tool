@@ -2185,7 +2185,7 @@ function themedTag(pageKey, text){
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 /* 待辦事項「關聯專案」欄位改用可輸入搜尋(input+datalist)取代下拉選單後,共用的顯示格式:
    「合約名稱(客戶名稱)」,存檔時也用同樣的格式去比對回專案 id。 */
-function projectDisplayLabel(p){ return `${p.name}${p.client?`(${p.client})`:''}`; }
+function projectDisplayLabel(p){ return p.name||''; }
 function priorityBadge(p){
   if(p==='本週') return `<span class="badge badge-red"><span class="badge-dot"></span>本週</span>`;
   if(p==='本月') return `<span class="badge badge-blue"><span class="badge-dot"></span>本月</span>`;
@@ -3987,7 +3987,7 @@ function openAddWizard(){
             </div>`).join('')}
         </div>
       </div>
-      <div class="form-field" id="wizProjTypeField" style="margin-bottom:14px;display:none;">
+      <div class="form-field" id="wizProjTypeField" style="margin-bottom:14px;visibility:hidden;">
         <label>專案類型</label>
         <div class="add-wizard-group" id="wizProjTypeGroup">
           <div class="add-wizard-option" data-ptype="maintenance">
@@ -4036,14 +4036,16 @@ function openAddWizard(){
     box.querySelectorAll('#wizProjTypeGroup [data-ptype]').forEach(el=>{
       el.classList.toggle('selected', el.dataset.ptype===selProjType);
     });
-    document.getElementById('wizProjTypeField').style.display = selCategory==='projects' ? '' : 'none';
+    // 「專案類型」「新增方式」兩區塊改用 visibility(而非 display)切換顯示,
+    // 讓不同類別之間切換時保留原本的版面空間,視窗高度維持一致,不會跳動。
+    document.getElementById('wizProjTypeField').style.visibility = selCategory==='projects' ? 'visible' : 'hidden';
     // 記事本目前不支援批次匯入,只提供單筆新增
     const modeField = document.getElementById('wizModeField');
     if(selCategory==='notes'){
       selMode = 'single';
-      modeField.style.display = 'none';
+      modeField.style.visibility = 'hidden';
     } else {
-      modeField.style.display = '';
+      modeField.style.visibility = 'visible';
     }
   }
   box.querySelectorAll('#wizCategoryGroup [data-cat]').forEach(el=>{
