@@ -2725,11 +2725,12 @@ function openExpiringRenewalDialog(proj){
 function maintRemindersTpl(){
   return `
   <div class="page active" id="page-maintReminders">
-    ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期,定期提醒發信向 PM 索取維護紀錄', `<span class="tag" id="mrTotalTag" style="background:${PAGE_THEME.maintReminders.bg};color:${PAGE_THEME.maintReminders.color};"></span>`)}
+    ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期,定期提醒發信向 PM 索取維護紀錄')}
     <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);" id="mrStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">
         <span>提醒清單</span>
+        <span class="tag" id="mrTotalTag" style="background:${PAGE_THEME.maintReminders.bg};color:${PAGE_THEME.maintReminders.color};"></span>
       </div>
       <div id="mrList"></div>
     </div>
