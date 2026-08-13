@@ -733,7 +733,6 @@
 <div class="toast" id="toast"></div>
 
 </div><!-- /#appRoot -->
-
 <script>
 /* ============================================================
    專案管理工作台 — 前端邏輯
@@ -2349,7 +2348,7 @@ function receivablesTpl(){
   const thisYear = new Date().getFullYear();
   return `
   <div class="page active" id="page-receivables">
-    ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', `${thisYear} 年度・依開款月份查詢各專案收款期數明細`)}
+    ${pageHeaderHtml('receivables', ICONS.money, '應收帳款', `${thisYear} 年度・依開款月份查詢各專案收款期數明細`, `<button class="btn btn-ghost btn-sm" id="rvExportBtn" style="color:${PAGE_THEME.receivables.color};border-color:${PAGE_THEME.receivables.bg};">${ICONS.upload}匯出 Excel</button>`)}
     <div id="rvExportReminder"></div>
     <div class="filter-bar">
       <div class="seg" id="rvStatusSeg">
@@ -2361,7 +2360,6 @@ function receivablesTpl(){
         ${opts.map(m=>`<option value="${m}" ${receivFilter.month===m?'selected':''}>${m} 月</option>`).join('')}
       </select>
       <div class="filter-spacer"></div>
-      <button class="btn btn-ghost btn-sm" id="rvExportBtn" style="color:${PAGE_THEME.receivables.color};border-color:${PAGE_THEME.receivables.bg};">${ICONS.upload}匯出 Excel</button>
       <span class="badge badge-blue" id="rvCountBadge"></span>
     </div>
     <div class="card panel">
@@ -2527,13 +2525,13 @@ function exportExpiringExcel(){
 function expiringTpl(){
   return `
   <div class="page active" id="page-expiring">
-    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案')}
+    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案', `<button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:${PAGE_THEME.expiring.color};border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>`)}
     <div id="expExportReminder"></div>
     <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">
-        <span>即將到期專案清單<span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span></span>
-        <button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:${PAGE_THEME.expiring.color};border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>
+        <span>即將到期專案清單</span>
+        <span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span>
       </div>
       <div id="expiringList"></div>
     </div>
@@ -2727,11 +2725,11 @@ function openExpiringRenewalDialog(proj){
 function maintRemindersTpl(){
   return `
   <div class="page active" id="page-maintReminders">
-    ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期,定期提醒發信向 PM 索取維護紀錄')}
+    ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期,定期提醒發信向 PM 索取維護紀錄', `<span class="tag" id="mrTotalTag" style="background:${PAGE_THEME.maintReminders.bg};color:${PAGE_THEME.maintReminders.color};"></span>`)}
     <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);" id="mrStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">
-        <span>提醒清單<span class="tag" id="mrTotalTag" style="background:${PAGE_THEME.maintReminders.bg};color:${PAGE_THEME.maintReminders.color};"></span></span>
+        <span>提醒清單</span>
       </div>
       <div id="mrList"></div>
     </div>
