@@ -4917,7 +4917,17 @@ const authCheckTimeoutId = setTimeout(()=>{
   }
 }, AUTH_CHECK_TIMEOUT_MS);
 
-document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
+// [關鍵修正] setPersistence 改成頁面載入時就先設定好,不要放在點擊事件處理常式裡面。
+// 原因:iOS Safari 只把「點擊當下、同步呼叫」的 window.open() 視為合法的使用者手勢彈出視窗;
+// 中間只要夾了一個 await(哪怕是很快就完成的 setPersistence),使用者手勢的有效視窗就會過期,
+// 導致緊接著呼叫的 signInWithPopup() 被 Safari 判定為「並非使用者直接觸發」而封鎖彈出視窗。
+// 程式接著會誤判成「瀏覽器擋下彈出視窗」,自動退回整頁導向登入——而整頁導向正是
+// 原本在 Safari 上會卡住、跳回登入畫面的那條路徑,等於繞了一圈又踩回原本的問題。
+// LOCAL 其實已經是 Firebase 的預設持久化模式,這裡只是明確設定一次以防萬一,
+// 不等待其結果、也不阻塞任何使用者手勢。
+fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{ /* 忽略,不影響登入 */ });
+
+document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
   const errEl = document.getElementById('loginGateError');
   errEl.textContent = '';
 
@@ -4927,14 +4937,11 @@ document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
   }
 
   const provider = new firebase.auth.GoogleAuthProvider();
-  try{
-    await fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  }catch(e){ /* 部分隱私瀏覽模式可能不支援持久化儲存,略過即可,signInWithPopup 不依賴它也能運作 */ }
-
-  try{
-    await fbAuth.signInWithPopup(provider);
+  // 這裡必須「同步」呼叫 signInWithPopup(不能在它前面加 await 任何東西),
+  // 才能保留住使用者剛剛點擊按鈕的手勢視窗,避免被 Safari 誤判為封鎖。
+  fbAuth.signInWithPopup(provider).then(()=>{
     // 成功後 onAuthStateChanged 會自動處理畫面切換,這裡不用額外動作
-  }catch(err){
+  }).catch(err=>{
     console.error(err);
     if(err && err.code==='auth/popup-closed-by-user'){
       // 使用者自己關掉登入視窗,不算錯誤,不顯示紅字訊息
@@ -4951,7 +4958,7 @@ document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
       return;
     }
     errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
-  }
+  });
 });
 
 fbAuth.getRedirectResult().then(result=>{
