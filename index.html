@@ -27,10 +27,6 @@
     --red-soft:#E3C6BF;
     --red-bg:#F7EAE7;
     --text:var(--navy);
-    /* 無障礙:提高次要文字對比度。原本 0.65 / 0.42 透明度在白色卡片背景上
-       實測約僅 3.8:1 / 2.2:1,低於 WCAG AA 一般文字所需的 4.5:1 / 3:1 門檻。
-       調整後 text-muted 約 5:1(達 AA 標準),text-faint 約 3.3:1
-       (達大字體／UI元件的 3:1 門檻,仍保留比 text-muted 淡的視覺層次)。 */
     --text-muted:rgba(47,65,86,0.75);
     --text-faint:rgba(47,65,86,0.60);
     --border:var(--sky);
@@ -52,7 +48,6 @@
   ::-webkit-scrollbar-thumb{background:var(--blue-300);border-radius:8px;}
   ::-webkit-scrollbar-track{background:transparent;}
 
-  /* ---------- Top Title Bar ---------- */
   .topbar{
     position:fixed; top:0; left:0; right:0; height:var(--topbar-h); z-index:60;
     background:linear-gradient(92deg, var(--blue-900) 0%, var(--blue-800) 55%, var(--blue-700) 100%);
@@ -74,7 +69,6 @@
   .topbar-title .sub{ font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:3.5px; text-transform:uppercase; margin-top:3px; }
   .topbar-right{ display:flex; align-items:center; gap:16px; }
 
-  /* ---------- Global Search (topbar) ---------- */
   .topbar-search{
     position:relative; flex:1; max-width:420px; margin:0 24px; height:38px;
     display:flex; align-items:center; gap:9px; padding:0 14px;
@@ -90,7 +84,6 @@
   .topbar-search input::placeholder{ color:rgba(255,255,255,0.6); }
   #topbarSearchToggleBtn{ display:none; }
 
-  /* ---------- Global Search results dropdown ---------- */
   .search-results{
     position:absolute; top:calc(100% + 8px); left:0; right:0; z-index:80;
     background:#fff; border-radius:14px; box-shadow:0 16px 40px rgba(30,45,55,0.28);
@@ -116,7 +109,6 @@
   .search-results-empty{ padding:24px 12px; text-align:center; color:var(--text-muted); font-size:12.5px; }
   .search-results-hint{ padding:24px 12px; text-align:center; color:var(--text-faint); font-size:12.5px; }
 
-  /* ---------- Global Search (mobile overlay bar) ---------- */
   .topbar-search-mobile{
     position:fixed; top:var(--topbar-h); left:0; right:0; z-index:59;
     background:var(--blue-900); padding:10px 14px; box-shadow:0 6px 16px rgba(20,35,45,0.25);
@@ -150,7 +142,6 @@
   .sidenav-add-btn svg{ width:16px;height:16px; }
   .hamburger-wrap{ position:relative; }
   .hamburger-btn{
-    /* 觸控:原本 36×36px 偏小,調到建議的 44×44px 最小觸控尺寸 */
     width:44px;height:44px;border-radius:12px; flex:none; cursor:pointer;
     background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);
     display:flex; align-items:center; justify-content:center; transition:.15s ease;
@@ -220,7 +211,6 @@
   .topbar-user .name:focus{ background:rgba(255,255,255,0.18); box-shadow:0 0 0 1.5px rgba(255,255,255,0.4); }
   .topbar-user .time{ font-size:11px; color:rgba(255,255,255,0.62); }
 
-  /* ---------- Sidebar Nav ---------- */
   .sidenav{
     position:fixed; left:0; top:var(--topbar-h); bottom:0; width:var(--sidebar-w); z-index:50;
     background:var(--sidebar-bg);
@@ -255,7 +245,6 @@
   .nav-tab.active{ box-shadow:0 4px 12px rgba(47,65,86,0.3); }
   .nav-tab svg{width:18px;height:18px;flex:none;}
   .nav-tab span.label{ writing-mode:horizontal-tb; display:inline-block; }
-  /* 開發中分頁的「敬請期待」小標籤 */
   .nav-soon-badge{
     margin-left:auto; flex:none; font-size:10px; font-weight:800; letter-spacing:.3px;
     color:var(--text-muted); background:var(--beige); border:1px solid var(--border);
@@ -263,7 +252,6 @@
   }
   .nav-tab.active .nav-soon-badge{ background:rgba(255,255,255,0.25); color:#fff; border-color:rgba(255,255,255,0.35); }
   body.sidebar-collapsed .nav-soon-badge{ display:none; }
-  /* 側邊欄分組標題(業務執行／專案管理),階段一新增 */
   .nav-group-title{
     font-size:10.5px; font-weight:800; color:var(--text-muted); text-transform:uppercase;
     letter-spacing:.6px; padding:14px 12px 5px; white-space:nowrap;
@@ -276,7 +264,6 @@
     background:var(--teal); box-shadow:0 0 0 3px rgba(86,124,141,0.2);
   }
 
-  /* ---------- Sidebar collapse ---------- */
   #pages{ transition:margin-left .2s ease; }
   body.sidebar-collapsed{ --sidebar-w:76px; }
   body.sidebar-collapsed .page{ max-width:1620px; }
@@ -292,7 +279,6 @@
   body.sidebar-collapsed .nav-meta{ justify-content:center; padding:10px 0 4px; }
   body.sidebar-collapsed .nav-meta .sync-dot{ margin-right:0; }
 
-  /* ---------- Layout ---------- */
   #pages{ margin-left:var(--sidebar-w); margin-top:var(--topbar-h); min-height:calc(100vh - var(--topbar-h)); overflow-x:hidden; }
   .page{ max-width:1320px; margin:0 auto; padding:28px 28px 80px; display:none; }
   .page.active{ display:block; animation:slidein .32s cubic-bezier(.22,.61,.36,1); }
@@ -319,7 +305,6 @@
   .btn-sm{ padding:6px 12px; font-size:12.5px; border-radius:8px; }
   .btn:disabled{ opacity:.5; cursor:not-allowed; }
 
-  /* ---------- Cards ---------- */
   .card{
     background:var(--card); border-radius:16px; box-shadow:var(--shadow);
     border:1px solid var(--border);
@@ -357,7 +342,6 @@
 
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
-  /* ---------- Table ---------- */
   .table-wrap{ overflow-x:auto; }
   table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   thead th{
@@ -379,14 +363,10 @@
     -webkit-line-clamp:3; overflow:hidden; text-overflow:ellipsis;
   }
   .row-actions{ display:flex; gap:8px; }
-  /* 階段四:表格密度「緊湊」模式,由設定頁的顯示偏好控制(body.density-compact)。
-     UX 修正:icon-btn 縮小範圍限定在 <table> 內,避免波及聯絡人卡片、記事卡片
-     等原本就不是「表格」的按鈕,讓設定的作用範圍名符其實。 */
   body.density-compact thead th{ padding:6px 10px; }
   body.density-compact tbody td{ padding:6px 10px; }
   body.density-compact table .icon-btn{ width:30px; height:30px; }
   .icon-btn{
-    /* 觸控:原本 28×28px 偏小,調到 36×36px(在密集表格中兼顧可讀性與可點性) */
     width:36px;height:36px; border-radius:9px; border:1px solid var(--border); background:#fff;
     cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted);
     transition:.15s;
@@ -395,7 +375,6 @@
   .icon-btn.danger:hover{ background:var(--red-bg); color:var(--red); border-color:var(--red-soft); }
   .icon-btn svg{ width:16px; height:16px; }
 
-  /* badges */
   .badge{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
   .badge-blue{ background:var(--blue-100); color:var(--blue-900); }
   .badge-red{ background:var(--red-bg); color:var(--red); }
@@ -403,7 +382,6 @@
   .badge-gray{ background:var(--beige); color:var(--text-muted); }
   .badge-dot{ width:6px;height:6px;border-radius:50%; background:currentColor; }
 
-  /* ---------- Filter bar ---------- */
   .filter-bar{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;
     background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow);
@@ -423,9 +401,6 @@
   }
   .seg button.active{ background:#fff; color:var(--blue-900); box-shadow:0 1px 3px rgba(62,90,112,0.18); }
 
-  /* ---------- Empty state ---------- */
-  /* 無障礙:搜尋／篩選欄位補上的 label 文字不需要在畫面上顯示(placeholder 已說明用途),
-     但要讓螢幕報讀軟體讀得到,所以視覺上隱藏、語意上保留 */
   .visually-hidden{
     position:absolute; width:1px; height:1px; padding:0; margin:-1px;
     overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
@@ -435,7 +410,6 @@
   .empty-state .t{ font-weight:700; color:var(--blue-800); margin-bottom:4px; }
   .empty-state .s{ font-size:12.5px; }
 
-  /* ---------- Modal ---------- */
   .modal-overlay{
     position:fixed; inset:0; background:rgba(51,69,78,0.45); backdrop-filter:blur(2px);
     display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
@@ -482,7 +456,6 @@
   .install-total{ margin-top:8px; font-size:12.5px; color:var(--text-muted); text-align:right; }
   .install-total b{ color:var(--blue-900); }
 
-  /* contacts */
   .contact-group{ margin-bottom:24px; }
   .contact-group-title{ font-size:13.5px; font-weight:800; color:var(--blue-900); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
   .contact-group-title .n{ font-size:11.5px; font-weight:700; color:var(--text-muted); background:var(--blue-100); padding:2px 9px; border-radius:20px;}
@@ -494,7 +467,6 @@
   .contact-line svg{ width:13px;height:13px; color:var(--blue-500); flex:none; }
   .contact-actions{ position:absolute; top:14px; right:14px; display:flex; gap:5px; }
 
-  /* notes */
   .notes-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
   .note-card{
     padding:15px 16px; position:relative; display:flex; flex-direction:column; gap:8px;
@@ -513,7 +485,6 @@
   .note-card .note-actions{ position:absolute; top:12px; right:12px; display:flex; gap:5px; opacity:0; transition:.15s; }
   .note-card:hover .note-actions{ opacity:1; }
 
-  /* ---------- Add Wizard ---------- */
   .add-wizard-group{ display:flex; gap:10px; margin-bottom:16px; }
   .add-wizard-option{
     flex:1; border:1.5px solid var(--border); background:var(--blue-050); border-radius:12px;
@@ -555,8 +526,6 @@
     .notes-grid{ grid-template-columns:1fr; }
   }
 
-  /* 動畫:尊重作業系統的「減少動態效果」設定,讓所有過場動畫、位移、彈出效果
-     幾乎瞬間完成,對動態效果敏感或有前庭功能問題的使用者更友善 */
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{
       animation-duration:0.01ms !important;
@@ -566,7 +535,6 @@
     }
   }
 
-  /* ---------- Login Gate ---------- */
   #loginGate{
     position:fixed; inset:0; z-index:999; background:var(--beige);
     display:flex; align-items:center; justify-content:center; flex-direction:column;
@@ -590,15 +558,27 @@
   #googleSignInBtn:hover{ background:var(--blue-050); transform:translateY(-1px); }
   #googleSignInBtn svg{ width:19px;height:19px; }
   #loginGateError{ margin-top:16px; font-size:12.5px; color:var(--red); max-width:320px; }
-  #loginGateLoading{ font-size:13px; color:var(--text-muted); }
+  #loginGateChecking{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+  #loginGateChecking .lg-spinner{
+    width:34px;height:34px;border-radius:50%;
+    border:3px solid var(--blue-200); border-top-color:var(--blue-700);
+    animation:lg-spin .8s linear infinite;
+  }
+  @keyframes lg-spin{ to{ transform:rotate(360deg); } }
+  #loginGateChecking .lg-checking-text{ font-size:13px; color:var(--text-muted); }
+  #loginGateContent{ display:none; flex-direction:column; align-items:center; }
+  @media (prefers-reduced-motion: reduce){
+    #loginGateChecking .lg-spinner{ animation:none; border-top-color:var(--blue-200); }
+  }
 </style>
 
-<!-- ===== Firebase SDK(Google 登入 + Firestore 雲端資料庫)===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<!-- ===== SheetJS(匯出 Excel .xlsx 用)===== -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- [安全性修正] 原本的 cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5 是 SheetJS 已知有原型污染
+     (CVE-2023-30533) 與正規表達式阻斷服務(CVE-2024-22363)漏洞的版本,且 cdnjs 目前最新
+     也僅停留在 0.18.5(SheetJS 已不再更新到 npm/cdnjs)。改用官方維護、無已知漏洞的 CDN。 -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBMShdFxrdIh3hI1Df6IdLwXCIJ8bTJf7Y",
@@ -616,14 +596,20 @@
 <body>
 
 <div id="loginGate">
-  <div class="lg-logo">PM</div>
-  <div class="lg-title">專案管理工作台</div>
-  <div class="lg-sub" id="loginGateSub">請使用 Google 帳號登入以繼續</div>
-  <button id="googleSignInBtn">
-    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.4C41.8 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
-    使用 Google 登入
-  </button>
-  <div id="loginGateError"></div>
+  <div id="loginGateChecking" role="status" aria-live="polite">
+    <div class="lg-spinner" aria-hidden="true"></div>
+    <div class="lg-checking-text">正在確認登入狀態…</div>
+  </div>
+  <div id="loginGateContent">
+    <div class="lg-logo">PM</div>
+    <div class="lg-title">專案管理工作台</div>
+    <div class="lg-sub" id="loginGateSub">請使用 Google 帳號登入以繼續</div>
+    <button id="googleSignInBtn">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.4C41.8 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+      使用 Google 登入
+    </button>
+    <div id="loginGateError"></div>
+  </div>
 </div>
 
 <div id="appRoot" style="display:none;">
@@ -730,7 +716,7 @@
   <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 </div><!-- /#appRoot -->
 <script>
@@ -772,7 +758,6 @@ const ICONS = {
 const STORE_KEYS = { projects:'pm-projects', todos:'pm-todos', contacts:'pm-contacts', clients:'pm-clients', notes:'pm-notes' };
 let DATA = { projects:[], todos:[], contacts:[], clients:[], notes:[] };
 let currentPage = 'dashboard';
-let charts = {};
 let todoFilter = { priority:'all', q:'' };
 let projFilter = { q:'', pm:'', sales:'' };
 let projSubTab = 'maintenance'; // 'maintenance' (維護專案) | 'inprogress' (進行中專案:開發中／保固中)
@@ -783,7 +768,6 @@ let modalDirty = false; // 目前開啟的 Modal 表單是否有已輸入但尚�
 let modalDraftKey = null; // 目前表單對應的草稿 localStorage key;僅「全新新增」的專案/待辦表單使用,編輯既有資料或已帶入預設值的表單不啟用草稿
 
 /* ---------------- Firebase-backed storage layer ----------------
-   取代原本的 window.storage(Claude artifact 專屬 API)。
    資料存放路徑:users/{Google帳號UID}/appData/{key}
    ---------------------------------------------------------------- */
 let currentUid = null;
@@ -878,8 +862,6 @@ function migrateLegacyInstallmentData(){
       changed = true;
     }
   });
-  /* 再把「每年重複套用同一組月份」的舊模式,展開成逐筆「年度＋月份＋金額」的明確清單,
-     這樣才能處理跨年度金額或月份不同的情況(例如三年期、每年一月各繳一次,金額不必然均分)。 */
   (DATA.projects||[]).forEach(p=>{
     if(!isMaintenanceProject(p)) return;
     if(Array.isArray(p.installments)) return; // 已是新格式
@@ -909,8 +891,6 @@ function migrateLegacyInstallmentData(){
     delete p.autoSplit;
     changed = true;
   });
-  /* 維護紀錄提醒:提前提醒天數(reminderLeadDays)欄位若缺漏,一律補上預設值 7 天,
-     讓舊資料在套用「即將提醒」邏輯時有一致的行為,不會因為欄位不存在而被當成 0 天。 */
   (DATA.projects||[]).forEach(p=>{
     if(isMaintenanceProject(p) && (p.reminderLeadDays===undefined || p.reminderLeadDays===null || p.reminderLeadDays==='')){
       p.reminderLeadDays = 7;
@@ -941,9 +921,6 @@ function ensureClient(name){
   }
 }
 
-/* 專案代碼全域重複檢查:維護專案／進行中專案共用同一個代碼命名空間,
-   比對時忽略大小寫與頭尾空白,並排除自己這筆(編輯時用)。空白代碼不檢查
-   (代碼是選填欄位,允許多筆都留空)。 */
 function isProjectCodeDuplicate(code, excludeId){
   const norm = (code||'').trim().toLowerCase();
   if(!norm) return false;
@@ -964,9 +941,7 @@ function applyGoogleIdentity(user){
   }
 }
 
-/* ---------------- SETTINGS(設定)----------------
-   階段一:先建立完整的讀寫骨架與預設值,設定 Modal 內容會在後續階段逐步補上。
-   單一 key 集中存放,存檔時整包覆蓋,避免像 workspace/export-meta 那樣散落多個 key。 */
+/* ---------------- SETTINGS(設定)---------------- */
 const SETTINGS_KEY = 'pm-settings';
 const DEFAULT_SETTINGS = {
   notifications: {
@@ -984,10 +959,6 @@ const DEFAULT_SETTINGS = {
     departments: ['WM','AM'],
   },
   display: {
-    // 階段四(側邊欄整併):defaultWorkspace 這個欄位名稱維持不變(向下相容舊資料),
-    // 但語意已經從「預設工作區」改成「預設分頁」,存放的是 pageId(如 'dashboard'、'todos')。
-    // 若使用者的舊資料裡還留著舊版的 'sales'/'pm',畫面上的下拉選單找不到對應選項時
-    // 會自然落回第一個選項,不會報錯,init() 也會驗證有效性並退回 'dashboard'。
     defaultWorkspace: 'dashboard',
     rememberLastPage: true,
     sidebarCollapsedDefault: false,
@@ -997,8 +968,6 @@ const DEFAULT_SETTINGS = {
 };
 let SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 
-/* 淺層合併:確保就算 Firestore 裡存的是舊版設定(缺少新欄位),也會補上預設值,
-   避免之後任何讀取 SETTINGS.xxx.yyy 的地方碰到 undefined。 */
 function mergeSettings(base, loaded){
   const out = {};
   Object.keys(base).forEach(section=>{
@@ -1027,26 +996,22 @@ async function saveSettings(next){
     return false;
   }
 }
-/* 階段三:自訂清單共用讀取工具,任何寫死的 datalist/select 選項改讀這裡,
-   萬一 SETTINGS 尚未載入完成也有預設值可退回。 */
 function getListSetting(key){
   return (SETTINGS && SETTINGS.lists && SETTINGS.lists[key]) || DEFAULT_SETTINGS.lists[key];
 }
 
-/* ---------- 設定 Modal(階段一:骨架 + 分頁殼子,內容留待後續階段填入) ---------- */
 const SETTINGS_TABS = [
   { id:'notifications', label:'通知提醒' },
   { id:'lists', label:'自訂清單' },
   { id:'display', label:'顯示偏好' },
 ];
 let settingsActiveTab = 'notifications';
-let settingsDraft = null; // 開啟 Modal 時複製一份 SETTINGS,存檔才寫回,取消則捨棄
+let settingsDraft = null;
 
 function settingsTabPlaceholderHtml(label){
   return `<div class="form-hint" style="padding:24px 4px;text-align:center;">「${esc(label)}」功能開發中,將於後續階段陸續開放</div>`;
 }
 
-/* ---------- 階段二:通知提醒分頁 ---------- */
 function renderNotificationsTabHtml(){
   const n = settingsDraft.notifications;
   return `
@@ -1119,11 +1084,8 @@ function renderSettingsTabContent(){
   }
 }
 
-/* ---------- 顯示與介面偏好分頁 ---------- */
 function renderDisplayTabHtml(){
   const d = settingsDraft.display;
-  // 階段四:「預設工作區」改成「預設分頁」,選項改列出側邊欄全部分頁(依分組),
-  // 開發中(soon:true)的分頁不列入可選範圍,避免使用者把登入首頁設成一個空頁面。
   let pageOptionsHtml = `<option value="dashboard" ${d.defaultWorkspace==='dashboard'?'selected':''}>儀表板</option>`;
   let lastGroup = null;
   NAV_ALL.filter(n=>!n.soon).forEach(n=>{
@@ -1185,10 +1147,6 @@ function bindDisplayTabEvents(){
   if(amountSelect) amountSelect.addEventListener('change', e=>{ settingsDraft.display.amountDecimal = (e.target.value==='1'); });
 }
 
-/* ---------- 階段三:標籤清單編輯器(通用元件) ----------
-   待辦類別、記事分類、進度狀態、部門選項共用同一套「新增／刪除 chip」UI。
-   sortable=true 時額外支援拖曳排序(用於進度狀態,順序本身有意義)。
-   刪除前若該值目前有資料在使用,會先跳出確認筆數的提示,而不是直接砍掉。 */
 function renderTagListEditorHtml(fieldId){
   return `
     <div class="tag-list-editor">
@@ -1207,8 +1165,6 @@ function renderTagChips(fieldId, items, sortable){
     wrap.innerHTML = `<div class="form-hint" style="padding:4px 2px 8px;">目前沒有任何項目,請在下方新增</div>`;
     return;
   }
-  // 無障礙修正:拖曳排序滑鼠可用,但鍵盤／螢幕報讀軟體使用者無法拖曳,
-  // 所以額外提供「上移／下移」按鈕作為鍵盤可操作的替代排序方式,首尾項目自動 disable。
   wrap.innerHTML = items.map((v,i)=>`
     <span class="tag-chip" draggable="${sortable?'true':'false'}" data-idx="${i}"
       style="display:inline-flex;align-items:center;gap:4px;padding:5px 8px 5px 12px;border-radius:20px;background:var(--blue-100);color:var(--blue-900);font-size:12.5px;font-weight:700;margin:0 6px 6px 0;${sortable?'cursor:grab;':''}">
@@ -1248,10 +1204,6 @@ function setupTagListEditor(fieldId, listKey, opts){
         const val = items()[idx];
         const count = usageCounter ? usageCounter(val) : 0;
         if(count>0){
-          // 注意:這裡故意使用瀏覽器原生 confirm(),而不是站內共用的 confirmDialog()。
-          // confirmDialog 會整個覆蓋掉 #modalBox(單一共用視窗容器),但這個刪除動作
-          // 是巢狀發生在「設定」視窗開啟中,若改用 confirmDialog 會把外層設定視窗
-          // 的內容整個清空、視窗跟著消失(即使使用者選擇取消也一樣),造成閃退。
           const ok = window.confirm(`「${val}」目前有 ${count} 筆資料使用中,確定要刪除嗎?已使用的資料不會被更動,但之後新增/編輯時選單裡將不會再出現這個選項。`);
           if(!ok) return;
         }
@@ -1306,7 +1258,6 @@ function setupTagListEditor(fieldId, listKey, opts){
 
   rerender();
 }
-
 
 function renderListsTabHtml(){
   return `
@@ -1377,9 +1328,6 @@ function openSettingsModal(){
 
   document.getElementById('mClose').addEventListener('click', requestCloseModal);
   document.getElementById('mCancel').addEventListener('click', requestCloseModal);
-  // 離開前確認:設定內容分散在多個分頁、由多個獨立函式綁定事件,
-  // 這裡改用「事件委派」在最外層 box 上統一攔截 input/change,
-  // 不論使用者改的是哪個分頁裡的哪個欄位都會標記為已異動。
   document.getElementById('settingsTabBody').addEventListener('input', markModalDirty);
   document.getElementById('settingsTabBody').addEventListener('change', markModalDirty);
   document.querySelectorAll('#settingsTabSeg button').forEach(btn=>{
@@ -1397,17 +1345,14 @@ function openSettingsModal(){
     modalDirty = false;
     closeModal();
     if(ok){
-      applyDisplaySettings(); // 側邊欄收合狀態、表格密度等立即套用
+      applyDisplaySettings();
       renderNotifications();
-      renderPage(); // 讓目前頁面上的匯出提醒橫幅、金額格式等設定相依內容立即反映最新設定
+      renderPage();
     }
     toast(ok ? '已儲存設定' : '儲存失敗,請稍後再試');
   });
 }
 
-/* ---------- 階段四:套用顯示偏好(側邊欄收合狀態、表格密度) ----------
-   金額格式(amountDecimal)由 money() 每次呼叫時即時讀取 SETTINGS,不需要在這裡處理。
-   此函式在 init() 時呼叫一次套用初始狀態,設定頁儲存後也會再呼叫一次立即生效。 */
 function applyDisplaySettings(){
   const d = (SETTINGS && SETTINGS.display) || DEFAULT_SETTINGS.display;
   document.body.classList.toggle('sidebar-collapsed', !!d.sidebarCollapsedDefault);
@@ -1416,11 +1361,7 @@ function applyDisplaySettings(){
   if(collapseBtn) collapseBtn.title = document.body.classList.contains('sidebar-collapsed') ? '展開側邊欄' : '收合側邊欄';
 }
 
-/* ---------- 匯出提醒橫幅(記錄上次匯出時間) ----------
-   純前端架構沒有背景排程,無法真正做到「定期自動匯出」,退而求其次採用
-   「記錄上次匯出時間 + 超過門檻天數就在頁面顯示提醒橫幅」的方案,
-   由使用者自己看到提醒後手動按「立即匯出」。時間記錄存在 Firestore
-   (跨裝置同步),鍵值格式為 { receivables: 'YYYY-MM-DD', expiring: 'YYYY-MM-DD' }。 */
+/* ---------- 匯出提醒橫幅(記錄上次匯出時間) ---------- */
 const EXPORT_META_KEY = 'pm-export-meta';
 const EXPORT_REMINDER_DAYS = 7;
 let exportMeta = {};
@@ -1447,7 +1388,7 @@ async function markExported(key, containerId, label){
 }
 function exportReminderHtml(key, label){
   const notif = (SETTINGS && SETTINGS.notifications) || DEFAULT_SETTINGS.notifications;
-  if(notif.exportReminderEnabled===false) return ''; // 使用者在設定裡關閉了備份提醒
+  if(notif.exportReminderEnabled===false) return '';
   const days = daysSinceExport(key);
   const thresholdDays = notif.exportReminderDays || EXPORT_REMINDER_DAYS;
   const overThreshold = days===null || days>=thresholdDays;
@@ -1472,9 +1413,7 @@ function renderExportReminder(containerId, key, label){
     });
   }
 }
-/* ---------------- 導覽:把目前頁面同步到網址列(階段二:格式簡化為 #<page>) ----------------
-   用 replaceState 而不是直接改 location.hash,避免每次切換頁面都往瀏覽器
-   歷史紀錄多塞一筆,但網址仍會即時反映目前位置,重新整理或分享連結都能回到同一頁。 */
+/* ---------------- 導覽:把目前頁面同步到網址列 ---------------- */
 function updateUrlHash(push){
   const hash = '#' + currentPage;
   if(location.hash === hash) return;
@@ -1499,12 +1438,7 @@ function toast(msg){
   toastTimer = setTimeout(()=> el.classList.remove('show'), 2200);
 }
 
-/* ---------------- Confirm Dialog (站內確認視窗,取代原本的 window.confirm) ----------------
-   表單與回饋:原生 confirm()/alert() 的樣式跟整體設計不一致,手機上體驗也差。
-   改成沿用既有的 Modal 系統(#modalOverlay/#modalBox),並回傳 Promise,
-   呼叫端可以維持原本 if(await confirmDialog(...)) 的寫法。
-   因為走同一套 openModalOverlay()/closeModal(),前面做好的鍵盤焦點管理、
-   Tab 鍵鎖定、Esc 關閉都會自動套用在這個對話框上。 */
+/* ---------------- Confirm Dialog ---------------- */
 function confirmDialog({ title, message, confirmLabel, cancelLabel, danger }){
   return new Promise(resolve=>{
     const box = document.getElementById('modalBox');
@@ -1523,7 +1457,6 @@ function confirmDialog({ title, message, confirmLabel, cancelLabel, danger }){
       </div>
     `;
     openModalOverlay();
-    // 危險操作預設把焦點放在「取消」上,避免使用者手滑誤觸確定
     if(danger){
       const cancelBtn = document.getElementById('cdCancel');
       if(cancelBtn) cancelBtn.focus();
@@ -1551,9 +1484,7 @@ function confirmDialog({ title, message, confirmLabel, cancelLabel, danger }){
   });
 }
 
-/* ---------------- 表單欄位驗證(欄位旁即時錯誤提示) ----------------
-   表單與回饋:必填欄位漏填時,原本只跳一個 toast,使用者要自己找是哪一欄。
-   這裡改成在欄位旁顯示紅框 + 錯誤文字,並方便呼叫端把焦點移到第一個有問題的欄位。 */
+/* ---------------- 表單欄位驗證 ---------------- */
 function markFieldError(inputEl, msg){
   if(!inputEl) return;
   inputEl.style.borderColor = 'var(--red)';
@@ -1584,10 +1515,6 @@ function clearAllFieldErrors(container){
 }
 
 /* ---------------- Nav ---------------- */
-/* ---------------- 側邊欄:單一導覽清單 + 視覺分組 ----------------
-   合併原本的 NAV_SALES / NAV_PM 為一份清單,用 group 欄位標示分組(業務執行／專案管理)。
-   工作區切換器與 currentWorkspace 已於階段二移除,現在是單一扁平化的頁面路由,
-   getCurrentNav() 固定回傳全部項目。 */
 const NAV_ALL = [
   {id:'todos', label:'待辦事項', icon:ICONS.todos, group:'業務執行'},
   {id:'notes', label:'記事本', icon:ICONS.notes, group:'業務執行'},
@@ -1600,8 +1527,6 @@ const NAV_ALL = [
 function getCurrentNav(){
   return NAV_ALL;
 }
-/* Blue-family shades (light -> dark) so tabs read as one cohesive
-   palette instead of unrelated hues, while still being visually distinct. */
 function renderNav(){
   const el = document.getElementById('navTabs');
   const navList = getCurrentNav();
@@ -1616,10 +1541,8 @@ function renderNav(){
     const styleAttr = active
       ? `style="background:var(--teal);color:#fff;"`
       : '';
-    // 開發中的分頁(如報價處理／合約處理)在標題旁加上「敬請期待」小標籤,
-    // 讓使用者一眼就知道這是尚未完成的功能,而不用點進去才發現是空頁面
     const soonBadge = n.soon ? `<span class="nav-soon-badge">敬請期待</span>` : '';
-    html.push(`<button class="nav-tab ${active?'active':''}" ${styleAttr} data-page="${n.id}" title="${n.label}${n.soon?'(敬請期待)':''}" aria-label="${n.label}${n.soon?',敬請期待,功能開發中':''}">
+    html.push(`<button class="nav-tab ${active?'active':''}" ${styleAttr} data-page="${n.id}" title="${n.label}${n.soon?'(敬請期待)':''}" aria-label="${n.label}${n.soon?',敬請期待,功能開發中':''}" ${active?'aria-current="page"':''}>
       ${n.icon}<span class="label">${n.label}</span>${soonBadge}
     </button>`);
   });
@@ -1633,6 +1556,8 @@ function renderNav(){
     homeBtn.classList.toggle('active', homeActive);
     homeBtn.style.background = homeActive ? 'var(--teal)' : '';
     homeBtn.style.color = homeActive ? '#fff' : '';
+    if(homeActive) homeBtn.setAttribute('aria-current', 'page');
+    else homeBtn.removeAttribute('aria-current');
   }
 }
 
@@ -1640,15 +1565,10 @@ function toggleSidebar(){
   const collapsed = document.body.classList.toggle('sidebar-collapsed');
   const btn = document.getElementById('collapseBtn');
   if(btn) btn.title = collapsed ? '展開側邊欄' : '收合側邊欄';
-  // 記住使用者目前的收合狀態,下次登入沿用(對應設定頁的「側邊欄預設收合」)
   SETTINGS.display.sidebarCollapsedDefault = collapsed;
   saveSettings(SETTINGS);
 }
 
-/* ---------------- Touch-friendly click-to-open menus ----------------
-   觸控與互動:漢堡選單／通知選單原本只靠 CSS :hover 展開,觸控裝置(手機/平板)
-   沒有 hover,選單可能完全打不開。這裡加上點擊切換,滑鼠使用者仍可沿用原本的
-   hover 展開(CSS 沒有改動),點擊會額外加上 .force-open,並同步更新 aria-expanded。 */
 function setupClickMenu(wrapId, btnId, menuId){
   const wrap = document.getElementById(wrapId);
   const btn = document.getElementById(btnId);
@@ -1673,7 +1593,6 @@ function setupClickMenu(wrapId, btnId, menuId){
     closeAllOtherMenus();
     setOpen(willOpen);
   });
-  // 點擊選單內任一按鈕(匯出備份、登出、通知項目...)後自動收合選單,避免觸控裝置上選單一直開著
   menu.addEventListener('click', e=>{
     if(e.target.closest('button')) setOpen(false);
   });
@@ -1685,10 +1604,7 @@ function setupClickMenu(wrapId, btnId, menuId){
   });
 }
 
-/* ---------------- Notifications (bell) ----------------
-   階段二:到期提醒天數改讀設定值,並依設定決定是否額外納入
-   「逾期應收帳款」「即將到期專案」「維護紀錄提醒」三種來源。每個項目統一標準化成
-   { type, id, title, client, date, kind } 的形狀,方便下方共用渲染與點擊跳轉。 */
+/* ---------------- Notifications (bell) ---------------- */
 function getNotificationItems(){
   const now = new Date();
   const notif = (SETTINGS && SETTINGS.notifications) || DEFAULT_SETTINGS.notifications;
@@ -1705,7 +1621,7 @@ function getNotificationItems(){
 
   if(notif.showReceivablesInBell){
     computeOverdueReceivables().forEach(r=>{
-      items.push({ type:'receivable', id:`${r.projectId}|${r.instId}`, title:`${r.name} 第${r.period}期`, client:r.client, date:`${r.month} 月`, kind:'overdue' });
+      items.push({ type:'receivable', id:`${r.projectId}|${r.instId}`, title:`${r.name} 第${r.period}期`, client:r.client, date:`${r.year}年${r.month}月`, kind:'overdue' });
     });
   }
 
@@ -1727,7 +1643,6 @@ function getNotificationItems(){
     });
   }
 
-  // 已逾期的項目排最前面,同類再依日期文字概略排序
   items.sort((a,b)=>{
     if(a.kind!==b.kind) return a.kind==='overdue' ? -1 : 1;
     return (a.date||'').localeCompare(b.date||'');
@@ -1767,8 +1682,6 @@ function renderNotifications(){
   });
 }
 
-/* 通知項目點擊跳轉:待辦→待辦頁並開預覽;應收帳款→應收帳款頁(切到「已逾期」檢視模式);
-   即將到期專案→即將到期專案頁;維護紀錄提醒→維護紀錄提醒頁。階段二後不再需要先切工作區,直接 goPage() 即可。 */
 function handleNotificationClick(type, id){
   if(type==='todo'){
     goPage('todos','all');
@@ -1837,32 +1750,48 @@ function inRange(dateStr, start, end){
 
 function isMaintenanceProject(p){ return (p.projType||'maintenance')==='maintenance'; }
 
-function getAllInstallments(){
-  // 應收帳款只抓「維護專案」分頁的資料,且只顯示「今年」的收款項目;
-  // 期數分子/分母改用「該專案全部年度的收款總期數」計算,而不是只看今年度的筆數,
-  // 避免像「三年期、每年1月收一次」這種情況,今年只看到1筆就誤判成 1/1。
+/* 應收帳款只抓「維護專案」分頁的資料;依「目前顯示年度」回傳收款清單。
+   期數分子/分母使用「該專案全部年度的收款總期數」計算,避免像「三年期、每年1月收一次」
+   這種情況,單一年度只看到 1 筆就誤判成 1/1。
+   [已修正] 舊版只硬寫死「今年」,導致去年及更早年度未收款的期數,一旦跨年就從畫面上
+   徹底消失、再也不會被標記為逾期。這裡改成可傳入目標年度(預設今年),
+   另外提供 getAllUnpaidInstallmentsAllYears() 給「已逾期」視圖使用,涵蓋所有年度。 */
+function getAllInstallments(year){
+  const targetYear = year || new Date().getFullYear();
   const list = [];
-  const thisYear = new Date().getFullYear();
   DATA.projects.forEach(p=>{
     if(!isMaintenanceProject(p)) return;
     const allInsts = (p.installments||[]).slice().sort((a,b)=> a.year-b.year || a.month-b.month);
     const total = allInsts.length;
     allInsts.forEach((inst, idx)=>{
-      if(inst.year !== thisYear) return;
-      list.push({ projectId:p.id, instId:inst.id, year:thisYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales,
+      if(inst.year !== targetYear) return;
+      list.push({ projectId:p.id, instId:inst.id, year:targetYear, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales,
         period:idx+1, total, month:Number(inst.month), amount:Number(inst.amount)||0, received: !!inst.received });
     });
   });
   return list;
 }
 
-/* 逾期未收款:本年度已經過了開款月份、卻尚未勾選已收的款項,不受月份篩選影響 */
+/* 逾期未收款:涵蓋「所有年度」尚未收款、且開款月份已過的期數(不只是今年度)。
+   這樣即使是去年、前年遺留下來一直沒勾選已收款的期數,也會持續出現在逾期清單裡,
+   不會因為換了一個年度就悄悄從畫面消失。 */
 function computeOverdueReceivables(){
-  const now = new Date();
-  const curMonth = now.getMonth()+1;
-  return getAllInstallments()
-    .filter(r=> !r.received && r.month < curMonth)
-    .sort((a,b)=> a.month - b.month);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const list = [];
+  DATA.projects.forEach(p=>{
+    if(!isMaintenanceProject(p)) return;
+    const allInsts = (p.installments||[]).slice().sort((a,b)=> a.year-b.year || a.month-b.month);
+    const total = allInsts.length;
+    allInsts.forEach((inst, idx)=>{
+      if(inst.received) return;
+      // 該期的「開款月份」最後一天過了就算逾期(例如 2026 年 5 月,5/31 過後才算逾期)
+      const dueEnd = new Date(inst.year, Number(inst.month), 0, 23,59,59);
+      if(dueEnd >= now) return;
+      list.push({ projectId:p.id, instId:inst.id, year:inst.year, client:p.client, name:p.name, code:p.code, pm:p.pm, sales:p.sales,
+        period:idx+1, total, month:Number(inst.month), amount:Number(inst.amount)||0, received:false });
+    });
+  });
+  return list.sort((a,b)=> a.year-b.year || a.month-b.month);
 }
 
 function toggleInstallmentReceived(projectId, instId, checked){
@@ -1874,8 +1803,6 @@ function toggleInstallmentReceived(projectId, instId, checked){
   persist('projects');
 }
 
-/* 容錯日期正規化:把 20260531 / 2026/05/31 等格式統一轉成 2026-05-31,
-   避免日期比較(逾期／到期判斷)因格式不同而被誤判為 Invalid Date。 */
 function normDate(s){
   if(!s) return '';
   s = String(s).trim();
@@ -1889,8 +1816,6 @@ function normDate(s){
   return '';
 }
 
-/* 即將到期專案:維護專案看「合約到期日」,進行中專案(保固中)看「保固到期」。
-   進行中專案在開發中階段尚無保固到期日,因此不會出現在到期清單,等驗收後填入保固到期日才會被追蹤。 */
 function getProjectExpiryInfo(p){
   if(!isMaintenanceProject(p)){
     return { date: normDate(p.warrantyEndDate), label: '保固到期' };
@@ -1911,7 +1836,6 @@ function computeUpcomingExpiring(monthsAhead=3){
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
 }
 
-/* 已逾期但尚未標記完成的到期／保固項目:不受 3 個月時間窗限制,避免拖久了從清單消失 */
 function computeOverdueExpiring(){
   const now = new Date(); now.setHours(0,0,0,0);
   return DATA.projects.map(p=>{
@@ -1924,7 +1848,6 @@ function computeOverdueExpiring(){
   }).sort((a,b)=> (a._expiryDate||'').localeCompare(b._expiryDate||''));
 }
 
-/* 即將到期專案頁面實際顯示的清單:已逾期(不限時間窗)＋ 未來 monthsAhead 個月內到期(含已標記完成的項目,供對照) */
 function computeExpiringPageList(monthsAhead=3){
   const now = new Date(); now.setHours(0,0,0,0);
   const overdue = computeOverdueExpiring();
@@ -1948,15 +1871,12 @@ function reminderCycleMonthsOf(p){
   return Number(p.reminderCycleMonths)||3;
 }
 
-/* 各專案自訂的「提前幾天顯示提醒」天數,缺漏時預設 7 天(範圍限制在 0–60 天,避免異常輸入) */
 function reminderLeadDaysOf(p){
   const n = Number(p.reminderLeadDays);
   if(isNaN(n)) return 7;
   return Math.min(60, Math.max(0, Math.round(n)));
 }
 
-/* 從起算基準日開始,依週期月數往後推算,找出「小於等於今天」的最後一次應提醒日,
-   再往後推一次週期,得到下一次應提醒日。若尚未到第一次週期,下一次提醒日就是基準日往後推一個週期。 */
 function computeNextReminderDate(p){
   if(!p.reminderEnabled || !p.reminderAnchorDate) return null;
   const cycleMonths = reminderCycleMonthsOf(p);
@@ -1964,7 +1884,6 @@ function computeNextReminderDate(p){
   const anchor = new Date(normDate(p.reminderAnchorDate)+'T00:00:00');
   if(isNaN(anchor.getTime())) return null;
 
-  // 若有發送紀錄,以最後一次發送日為起算點;否則以基準日為起算點
   const log = (p.reminderLog||[]).slice().sort((a,b)=> (a.dueDate||'').localeCompare(b.dueDate||''));
   let base = log.length ? new Date(normDate(log[log.length-1].dueDate)+'T00:00:00') : anchor;
   if(isNaN(base.getTime())) base = anchor;
@@ -1974,20 +1893,16 @@ function computeNextReminderDate(p){
   return `${next.getFullYear()}-${pad2(next.getMonth()+1)}-${pad2(next.getDate())}`;
 }
 
-/* 信件內容中的維護期間 {{period}}:提醒日往前推「週期月數」個月,格式 YYYYMM-YYYYMM */
 function computeReminderPeriodLabel(p, dueDateStr){
   const cycleMonths = reminderCycleMonthsOf(p);
   const due = new Date(normDate(dueDateStr)+'T00:00:00');
   if(isNaN(due.getTime())) return '';
-  const end = new Date(due); end.setMonth(end.getMonth()-1); // 提醒月的前一個月為期間結束月
+  const end = new Date(due); end.setMonth(end.getMonth()-1);
   const start = new Date(end); start.setMonth(start.getMonth()-(cycleMonths-1));
   const fmt = d => `${d.getFullYear()}${pad2(d.getMonth()+1)}`;
   return `${fmt(start)}-${fmt(end)}`;
 }
 
-/* 維護紀錄提醒清單:每筆項目除了 dueDate,還帶上該專案自訂的提前天數(leadDays)、
-   是否已逾期(_isOverdue,提醒日已過)、是否落在「提前提醒天數」區間內但尚未到期(_isSoon)。
-   _isOverdue 與 _isSoon 互斥:已逾期的項目一律視為逾期,不會同時算作即將提醒。 */
 function computeMaintReminderList(){
   const now = new Date(); now.setHours(0,0,0,0);
   return DATA.projects
@@ -2016,12 +1931,10 @@ function computeOverdueMaintReminders(){
   return computeMaintReminderList().filter(r=>r._isOverdue);
 }
 
-/* 即將提醒(尚未逾期,但落在該專案自訂的提前天數區間內) */
 function computeSoonMaintReminders(){
   return computeMaintReminderList().filter(r=>r._isSoon);
 }
 
-/* 套用變數並回傳(信件內容, 未辨識變數清單) */
 function renderReminderTemplate(p, dueDateStr){
   const period = computeReminderPeriodLabel(p, dueDateStr);
   const template = p.reminderTemplate || '';
@@ -2065,7 +1978,6 @@ function computeStats(){
 
   const overdue = todos.filter(t=> !t.done && t.dueDate && new Date(t.dueDate+'T23:59:59') < now).length;
 
-  // current month receivables (for dashboard mini card)
   const curMonth = now.getMonth()+1;
   const receivables = getAllInstallments().filter(x=>x.month===curMonth);
   const receivablesTotal = receivables.reduce((s,r)=>s+r.amount,0);
@@ -2127,7 +2039,6 @@ function statCardHtml({label, value, suffix, icon, color, bg, accent, onClick}){
   </div>`;
 }
 
-/* ---------- lightweight inline SVG chart helper (no external chart library needed) ---------- */
 function gaugeSVG(pct, color, size){
   size = size || 168;
   const r = 58, cx = 80, cy = 80, sw = 16;
@@ -2160,7 +2071,6 @@ function afterDashboardRender(){
     });
   });
 
-  // week / month gauges
   const weekDone = s.weekTotal - s.weekOpen;
   const monthDone = s.monthTotal - s.monthOpen;
   document.getElementById('weekGauge').innerHTML = gaugeSVG(s.weekRate, 'var(--red)');
@@ -2168,7 +2078,6 @@ function afterDashboardRender(){
   document.getElementById('monthGauge').innerHTML = gaugeSVG(s.monthRate, 'var(--blue-700)');
   document.getElementById('monthGaugeSub').textContent = s.monthTotal ? `本月共 ${s.monthTotal} 筆,已完成 ${monthDone} 筆` : '本月尚無到期待辦';
 
-  // PM mini cards row (receivables / expiring) — always shown regardless of current workspace
   document.getElementById('receivCount').textContent = s.receivables.length;
   document.getElementById('receivAmountSub').textContent = s.receivables.length ? `預計收款 ${money(s.receivablesTotal)}` : '本月無應收款項目';
 
@@ -2189,7 +2098,6 @@ function emptyState(msg, icon){
   return `<div class="empty-state">${icon||ICONS.empty}<div class="t">${msg}</div></div>`;
 }
 
-/* ---------- unified page header (icon badge + title, consistent size across all pages) ---------- */
 const PAGE_THEME = {
   dashboard:  { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
   projects:   { bg:'var(--sky)', color:'var(--navy)', pageBg:'var(--beige)' },
@@ -2229,8 +2137,6 @@ function themedTag(pageKey, text){
   return `<span class="tag" style="background:${theme.bg};color:${theme.color};">${text}</span>`;
 }
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-/* 待辦事項「關聯專案」欄位改用可輸入搜尋(input+datalist)取代下拉選單後,共用的顯示格式:
-   「合約名稱(客戶名稱)」,存檔時也用同樣的格式去比對回專案 id。 */
 function projectDisplayLabel(p){ return p.name||''; }
 function priorityBadge(p){
   if(p==='本週') return `<span class="badge badge-red"><span class="badge-dot"></span>本週</span>`;
@@ -2240,7 +2146,6 @@ function priorityBadge(p){
 
 /* ============================================================
    GLOBAL SEARCH(全站搜尋:專案／待辦事項／聯絡人／記事)
-   直接在前端已載入的 DATA 裡做子字串比對,不分工作區,一次搜四種資料。
    ============================================================ */
 const SEARCH_RESULT_LIMIT = 5;
 
@@ -2326,11 +2231,23 @@ function updateSearchPanel(inputEl, panelEl){
   panelEl.classList.add('show');
 }
 
+/* [效能優化] 全站搜尋輸入加上 150ms debounce:資料量變大時,每個按鍵都全欄位
+   掃描四種資料陣列並重繪 DOM 會變得吃力且手感頓挫,debounce 後只在使用者停頓
+   打字時才真正執行搜尋與重繪,快速輸入時的中間字元不會逐一觸發完整搜尋。 */
+function debounce(fn, wait){
+  let t = null;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(()=> fn.apply(this, args), wait);
+  };
+}
+
 function setupGlobalSearch(inputId, panelId){
   const inputEl = document.getElementById(inputId);
   const panelEl = document.getElementById(panelId);
   if(!inputEl || !panelEl) return;
-  inputEl.addEventListener('input', ()=> updateSearchPanel(inputEl, panelEl));
+  const debouncedUpdate = debounce(()=> updateSearchPanel(inputEl, panelEl), 150);
+  inputEl.addEventListener('input', debouncedUpdate);
   inputEl.addEventListener('focus', ()=>{ if(inputEl.value.trim()) updateSearchPanel(inputEl, panelEl); });
   panelEl.addEventListener('click', e=>{
     const item = e.target.closest('.search-result-item');
@@ -2339,7 +2256,6 @@ function setupGlobalSearch(inputId, panelId){
     panelEl.classList.remove('show');
     panelEl.innerHTML = '';
     inputEl.value = '';
-    // 手機版搜尋列也一併收起來,直接看到跳轉後的畫面
     const mobileBar = document.getElementById('topbarSearchMobile');
     if(mobileBar) mobileBar.classList.remove('show');
     const toggleBtn = document.getElementById('topbarSearchToggleBtn');
@@ -2356,8 +2272,6 @@ function setupGlobalSearch(inputId, panelId){
   });
 }
 
-/* 點擊搜尋結果:直接跳轉到對應頁面,並開啟該筆資料的預覽／編輯 Modal。
-   階段二後不再需要先切工作區,單一 goPage() 即可到位。 */
 function openSearchResult(type, id){
   if(type==='project'){
     const p = DATA.projects.find(x=>x.id===id);
@@ -2390,7 +2304,7 @@ function receivablesTpl(){
     <div class="filter-bar">
       <div class="seg" id="rvStatusSeg">
         <button data-v="overdue" class="${receivFilter.status==='overdue'?'active':''}">已逾期</button>
-        <button data-v="month" class="${receivFilter.status==='month'?'active':''}">依月份</button>
+        <button data-v="month" class="${receivFilter.status==='month'?'active':''}">依月份(${thisYear}年)</button>
       </div>
       <label for="rvMonth" style="font-size:12.5px;font-weight:700;color:var(--blue-800);">查詢月份</label>
       <select id="rvMonth">
@@ -2438,18 +2352,18 @@ function renderReceivablesOverdueList(){
   const titleEl = document.getElementById('rvPanelTitle');
   const list = computeOverdueReceivables();
   const total = list.reduce((s,r)=>s+r.amount,0);
-  titleEl.innerHTML = `逾期未收款(不受月份篩選影響)<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
+  titleEl.innerHTML = `逾期未收款(涵蓋所有年度,不受月份篩選影響)<span class="tag" style="background:var(--red-bg);color:var(--red);">${list.length?money(total):'$0'}</span>`;
   document.getElementById('rvCountBadge').innerHTML = `<span class="badge-dot"></span>共 ${list.length} 筆`;
   const el = document.getElementById('rvList');
   if(!list.length){
     el.innerHTML = emptyState('目前沒有逾期未收款項目', ICONS.money);
   } else {
-    el.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>應開款月份</th><th>期數</th><th>金額</th></tr></thead><tbody>
+    el.innerHTML = `<table><thead><tr><th></th><th>客戶</th><th>專案</th><th>專案代碼</th><th>PM</th><th>應開款年月</th><th>期數</th><th>金額</th></tr></thead><tbody>
       ${list.map(r=>`<tr>
-        <td><label style="display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;"><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer;" aria-label="標記 ${esc(r.client)}／${esc(r.name)} 第${r.period}期(${r.month}月)為已收款"></label></td>
+        <td><label style="display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;"><input type="checkbox" class="rv-check" data-pid="${r.projectId}" data-instid="${r.instId}" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer;" aria-label="標記 ${esc(r.client)}／${esc(r.name)} 第${r.period}期(${r.year}年${r.month}月)為已收款"></label></td>
         <td>${esc(r.client)}</td><td><b>${esc(r.name)}</b></td><td class="cell-muted">${esc(r.code)}</td>
         <td>${esc(r.pm)}</td>
-        <td class="cell-muted" style="color:var(--red);font-weight:700;">${r.month} 月 ⚠</td>
+        <td class="cell-muted" style="color:var(--red);font-weight:700;">${r.year} 年 ${r.month} 月 ⚠</td>
         <td class="cell-muted">第${r.period}/${r.total}期</td>
         <td class="cell-amount">${money(r.amount)}</td>
       </tr>`).join('')}
@@ -2496,32 +2410,37 @@ function renderReceivablesMonthList(){
   });
 }
 
-/* ---------- XLSX 匯出共用小工具 ----------
-   統一用 SheetJS 把「表頭陣列 + 資料列陣列」轉成一份 .xlsx 並觸發下載,
-   欄寬簡單依內容長度自動抓一個大概值,避免每欄都擠成同一寬度。 */
+/* ---------- XLSX 匯出共用小工具 ---------- */
 function exportRowsToExcel(filename, sheetName, headers, rows){
   if(typeof XLSX==='undefined'){ toast('匯出元件載入失敗,請檢查網路連線後重新整理再試'); return; }
   const wsData = [headers, ...rows];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
+  // [優化] 欄寬估算改用「全形字元加權」:中文/全形字元視覺寬度約為半形字元的兩倍,
+  // 原本用純字元數估算,含大量中文欄位(客戶、合約名稱等)時欄位會顯得太窄。
+  const displayWidth = (str) => {
+    let w = 0;
+    for(const ch of String(str)){
+      w += /[\u1100-\u115F\u2E80-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFF00-\uFFEF]/.test(ch) ? 2 : 1;
+    }
+    return w;
+  };
   ws['!cols'] = headers.map((h,i)=>{
-    const maxLen = Math.max(String(h).length, ...rows.map(r=> String(r[i]==null?'':r[i]).length));
-    return { wch: Math.min(Math.max(maxLen+2, 8), 40) };
+    const maxLen = Math.max(displayWidth(h), ...rows.map(r=> displayWidth(r[i]==null?'':r[i])));
+    return { wch: Math.min(Math.max(maxLen+2, 8), 46) };
   });
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
   XLSX.writeFile(wb, filename);
 }
 
-/* 應收帳款匯出:依目前畫面上的檢視模式(已逾期／依月份)匯出對應清單與欄位,
-   跟使用者當下看到的表格內容一致,不會多匯出使用者沒在看的資料。 */
 function exportReceivablesExcel(){
   const d = new Date();
   const stamp = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
   if(receivFilter.status==='overdue'){
     const list = computeOverdueReceivables();
     if(!list.length){ toast('目前沒有逾期未收款項目可匯出'); return; }
-    const headers = ['客戶','專案','專案代碼','PM','應開款月份','期數','金額'];
-    const rows = list.map(r=> [r.client, r.name, r.code, r.pm, `${r.month}月`, `第${r.period}/${r.total}期`, r.amount]);
+    const headers = ['客戶','專案','專案代碼','PM','應開款年月','期數','金額'];
+    const rows = list.map(r=> [r.client, r.name, r.code, r.pm, `${r.year}年${r.month}月`, `第${r.period}/${r.total}期`, r.amount]);
     exportRowsToExcel(`應收帳款_已逾期_${stamp}.xlsx`, '已逾期', headers, rows);
   } else {
     const list = getAllInstallments().filter(x=>x.month===receivFilter.month)
@@ -2538,8 +2457,6 @@ function exportReceivablesExcel(){
   markExported('receivables', 'rvExportReminder', '應收帳款');
 }
 
-/* 即將到期專案匯出:依目前畫面上選的 stat-card 篩選(全部／已逾期／本月／下月／後月)
-   匯出對應清單,欄位跟表格一致。 */
 function exportExpiringExcel(){
   const list = computeFilteredExpiringList();
   if(!list.length){ toast('目前沒有可匯出的資料'); return; }
@@ -2584,8 +2501,6 @@ function afterExpiringRender(){
   renderExportReminder('expExportReminder', 'expiring', '即將到期專案');
 }
 
-/* 即將到期專案清單依目前的 stat-card 篩選(全部／已逾期／本月／下月／後月)回傳對應清單,
-   表格畫面渲染與 Excel 匯出共用同一份邏輯,確保匯出內容跟畫面上看到的一致。 */
 function computeFilteredExpiringList(){
   const combined = computeExpiringPageList(3);
   const now = new Date(); now.setHours(0,0,0,0);
@@ -2600,7 +2515,7 @@ function computeFilteredExpiringList(){
 }
 
 function renderExpiringContent(){
-  const combined = computeExpiringPageList(3); // 已逾期(不限時間窗)＋ 未來3個月到期,各項目帶有 _isOverdue 旗標
+  const combined = computeExpiringPageList(3);
   const now = new Date(); now.setHours(0,0,0,0);
   const bucketLabels = [];
   for(let i=0;i<3;i++){
@@ -2688,9 +2603,6 @@ function renderExpiringContent(){
   }
 }
 
-/* 標記已完成後的後續詢問:
-   - 維護專案(合約到期):多數情況是續約,因此只給「續約:直接更新這筆專案」(開啟同一筆專案編輯,不會產生重複專案)或「不用,謝謝」。
-   - 進行中專案(保固到期):本來就沒有既有維護合約可更新,因此提供「建立維護專案」(新建)或「不用,謝謝」。 */
 function openExpiringRenewalDialog(proj){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
@@ -2716,7 +2628,6 @@ function openExpiringRenewalDialog(proj){
     document.getElementById('mNo').addEventListener('click', closeModal);
     document.getElementById('mRenew').addEventListener('click', ()=>{
       closeModal();
-      // 進入續約流程即視為已在處理中,先解除完成標記,避免使用者取消編輯後這筆仍被誤判為已處理完成
       proj.renewalDone = false;
       persist('projects');
       if(currentPage==='expiring') renderExpiringContent();
@@ -2774,7 +2685,7 @@ function maintRemindersTpl(){
   </div>`;
 }
 
-let mrFilter = 'all'; // 'all' | 'overdue' | 'soon'
+let mrFilter = 'all';
 
 function afterMaintRemindersRender(){
   mrFilter = 'all';
@@ -2848,7 +2759,6 @@ function renderMaintRemindersContent(){
   }
 }
 
-/* 產生信件內容 Modal:套版顯示 + 複製按鈕 + 標記已發送 */
 function openMaintReminderEmailModal(r){
   const p = r.project;
   const { content, unresolved } = renderReminderTemplate(p, r.dueDate);
@@ -3168,10 +3078,6 @@ function openProjectPreviewModal(id){
   bindPvRelatedSectionEvents(box, p.id);
 }
 
-/* ---------- 專案預覽:相關待辦／相關記事 區塊 ----------
-   從 DATA.todos / DATA.notes 依 projectId 反查,讓使用者在專案細節裡就能看到
-   關聯的待辦與記事,不用切頁面自己找。每個項目可點擊直接開啟編輯,
-   區塊右上角的「+」則會開啟新增視窗並預先帶入這個專案的關聯。 */
 function pvRelatedSectionHtml(title, icon, items, type, projectId){
   const listHtml = items.length
     ? items.map(item=>{
@@ -3216,7 +3122,6 @@ function bindPvRelatedSectionEvents(box, projectId){
   });
 }
 
-/* ---------- Project Modal ---------- */
 function openProjectModal(id, forcedType){
   const editing = !!id;
   const existing = editing ? DATA.projects.find(x=>x.id===id) : null;
@@ -3480,7 +3385,7 @@ function openMaintenanceProjectModal(existing, editing){
     const finalInstallments = rows
       .filter(r=> r.month!=='' && r.month!=null)
       .map((r,i)=>{
-        const prev = oldInstallments[i]; // 盡量沿用同一列原本的已收狀態與 id
+        const prev = oldInstallments[i];
         return {
           id: (prev && prev.id) || uid(),
           year: Number(r.year)||defaultYear,
@@ -3692,13 +3597,6 @@ function openInProgressProjectModal(existing, editing){
   });
 }
 
-/* 無障礙:統一的 Modal 開啟入口。呼叫端先把內容寫進 #modalBox,再呼叫這個函式,
-   會記住目前的焦點位置、顯示遮罩,並把鍵盤焦點移到視窗內第一個可操作元素
-   (優先移到第一個輸入欄位,沒有的話退而求其次移到第一個按鈕),
-   讓鍵盤／螢幕報讀軟體使用者能立刻知道焦點已經進入 Modal。
-   注意:這裡「不」重設 modalDirty/modalDraftKey——若目前已經有一層 Modal 開著
-   (例如表單開啟中又跳出刪除確認這種巢狀情境),不應該把外層表單的『尚未儲存』
-   狀態悄悄清空。只有在目前沒有 Modal 開啟時,才視為全新一層並重置狀態。 */
 function openModalOverlay(){
   const overlay = document.getElementById('modalOverlay');
   const alreadyOpen = overlay.classList.contains('show');
@@ -3717,7 +3615,6 @@ function openModalOverlay(){
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('show');
   document.getElementById('modalBox').innerHTML = '';
-  // 無障礙:把焦點還原到開啟 Modal 前所在的位置,避免鍵盤使用者「迷失」在頁面頂端
   if(lastFocusedEl && typeof lastFocusedEl.focus === 'function'){
     lastFocusedEl.focus();
   }
@@ -3726,12 +3623,6 @@ function closeModal(){
   modalDraftKey = null;
 }
 
-/* ---------------- 離開前確認 + 表單草稿(防止新增專案/待辦時誤觸關閉導致內容消失) ----------------
-   點擊 Modal 外側遮罩或按 Esc,原本會直接關閉並清空表單,手機上很容易手滑誤觸。
-   requestCloseModal() 取代原本直接呼叫 closeModal() 的地方:若表單有已輸入內容(modalDirty),
-   會先跳出確認;沒有輸入過的表單(或唯讀預覽、確認視窗等)行為維持原樣,直接關閉。
-   這裡刻意使用瀏覽器原生 confirm(),因為它不會像站內 confirmDialog() 一樣覆蓋掉 #modalBox 目前的表單內容
-   (confirmDialog 是把 modalBox 整個換成確認文字,使用者若選擇「不要放棄」就沒有表單可以復原了)。 */
 function requestCloseModal(){
   if(modalDirty){
     const discard = window.confirm('您有尚未儲存的內容,確定要放棄並關閉嗎?');
@@ -3743,8 +3634,6 @@ function requestCloseModal(){
 
 function markModalDirty(){ modalDirty = true; }
 
-/* 只蒐集 id 以 f_ 開頭的欄位(表單裡的一般輸入/下拉/textarea 都遵循這個命名慣例)。
-   收款期數、信件模板等動態列表不在此範圍內,草稿僅保障最常見的文字/選項欄位不遺失。 */
 function collectDraftFieldValues(box){
   const data = {};
   box.querySelectorAll('[id^="f_"]').forEach(el=>{
@@ -3766,9 +3655,6 @@ function clearModalDraft(draftKey){
   try{ localStorage.removeItem(draftKey); }catch(e){}
 }
 
-/* 供各「新增」表單呼叫:掛上離開前確認 + 自動存草稿(輸入停頓後即存),
-   並在掛上監聽前,先偵測 localStorage 是否已有上次未完成的草稿,詢問是否要繼續編輯。
-   draftKey 傳 null 時,只啟用離開前確認,不做草稿儲存(用於編輯既有資料的表單)。 */
 let draftAutosaveTimer = null;
 function setupModalDraft(box, draftKey){
   modalDraftKey = draftKey;
@@ -3828,13 +3714,11 @@ const IMPORT_CONFIGS = {
 
 function parseImportText(text){
   if(!text) return [];
-  // strip BOM if present
   if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
   const firstLineEnd = text.search(/\r?\n/);
   const firstLine = firstLineEnd===-1 ? text : text.slice(0, firstLineEnd);
   const delim = firstLine.includes('\t') ? '\t' : ',';
 
-  // Quote-aware parser: handles delimiters/newlines embedded inside "quoted" fields
   const rows = [];
   let row = [];
   let field = '';
@@ -3875,7 +3759,6 @@ function buildImportRecord(type, cells){
     if(!client || !name) return null;
     ensureClient(client.trim());
     const validDept = ['WM','AM'].includes((department||'').trim()) ? department.trim() : (department||'').trim();
-    // best-effort: pull explicit "N月" mentions out of the free-text invoice schedule description
     const monthMatches = [...String(invoiceNote||'').matchAll(/(\d{1,2})\s*月/g)].map(m=>Number(m[1])).filter(m=>m>=1&&m<=12);
     const months = [...new Set(monthMatches)].sort((a,b)=>a-b);
     const parsedStart = parseSlashDate(startDate);
@@ -3883,7 +3766,6 @@ function buildImportRecord(type, cells){
     const contractAmt = parseAmountStr(amountStr);
     const startY = parsedStart ? new Date(normDate(parsedStart)+'T00:00:00').getFullYear() : new Date().getFullYear();
     const endY = parsedEnd ? new Date(normDate(parsedEnd)+'T00:00:00').getFullYear() : startY;
-    // 每年都依這些月份重複收款(如需個別年度不同月份／金額,匯入後可在編輯視窗調整每一期)
     const installments = [];
     if(months.length){
       const evenAmt = contractAmt/(months.length * Math.max(1, endY-startY+1));
@@ -3987,8 +3869,6 @@ function openImportModal(type){
     importBtn.disabled = true;
     importBtn.textContent = '匯入中…';
     let added=0, skipped=0, skippedDup=0;
-    // 批次匯入的代碼重複檢查:除了跟資料庫既有專案比對,也要跟同一批次裡已經
-    // 準備匯入的列互相比對(避免同一批貼上的資料裡自己就有重複代碼卻沒被擋下)。
     const seenCodes = new Set();
     rows.forEach(cells=>{
       const rec = buildImportRecord(type, cells);
@@ -4029,9 +3909,6 @@ function openAddWizard(){
   renderWizardCategoryStep();
 }
 
-/* 共用的精靈畫面外殼:每一層各自獨立渲染,畫面內容固定不含隱藏欄位,
-   因此不同層之間不會有多餘空白;層與層切換時高度本來就會不同(屬正常分頁切換),
-   跟先前「同一畫面內容忽隱忽現」造成的跳動感不同。showBack 為 true 時左上角顯示返回上一層按鈕。 */
 function wizardShell(title, bodyHtml, showBack, onBack){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
@@ -4053,7 +3930,6 @@ function wizardShell(title, bodyHtml, showBack, onBack){
   return box;
 }
 
-/* 第一層:選擇類別。點「記事本」因為沒有子類型也不支援批次匯入,直接開新增記事,不需要再往下一層。 */
 function renderWizardCategoryStep(){
   const bodyHtml = `
     <div class="form-field" style="margin-bottom:0;">
@@ -4083,7 +3959,6 @@ function renderWizardCategoryStep(){
   });
 }
 
-/* 第二層(僅「專案」類別會出現):選擇專案類型,選完直接跳到第三層選新增方式。 */
 function renderWizardProjTypeStep(){
   const bodyHtml = `
     <div class="form-field" style="margin-bottom:0;">
@@ -4107,7 +3982,6 @@ function renderWizardProjTypeStep(){
   });
 }
 
-/* 最後一層:選擇新增方式(單筆/批次),選完直接開啟對應表單或匯入視窗並關閉精靈。 */
 function renderWizardModeStep(category, projType){
   const catLabel = (ADD_WIZARD_CATEGORIES.find(c=>c.id===category)||{}).label || '';
   const bodyHtml = `
@@ -4257,9 +4131,6 @@ function renderTodosTable(){
   tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); confirmDeleteTodo(b.dataset.del); }));
 }
 
-/* ---------- Todo Preview Modal ----------
-   比照專案總覽的「先預覽、再編輯」流程:整列點擊只開唯讀預覽,
-   要修改內容需再按「編輯」才切換到可編輯表單,避免誤觸表格就跳出一大堆輸入框。 */
 function openTodoPreviewModal(id){
   const t = DATA.todos.find(x=>x.id===id);
   if(!t) return;
@@ -4322,8 +4193,6 @@ function openTodoModal(id, prefill){
   box.className = 'modal';
   const categories = getListSetting('todoCategories');
   const progressOptions = getListSetting('todoProgressOptions');
-  // 若這筆待辦目前的進度狀態已被使用者從自訂清單中刪除,仍把它加進選單,
-  // 避免下拉選單直接跳掉目前的值,導致使用者一存檔就默默改掉原本的進度狀態
   const progressOptionsForSelect = (t.progress && !progressOptions.includes(t.progress)) ? [...progressOptions, t.progress] : progressOptions;
   const relatedProject = t.projectId ? DATA.projects.find(x=>x.id===t.projectId) : null;
   const relatedProjLabel = relatedProject ? projectDisplayLabel(relatedProject) : '';
@@ -4396,8 +4265,6 @@ function openTodoModal(id, prefill){
     saveBtn.textContent = '儲存中…';
     const client = document.getElementById('f_client').value.trim();
     ensureClient(client);
-    // 關聯專案改成可輸入搜尋:依輸入文字精準比對「合約名稱(客戶名稱)」找回對應專案 id,
-    // 找不到完全符合的項目(例如打錯字或刻意清空)一律視為不關聯,不做模糊猜測。
     const projInputVal = document.getElementById('f_projectId').value.trim();
     const matchedProject = projInputVal ? DATA.projects.find(x=> projectDisplayLabel(x)===projInputVal) : null;
     const rec = {
@@ -4599,7 +4466,6 @@ const NOTE_COLORS = [
 function noteColorInfo(id){
   return NOTE_COLORS.find(c=>c.id===id) || NOTE_COLORS[0];
 }
-/* 記事分類清單已改為可在設定頁自訂,見 getListSetting('noteCategories') */
 
 function notesTpl(){
   return `
@@ -4831,11 +4697,8 @@ document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target.id==='modalOverlay') requestCloseModal();
 });
 
-/* 導覽:瀏覽器上一頁/下一頁按鈕觸發時,依網址列還原對應的頁面。
-   這裡只重新渲染畫面,不再呼叫 updateUrlHash() 推新的歷史紀錄,
-   避免使用者按上一頁卻又被推回下一頁的情況。 */
 window.addEventListener('popstate', ()=>{
-  if(!appInitialized) return; // 尚未登入完成、init() 還沒跑過時不處理
+  if(!appInitialized) return;
   const parsed = parseUrlHash();
   const validIds = getCurrentNav().map(n=>n.id).concat('dashboard');
   currentPage = (parsed && validIds.includes(parsed)) ? parsed : 'dashboard';
@@ -4848,10 +4711,6 @@ document.addEventListener('keydown', e=>{
   const modalOpen = overlay.classList.contains('show');
   if(e.key==='Escape'){
     if(!modalOpen) return;
-    // 無障礙與防手滑:若焦點目前在視窗內的輸入欄位/下拉選單/文字框上,
-    // Escape 很可能只是使用者想關掉日期選擇器、datalist 建議清單或取消輸入焦點,
-    // 而不是想關閉整個表單視窗。這種情況下先讓欄位失焦,不觸發視窗關閉;
-    // 使用者若真的要關閉視窗,再按一次 Escape(此時焦點已不在輸入欄位上)即可。
     const active = document.activeElement;
     const isFormField = active && overlay.contains(active) &&
       (active.tagName==='INPUT' || active.tagName==='SELECT' || active.tagName==='TEXTAREA');
@@ -4862,7 +4721,6 @@ document.addEventListener('keydown', e=>{
     requestCloseModal();
     return;
   }
-  // 無障礙:Modal 開啟時把 Tab 鍵焦點鎖在視窗內,避免鍵盤使用者 Tab 到背景看不見的元素
   if(e.key!=='Tab') return;
   if(!modalOpen) return;
   const box = document.getElementById('modalBox');
@@ -4880,34 +4738,8 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-/* 「清除所有資料」按鈕已依需求移除(保留匯出備份／還原備份作為資料救援管道)。
-   若之後需要恢復,可將下面整段取消註解,並在漢堡選單加回對應按鈕即可:
-
-async function clearAllData(){
-  const ok = await confirmDialog({
-    title:'清除所有資料',
-    message:'確定要清空所有專案／待辦／聯絡人／記事資料嗎?此動作無法復原(建議先匯出備份)。',
-    confirmLabel:'清空資料', cancelLabel:'取消', danger:true,
-  });
-  if(!ok) return;
-  DATA.projects = [];
-  DATA.todos = [];
-  DATA.contacts = [];
-  DATA.clients = [];
-  DATA.notes = [];
-  await Promise.all(Object.keys(STORE_KEYS).map(k=>persist(k)));
-  todoFilter = { priority:'all', q:'' };
-  projFilter = { q:'', pm:'', sales:'' };
-  noteFilter = { q:'', pinnedOnly:false };
-  goPage('dashboard');
-  toast('已清空所有資料');
-}
-*/
-
 /* ============================================================
    BACKUP EXPORT / RESTORE
-   (建議:每次系統更新前先匯出備份,更新後如發現資料被重置,
-   可用「還原備份檔」把資料復原回來)
    ============================================================ */
 function exportBackup(){
   try{
@@ -4962,7 +4794,6 @@ function importBackupFromFile(file){
 }
 
 async function init(){
-  // 「記住上次頁面」要看設定值才能決定啟動行為,所以資料／設定要先載入完成。
   const [, meta] = await Promise.all([loadAll(), loadExportMeta(), loadSettings()]);
   exportMeta = meta || {};
   applyDisplaySettings();
@@ -4975,15 +4806,13 @@ async function init(){
   } else if(rememberLastPage){
     currentPage = 'dashboard';
   } else {
-    // 階段四:使用者關閉了「記住上次瀏覽的頁面」→ 一律進入設定裡指定的「預設分頁」。
-    // 若設定值是失效的頁面代碼(例如舊版遺留的 'sales'/'pm'),優雅退回儀表板,不報錯。
     currentPage = validIds.includes(SETTINGS.display.defaultWorkspace) ? SETTINGS.display.defaultWorkspace : 'dashboard';
   }
 
   renderNav();
   renderPage();
   renderNotifications();
-  updateUrlHash(); // 網址對不上目前實際狀態(例如頁面代碼失效,或關閉了記住頁面)時,同步修正回去
+  updateUrlHash();
 
   const collapseBtn = document.getElementById('collapseBtn');
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
@@ -4994,11 +4823,9 @@ async function init(){
   const globalAddBtn = document.getElementById('globalAddBtn');
   if(globalAddBtn) globalAddBtn.addEventListener('click', openAddWizard);
 
-  // 觸控與互動:讓漢堡選單／通知選單在觸控裝置上也能點擊開關,不再只依賴 hover
   setupClickMenu('hamburgerWrap', 'hamburgerBtn', 'hamburgerMenu');
   setupClickMenu('notifWrap', 'notifBtn', 'notifMenu');
 
-  // 全站搜尋:手機版把搜尋框收成一個圖示按鈕,點擊後展開成頂部下拉的搜尋列
   const searchToggleBtn = document.getElementById('topbarSearchToggleBtn');
   const searchMobileBar = document.getElementById('topbarSearchMobile');
   const searchMobileClose = document.getElementById('topbarSearchMobileClose');
@@ -5052,13 +4879,36 @@ function isMobileBrowser(){
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
 
+function revealLoginContent(message){
+  const checkingEl = document.getElementById('loginGateChecking');
+  const contentEl = document.getElementById('loginGateContent');
+  if(checkingEl) checkingEl.style.display = 'none';
+  if(contentEl) contentEl.style.display = 'flex';
+  const errEl = document.getElementById('loginGateError');
+  if(errEl) errEl.textContent = message || '';
+}
+
+const AUTH_CHECK_TIMEOUT_MS = 6000;
+const authCheckTimeoutId = setTimeout(()=>{
+  const checkingEl = document.getElementById('loginGateChecking');
+  if(checkingEl && checkingEl.style.display !== 'none'){
+    const pendingRedirect = sessionStorage.getItem('pm_pending_redirect')==='1';
+    revealLoginContent(pendingRedirect
+      ? '登入確認逾時,這可能與手機瀏覽器的隱私設定(如 Safari 的「防止跨網站追蹤」)有關。請再試一次登入,或改用 Chrome 瀏覽器開啟。'
+      : '登入確認逾時,請再試一次。');
+    sessionStorage.removeItem('pm_pending_redirect');
+  }
+}, AUTH_CHECK_TIMEOUT_MS);
+
 document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
   const errEl = document.getElementById('loginGateError');
   errEl.textContent = '';
   const provider = new firebase.auth.GoogleAuthProvider();
   if(isMobileBrowser()){
+    try{ sessionStorage.setItem('pm_pending_redirect', '1'); }catch(e){}
     fbAuth.signInWithRedirect(provider).catch(err=>{
       console.error(err);
+      sessionStorage.removeItem('pm_pending_redirect');
       errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
     });
   } else {
@@ -5069,17 +4919,24 @@ document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
   }
 });
 
-fbAuth.getRedirectResult().catch(err=>{
+fbAuth.getRedirectResult().then(result=>{
+  if(result && result.user){
+    sessionStorage.removeItem('pm_pending_redirect');
+  }
+}).catch(err=>{
   console.error('redirect result error:', err);
-  const errEl = document.getElementById('loginGateError');
-  if(errEl) errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
+  sessionStorage.removeItem('pm_pending_redirect');
+  clearTimeout(authCheckTimeoutId);
+  revealLoginContent('登入失敗:' + (err.message || err.code || '請再試一次'));
 });
 
 fbAuth.onAuthStateChanged(async (user)=>{
   const gate = document.getElementById('loginGate');
   const root = document.getElementById('appRoot');
+  clearTimeout(authCheckTimeoutId);
   if(user){
     currentUid = user.uid;
+    sessionStorage.removeItem('pm_pending_redirect');
     gate.style.display = 'none';
     root.style.display = '';
     applyGoogleIdentity(user);
@@ -5094,6 +4951,11 @@ fbAuth.onAuthStateChanged(async (user)=>{
     appInitialized = false;
     gate.style.display = 'flex';
     root.style.display = 'none';
+    const pendingRedirect = sessionStorage.getItem('pm_pending_redirect')==='1';
+    sessionStorage.removeItem('pm_pending_redirect');
+    revealLoginContent(pendingRedirect
+      ? '登入未完成:偵測到您剛從登入流程返回,但系統仍判定為未登入。這是手機瀏覽器(尤其 Safari)已知的跨網域隱私限制問題,建議改用電腦瀏覽器登入,或改用 Chrome 開啟本頁面再試一次。'
+      : '');
   }
 });
 </script>
