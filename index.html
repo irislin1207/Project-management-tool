@@ -4875,8 +4875,25 @@ async function init(){
    ============================================================ */
 let appInitialized = false;
 
-function isMobileBrowser(){
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+/* [修正] 手機卡在登入畫面的根本原因(iOS Safari)
+   原本手機一律走 signInWithRedirect():整頁導去 accounts.google.com 登入後,
+   再導回 Firebase 的 authDomain 頁面,由它把登入結果寫回瀏覽器儲存空間,
+   最後再導回本頁讀取。iOS Safari 預設開啟的「防止跨網站追蹤」(ITP),
+   以及 Safari 的隱私瀏覽模式,常會在這一連串跨網域導向的過程中把儲存空間
+   清空或隔開,導致 Google 那邊其實登入成功了,但導回本頁後 Firebase 讀不到
+   登入結果,畫面就會又跳回登入畫面(使用者會覺得「按了登入沒反應/又跳回原頁」)。
+
+   signInWithPopup() 不會讓整個頁面導出去再導回來,登入結果是彈出視窗透過
+   postMessage 直接傳回原本這個分頁,不依賴「導頁後儲存空間還在」,可以繞開
+   上述 ITP / 隱私模式的問題,因此改成手機也一律優先用彈出視窗登入;
+   只有在瀏覽器明確擋下彈出視窗、或環境不支援彈出視窗時,才退回原本的
+   整頁導向方式(signInWithRedirect)作為備援。 */
+function isEmbeddedWebview(){
+  // LINE / Facebook / Messenger / Instagram 等 App 內建的瀏覽器,Google 會直接
+  // 拒絕在這類「非標準瀏覽器」中登入(顯示 This browser or app may not be secure),
+  // 不論用彈出視窗或整頁導向都一定會失敗,需請使用者改用手機內建的 Safari/Chrome 開啟。
+  const ua = navigator.userAgent || '';
+  return /Line\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|Twitter/i.test(ua);
 }
 
 function revealLoginContent(message){
@@ -4900,22 +4917,40 @@ const authCheckTimeoutId = setTimeout(()=>{
   }
 }, AUTH_CHECK_TIMEOUT_MS);
 
-document.getElementById('googleSignInBtn').addEventListener('click', ()=>{
+document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
   const errEl = document.getElementById('loginGateError');
   errEl.textContent = '';
+
+  if(isEmbeddedWebview()){
+    errEl.textContent = '偵測到您是從 LINE / Facebook / Instagram 等 App 內建的瀏覽器開啟此頁面,Google 登入在這類內建瀏覽器中會被直接封鎖而無法完成。請點選右上角「⋯」或分享選單中的「在瀏覽器中開啟」,改用手機內建的 Safari 或 Chrome 開啟後再登入。';
+    return;
+  }
+
   const provider = new firebase.auth.GoogleAuthProvider();
-  if(isMobileBrowser()){
-    try{ sessionStorage.setItem('pm_pending_redirect', '1'); }catch(e){}
-    fbAuth.signInWithRedirect(provider).catch(err=>{
-      console.error(err);
-      sessionStorage.removeItem('pm_pending_redirect');
-      errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
-    });
-  } else {
-    fbAuth.signInWithPopup(provider).catch(err=>{
-      console.error(err);
-      errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
-    });
+  try{
+    await fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  }catch(e){ /* 部分隱私瀏覽模式可能不支援持久化儲存,略過即可,signInWithPopup 不依賴它也能運作 */ }
+
+  try{
+    await fbAuth.signInWithPopup(provider);
+    // 成功後 onAuthStateChanged 會自動處理畫面切換,這裡不用額外動作
+  }catch(err){
+    console.error(err);
+    if(err && err.code==='auth/popup-closed-by-user'){
+      // 使用者自己關掉登入視窗,不算錯誤,不顯示紅字訊息
+      return;
+    }
+    if(err && (err.code==='auth/popup-blocked' || err.code==='auth/operation-not-supported-in-this-environment' || err.code==='auth/cancelled-popup-request')){
+      // 瀏覽器擋下彈出視窗時,才退回整頁導向方式
+      try{ sessionStorage.setItem('pm_pending_redirect', '1'); }catch(e){}
+      fbAuth.signInWithRedirect(provider).catch(err2=>{
+        console.error(err2);
+        sessionStorage.removeItem('pm_pending_redirect');
+        errEl.textContent = '登入失敗:' + (err2.message || err2.code || '請再試一次');
+      });
+      return;
+    }
+    errEl.textContent = '登入失敗:' + (err.message || err.code || '請再試一次');
   }
 });
 
