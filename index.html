@@ -37,11 +37,13 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  html{ overflow-x:hidden; }
   body{
     font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",sans-serif;
     background:var(--bg);
     color:var(--text);
     min-height:100vh;
+    overflow-x:hidden;
   }
   ::selection{background:var(--blue-200);}
   ::-webkit-scrollbar{width:8px;height:8px;}
@@ -148,6 +150,7 @@
   }
   .hamburger-btn:hover{ background:rgba(255,255,255,0.22); }
   .hamburger-btn svg{ width:17px;height:17px; color:#fff; }
+  .mobile-nav-toggle-btn{ display:none; }
   .hamburger-menu{
     position:absolute; top:calc(100% + 10px); right:0; min-width:200px;
     background:#fff; border-radius:14px; box-shadow:0 16px 40px rgba(30,45,55,0.28);
@@ -218,6 +221,11 @@
     display:flex; flex-direction:column;
     padding:18px 12px;
     transition:width .2s ease;
+    overflow-y:auto;
+  }
+  .sidenav-backdrop{
+    position:fixed; left:0; right:0; top:var(--topbar-h); bottom:0;
+    background:rgba(20,30,38,0.45); z-index:90; display:none;
   }
   .nav-collapse-btn{
     appearance:none; border:none; cursor:pointer; width:100%;
@@ -416,7 +424,8 @@
   }
   .modal-overlay.show{ display:flex; }
   .modal{
-    background:#fff; border-radius:18px; width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
+    background:#fff; border-radius:18px; width:100%; max-width:560px; max-height:88vh;
+    overflow-y:auto; overflow-x:hidden;
     box-shadow:0 20px 60px rgba(30,45,55,0.3); animation:pop .18s ease;
   }
   .modal.wide{ max-width:720px; }
@@ -511,19 +520,78 @@
     .notes-grid{ grid-template-columns:repeat(2,1fr); }
   }
   @media (max-width: 760px){
-    :root{ --sidebar-w:64px; --topbar-h:56px; }
-    .nav-tab span.label, .nav-meta{ display:none; }
-    .nav-tab{ justify-content:center; padding:11px; }
+    :root{ --topbar-h:56px; }
     .page{ padding:20px 14px 80px; }
     .topbar-title .sub{ display:none; }
     .topbar-user .info{ display:none; }
-    .sidenav-add-btn span{ display:none; }
     .topbar-search{ display:none; }
     #topbarSearchToggleBtn{ display:flex; }
+    .mobile-nav-toggle-btn{ display:flex; }
+
+    /* 手機版:側邊欄改為可收合的抽屜(drawer),不再固定佔用版面寬度 */
+    #pages{ margin-left:0; }
+    .nav-collapse-btn{ display:none; }
+    .sidenav{
+      width:240px; max-width:82vw;
+      transform:translateX(-100%);
+      transition:transform .22s ease;
+      box-shadow:0 12px 40px rgba(20,30,38,0.35);
+      z-index:150;
+    }
+    body.mobile-nav-open .sidenav{ transform:translateX(0); }
+    body.mobile-nav-open .sidenav-backdrop{ display:block; }
+    body.mobile-nav-open{ overflow:hidden; }
+
+    .page-head{ align-items:flex-start; }
+    .page-title{ white-space:normal; font-size:17.5px; }
+    .page-title-icon{ width:32px; height:32px; }
+    .page-sub{ white-space:normal; }
+
+    .filter-bar input[type=text]{ min-width:0; flex:1 1 140px; }
+
+    /* 表格較寬時提供左右可滑動的視覺提示(邊緣淡出陰影) */
+    .table-wrap{
+      background:
+        linear-gradient(to right, var(--card) 30%, rgba(255,255,255,0)),
+        linear-gradient(to left, var(--card) 30%, rgba(255,255,255,0)) 100% 0,
+        linear-gradient(to right, rgba(47,65,86,0.18), rgba(255,255,255,0) 10px),
+        linear-gradient(to left, rgba(47,65,86,0.18), rgba(255,255,255,0) 10px) 100% 0;
+      background-repeat:no-repeat;
+      background-color:var(--card);
+      background-size:24px 100%, 24px 100%, 10px 100%, 10px 100%;
+      background-attachment:local, local, scroll, scroll;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .hamburger-menu{ max-width:calc(100vw - 20px); }
+    .notif-menu{ min-width:min(300px, calc(100vw - 20px)); }
   }
   @media (max-width: 600px){
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
     .notes-grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width: 480px){
+    .page{ padding:16px 12px 76px; }
+    .stat-grid{ grid-template-columns:1fr 1fr; gap:10px; }
+    .stat-card{ padding:13px 14px 12px; }
+    .stat-value{ font-size:24px; }
+    .stat-label{ white-space:normal; }
+    .page-title{ font-size:16.5px; gap:9px; }
+    .btn{ padding:9px 14px; font-size:13.5px; }
+    .modal-body{ padding:16px; }
+    .modal-head{ padding:14px 16px; }
+    .modal-foot{ padding:12px 16px; flex-wrap:wrap; }
+    .modal-foot .btn{ flex:1; justify-content:center; }
+    table{ font-size:12.5px; }
+    thead th, tbody td{ padding:9px 9px; }
+    .install-row{ grid-template-columns:18px 1fr 1fr 1fr 30px; gap:6px; }
+    .install-row input{ padding:6px 6px; font-size:12px; }
+    .install-row .idx{ font-size:11px; }
+    .install-row .inst-del{ width:28px; height:28px; }
+    .contact-actions, .note-card .note-actions{ opacity:1; }
+  }
+  @media (hover: none){
+    .btn:active, .icon-btn:active, .nav-tab:active, .stat-card:active{ transform:scale(.97); }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -616,6 +684,9 @@
 
 <div class="topbar">
   <div class="topbar-brand">
+    <button class="hamburger-btn mobile-nav-toggle-btn" id="mobileNavToggleBtn" aria-label="開啟選單" aria-haspopup="true" aria-expanded="false" aria-controls="mainSidenav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <div class="topbar-logo">PM</div>
     <div class="topbar-title">
       <span class="main">專案管理工作台</span>
@@ -693,7 +764,7 @@
   <div class="search-results" id="searchResultsMobile" role="listbox" aria-label="搜尋結果"></div>
 </div>
 
-<div class="sidenav">
+<div class="sidenav" id="mainSidenav">
   <button class="nav-collapse-btn" id="collapseBtn" title="收合側邊欄">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>
     <span class="label">收合選單</span>
@@ -709,6 +780,7 @@
     <span class="label">新增</span>
   </button>
 </div>
+<div class="sidenav-backdrop" id="sidenavBackdrop"></div>
 
 <div id="pages"></div>
 
@@ -1548,7 +1620,7 @@ function renderNav(){
   });
   el.innerHTML = html.join('');
   el.querySelectorAll('.nav-tab').forEach(btn=>{
-    btn.addEventListener('click', ()=> goPage(btn.dataset.page));
+    btn.addEventListener('click', ()=>{ goPage(btn.dataset.page); setMobileNavOpen(false); });
   });
   const homeBtn = document.getElementById('homeDashboardBtn');
   if(homeBtn){
@@ -1567,6 +1639,16 @@ function toggleSidebar(){
   if(btn) btn.title = collapsed ? '展開側邊欄' : '收合側邊欄';
   SETTINGS.display.sidebarCollapsedDefault = collapsed;
   saveSettings(SETTINGS);
+}
+
+/* 手機版側邊欄抽屜開關(<=760px 時側邊欄改為可滑出的抽屜選單) */
+function setMobileNavOpen(open){
+  document.body.classList.toggle('mobile-nav-open', open);
+  const btn = document.getElementById('mobileNavToggleBtn');
+  if(btn) btn.setAttribute('aria-expanded', String(open));
+}
+function toggleMobileNav(){
+  setMobileNavOpen(!document.body.classList.contains('mobile-nav-open'));
 }
 
 function setupClickMenu(wrapId, btnId, menuId){
@@ -4818,10 +4900,18 @@ async function init(){
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
 
   const homeBtn = document.getElementById('homeDashboardBtn');
-  if(homeBtn) homeBtn.addEventListener('click', ()=> goPage('dashboard'));
+  if(homeBtn) homeBtn.addEventListener('click', ()=>{ goPage('dashboard'); setMobileNavOpen(false); });
 
   const globalAddBtn = document.getElementById('globalAddBtn');
-  if(globalAddBtn) globalAddBtn.addEventListener('click', openAddWizard);
+  if(globalAddBtn) globalAddBtn.addEventListener('click', ()=>{ setMobileNavOpen(false); openAddWizard(); });
+
+  const mobileNavToggleBtn = document.getElementById('mobileNavToggleBtn');
+  const sidenavBackdrop = document.getElementById('sidenavBackdrop');
+  if(mobileNavToggleBtn) mobileNavToggleBtn.addEventListener('click', toggleMobileNav);
+  if(sidenavBackdrop) sidenavBackdrop.addEventListener('click', ()=> setMobileNavOpen(false));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && document.body.classList.contains('mobile-nav-open')) setMobileNavOpen(false);
+  });
 
   setupClickMenu('hamburgerWrap', 'hamburgerBtn', 'hamburgerMenu');
   setupClickMenu('notifWrap', 'notifBtn', 'notifMenu');
