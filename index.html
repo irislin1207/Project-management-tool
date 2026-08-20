@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>專案管理工作台</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2F4156">
 <style>
   :root{
     --navy:#2F4156;
@@ -318,7 +320,7 @@
     border:1px solid var(--border);
   }
   .stat-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
+    display:grid; grid-template-columns:repeat(var(--stat-cols,4),1fr); gap:14px; margin-bottom:22px;
   }
   .stat-card{
     padding:16px 18px 15px; position:relative; overflow:hidden; cursor:pointer;
@@ -343,7 +345,7 @@
   .mini-stat-link{ text-align:center; font-size:12px; font-weight:700; color:var(--blue-700); margin-top:8px; }
   .mini-stat-sub{ text-align:center; font-size:12px; color:var(--text-muted); margin-top:2px; }
 
-  .chart-row{ display:grid; grid-template-columns:1.1fr 1.4fr; gap:16px; margin-bottom:16px; }
+  .chart-row{ display:grid; grid-template-columns:var(--chart-cols,1.1fr 1.4fr); gap:16px; margin-bottom:16px; }
   .panel{ padding:20px 20px 14px; }
   .panel-title{ font-size:14.5px; font-weight:700; color:var(--blue-900); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;}
   .panel-title .tag{ font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--blue-050); padding:3px 9px; border-radius:20px;}
@@ -522,8 +524,23 @@
   @media (max-width: 760px){
     :root{ --topbar-h:56px; }
     .page{ padding:20px 14px 80px; }
+
+    /* 頂端列在窄螢幕上容易被「標誌+標題+多顆圖示按鈕」擠爆,這裡整體收緊間距、
+       拿掉重複的裝飾用標誌方塊,並讓標題文字在真的放不下時以「…」省略而不是互相疊字 */
+    .topbar{ padding:0 10px; }
+    .topbar-brand{ gap:8px; min-width:0; flex:1 1 auto; }
+    .topbar-logo{ display:none; }
+    .topbar-title{ min-width:0; overflow:hidden; }
+    .topbar-title .main{
+      font-size:15.5px; letter-spacing:.3px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; max-width:100%;
+    }
     .topbar-title .sub{ display:none; }
     .topbar-user .info{ display:none; }
+    .topbar-user .avatar{ width:30px; height:30px; font-size:12px; }
+    .topbar-right{ gap:6px; flex:none; }
+    .hamburger-btn{ width:38px; height:38px; }
+    .hamburger-btn svg{ width:15px; height:15px; }
     .topbar-search{ display:none; }
     #topbarSearchToggleBtn{ display:flex; }
     .mobile-nav-toggle-btn{ display:flex; }
@@ -571,6 +588,11 @@
     .notes-grid{ grid-template-columns:1fr; }
   }
   @media (max-width: 480px){
+    .topbar{ padding:0 8px; }
+    .topbar-brand{ gap:6px; }
+    .topbar-title .main{ font-size:13.5px; }
+    .topbar-user{ display:none; }
+    .topbar-right{ gap:4px; }
     .page{ padding:16px 12px 76px; }
     .stat-grid{ grid-template-columns:1fr 1fr; gap:10px; }
     .stat-card{ padding:13px 14px 12px; }
@@ -592,6 +614,8 @@
   }
   @media (hover: none){
     .btn:active, .icon-btn:active, .nav-tab:active, .stat-card:active{ transform:scale(.97); }
+    /* 觸控裝置沒有 hover,卡片上原本要滑鼠移過去才會出現的操作按鈕改成永遠顯示,避免功能按不到 */
+    .note-card .note-actions{ opacity:1; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -643,6 +667,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <!-- [安全性修正] 原本的 cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5 是 SheetJS 已知有原型污染
      (CVE-2023-30533) 與正規表達式阻斷服務(CVE-2024-22363)漏洞的版本,且 cdnjs 目前最新
      也僅停留在 0.18.5(SheetJS 已不再更新到 npm/cdnjs)。改用官方維護、無已知漏洞的 CDN。 -->
@@ -659,6 +684,12 @@
   firebase.initializeApp(firebaseConfig);
   const fbAuth = firebase.auth();
   const fbDb = firebase.firestore();
+
+  /* [手機推播通知設定]
+     1. 到 Firebase 主控台 → 專案設定 → Cloud Messaging → 「Web Push 憑證」區塊,
+        按「產生金鑰組」,把產生出來的公開金鑰貼到下面 FCM_VAPID_KEY。
+     2. 這組金鑰是公開金鑰,放在前端程式碼中是正常且安全的做法(不是密鑰)。 */
+  const FCM_VAPID_KEY = '請貼上你在 Firebase 主控台產生的 Web Push 金鑰(VAPID key)';
 </script>
 </head>
 <body>
@@ -854,6 +885,79 @@ async function fbStorageSet(key, value){
   if(!currentUid) return null;
   await fbDb.collection('users').doc(currentUid).collection('appData').doc(key).set({ value, updatedAt: Date.now() });
   return { key, value, shared:false };
+}
+
+/* ---------------- 手機推播通知(Web Push / FCM) ----------------
+   每支已啟用推播的裝置,會把自己的 FCM token 存到:
+   users/{uid}/fcmTokens/{token} → { token, createdAt, ua }
+   實際「檢查待辦到期日、發送每日彙整推播」的邏輯在後端 Cloud Function 執行(見 functions/index.js),
+   前端這裡只負責:偵測瀏覽器支援度、要求通知權限、取得並儲存/移除 token。
+   ------------------------------------------------------------------ */
+function isIOS(){
+  return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function isStandalonePwa(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function getPushSupportStatus(){
+  if(!('Notification' in window) || !('serviceWorker' in navigator) || !firebase.messaging || !firebase.messaging.isSupported){
+    return { supported:false, reason:'此瀏覽器不支援網頁推播通知' };
+  }
+  if(isIOS() && !isStandalonePwa()){
+    return { supported:false, reason:'iPhone/iPad 必須先「加入主畫面」,以獨立 App 方式開啟後才能啟用推播通知(iOS Safari 分頁本身不支援)' };
+  }
+  return { supported:true, reason:'' };
+}
+async function enablePushNotifications(){
+  const status = getPushSupportStatus();
+  if(!status.supported){ toast(status.reason); return false; }
+  if(!FCM_VAPID_KEY || FCM_VAPID_KEY.indexOf('請貼上')===0){
+    toast('尚未設定 VAPID 金鑰,請聯絡系統管理者完成推播設定'); return false;
+  }
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){ toast('未取得通知權限,無法啟用推播'); return false; }
+    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const messaging = firebase.messaging();
+    const token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    if(!token){ toast('無法取得推播 token,請稍後再試'); return false; }
+    await fbDb.collection('users').doc(currentUid).collection('fcmTokens').doc(token).set({
+      token, createdAt: Date.now(), ua: navigator.userAgent
+    });
+    toast('已啟用此裝置的推播通知');
+    return true;
+  }catch(e){
+    console.error(e);
+    toast('啟用推播失敗:' + (e.message||e.code||'請再試一次'));
+    return false;
+  }
+}
+async function disablePushNotifications(){
+  try{
+    if('serviceWorker' in navigator && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()){
+      const reg = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+      if(reg){
+        const messaging = firebase.messaging();
+        const token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg }).catch(()=>null);
+        if(token) await fbDb.collection('users').doc(currentUid).collection('fcmTokens').doc(token).delete().catch(()=>{});
+      }
+    }
+    toast('已停用此裝置的推播通知');
+  }catch(e){
+    console.error(e);
+  }
+}
+function setupForegroundPushHandler(){
+  const status = getPushSupportStatus();
+  if(!status.supported) return;
+  try{
+    const messaging = firebase.messaging();
+    messaging.onMessage(payload=>{
+      const title = (payload.notification && payload.notification.title) || '專案管理工作台';
+      const body = (payload.notification && payload.notification.body) || '';
+      toast(`${title}${body?'・'+body:''}`);
+    });
+  }catch(e){ /* 不支援時忽略,不影響其他功能 */ }
 }
 
 const uid = () => 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
@@ -1114,6 +1218,15 @@ function renderNotificationsTabHtml(){
         <label class="checkbox-row"><input type="checkbox" id="set_showMaintReminderInBell" ${n.showMaintReminderInBell?'checked':''}>通知鈴鐺納入「維護紀錄提醒」</label>
         <div class="form-hint">開啟後,已逾期未發送、以及即將到期(依各專案自訂的提前天數)的維護紀錄提醒也會顯示在通知鈴鐺清單中,點擊可直接跳轉至維護紀錄提醒頁面</div>
       </div>
+      <div class="form-field full">
+        <label>手機推播通知</label>
+        <div id="pushStatusBox" class="form-hint" style="margin-bottom:8px;"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary btn-sm" id="pushEnableBtn">啟用此裝置的推播通知</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="pushDisableBtn">停用此裝置的推播</button>
+        </div>
+        <div class="form-hint">開啟後,系統每天會檢查一次即將到期或已逾期的待辦事項,若有符合條件的項目,會在這支裝置上跳出推播通知。iPhone 需先將本頁面「加入主畫面」後,以獨立 App 的方式開啟才能啟用。</div>
+      </div>
     </div>
   `;
 }
@@ -1137,6 +1250,38 @@ function bindNotificationsTabEvents(){
   if(recvInput) recvInput.addEventListener('change', e=>{ settingsDraft.notifications.showReceivablesInBell = e.target.checked; });
   if(expInput) expInput.addEventListener('change', e=>{ settingsDraft.notifications.showExpiringInBell = e.target.checked; });
   if(maintInput) maintInput.addEventListener('change', e=>{ settingsDraft.notifications.showMaintReminderInBell = e.target.checked; });
+
+  const pushStatusBox = document.getElementById('pushStatusBox');
+  const pushEnableBtn = document.getElementById('pushEnableBtn');
+  const pushDisableBtn = document.getElementById('pushDisableBtn');
+  function refreshPushStatusBox(){
+    if(!pushStatusBox) return;
+    const status = getPushSupportStatus();
+    if(!status.supported){
+      pushStatusBox.textContent = '狀態:無法啟用(' + status.reason + ')';
+      if(pushEnableBtn) pushEnableBtn.disabled = true;
+    } else if(Notification.permission === 'granted'){
+      pushStatusBox.textContent = '狀態:此瀏覽器已允許通知權限(若尚未按過「啟用」,仍需按一次才會把此裝置加入推播名單)';
+    } else if(Notification.permission === 'denied'){
+      pushStatusBox.textContent = '狀態:已被瀏覽器封鎖通知權限,請至瀏覽器的網站設定中手動開啟';
+      if(pushEnableBtn) pushEnableBtn.disabled = true;
+    } else {
+      pushStatusBox.textContent = '狀態:尚未啟用';
+    }
+  }
+  refreshPushStatusBox();
+  if(pushEnableBtn) pushEnableBtn.addEventListener('click', async ()=>{
+    pushEnableBtn.disabled = true;
+    await enablePushNotifications();
+    pushEnableBtn.disabled = false;
+    refreshPushStatusBox();
+  });
+  if(pushDisableBtn) pushDisableBtn.addEventListener('click', async ()=>{
+    pushDisableBtn.disabled = true;
+    await disablePushNotifications();
+    pushDisableBtn.disabled = false;
+    refreshPushStatusBox();
+  });
 }
 
 function renderSettingsTabContent(){
@@ -2075,7 +2220,7 @@ function dashboardTpl(){
     ${pageHeaderHtml('dashboard', ICONS.dashboard, '儀表板', '即時掌握專案收款、到期與待辦執行狀況')}
     <div id="statGrid" class="stat-grid"></div>
 
-    <div class="chart-row" style="grid-template-columns:1fr 1fr;">
+    <div class="chart-row" style="--chart-cols:1fr 1fr;">
       <div class="card panel" style="text-align:center;">
         <div class="panel-title" style="justify-content:center;">本週完成率</div>
         <div id="weekGauge"></div>
@@ -2088,7 +2233,7 @@ function dashboardTpl(){
       </div>
     </div>
 
-    <div class="chart-row" style="grid-template-columns:1fr 1fr;" id="dashboardPmRow">
+    <div class="chart-row" style="--chart-cols:1fr 1fr;" id="dashboardPmRow">
       <div class="card panel" data-goto="receivables" style="cursor:pointer;">
         <div class="panel-title">本月應收款${themedTag('receivables', monthLabel())}</div>
         <div class="mini-stat-row"><span class="mini-stat-num" id="receivCount">0</span><span class="mini-stat-suffix">筆款項</span></div>
@@ -2563,7 +2708,7 @@ function expiringTpl(){
   <div class="page active" id="page-expiring">
     ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案', `<button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:${PAGE_THEME.expiring.color};border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>`)}
     <div id="expExportReminder"></div>
-    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);" id="expiringStatGrid"></div>
+    <div class="stat-grid" id="expiringStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">
         <span>即將到期專案清單</span>
@@ -2756,7 +2901,7 @@ function maintRemindersTpl(){
   return `
   <div class="page active" id="page-maintReminders">
     ${pageHeaderHtml('maintReminders', ICONS.mail, '維護紀錄提醒', '依各專案設定的週期與提前天數,定期提醒發信向 PM 索取維護紀錄')}
-    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);" id="mrStatGrid"></div>
+    <div class="stat-grid" style="--stat-cols:3;" id="mrStatGrid"></div>
     <div class="card panel">
       <div class="panel-title">
         <span>提醒清單</span>
@@ -3319,7 +3464,7 @@ function openMaintenanceProjectModal(existing, editing){
             <div class="lbl">維護紀錄提醒設定</div>
             <label class="checkbox-row"><input type="checkbox" id="f_reminderEnabled" ${p.reminderEnabled?'checked':''}>啟用此提醒</label>
           </div>
-          <div id="reminderFields" style="display:${p.reminderEnabled?'grid':'none'};grid-template-columns:1fr 1fr;gap:14px 16px;">
+          <div id="reminderFields" class="form-grid" style="display:${p.reminderEnabled?'grid':'none'};">
             <div class="form-field">
               <label>提醒週期</label>
               <select id="f_reminderCycle">
@@ -4895,6 +5040,7 @@ async function init(){
   renderPage();
   renderNotifications();
   updateUrlHash();
+  setupForegroundPushHandler();
 
   const collapseBtn = document.getElementById('collapseBtn');
   if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
