@@ -37,6 +37,10 @@
        與 --blue-900 分開管理,是因為 --blue-900 同時也被頂端列、按鈕等「品牌固定色」
        的元件借用,那些地方無論深色/淺色模式都要維持固定的深藍,不能跟著反白。 */
     --heading:var(--navy);
+    /* --seg-active-bg:分段按鈕(.seg,如篩選/分頁籤)選取中的背景色。
+       淺色模式下用純白即可跟灰底的軌道區分;深色模式需要另外給一個明顯更亮的顏色,
+       否則會跟軌道背景太接近,選取狀態看不清楚。 */
+    --seg-active-bg:var(--card);
     --sidebar-w:196px;
     --topbar-h:64px;
     --shadow: 0 2px 10px rgba(47,65,86,0.08), 0 1px 2px rgba(47,65,86,0.06);
@@ -56,6 +60,7 @@
       --text-faint:rgba(231,236,242,0.55);
       --border:rgba(255,255,255,0.14);
       --heading:#F3F6F9;
+      --seg-active-bg:#3B5068;
       --red-bg:rgba(177,92,82,0.22);
       --red-soft:rgba(177,92,82,0.38);
       --shadow:0 2px 10px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
@@ -70,6 +75,7 @@
     --text-faint:rgba(231,236,242,0.55);
     --border:rgba(255,255,255,0.14);
     --heading:#F3F6F9;
+    --seg-active-bg:#3B5068;
     --red-bg:rgba(177,92,82,0.22);
     --red-soft:rgba(177,92,82,0.38);
     --shadow:0 2px 10px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
@@ -446,7 +452,7 @@
     appearance:none; border:none; background:transparent; cursor:pointer; font-family:inherit;
     font-size:12.5px; font-weight:700; color:var(--text-muted); padding:7px 13px; border-radius:8px;
   }
-  .seg button.active{ background:var(--card); color:var(--heading); box-shadow:0 1px 3px rgba(62,90,112,0.18); }
+  .seg button.active{ background:var(--seg-active-bg); color:var(--heading); box-shadow:0 1px 3px rgba(62,90,112,0.18); }
 
   .visually-hidden{
     position:absolute; width:1px; height:1px; padding:0; margin:-1px;
@@ -892,6 +898,7 @@ const ICONS = {
   single:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
   batch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="3" y="16" width="14" height="4" rx="1"/></svg>`,
   settings:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  undo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M3.5 13a8.5 8.5 0 1 0 2.6-7.6L3 8"/></svg>`,
 };
 
 /* ---------------- State & Storage ---------------- */
@@ -1632,6 +1639,19 @@ function applyTheme(theme){
     root.removeAttribute('data-theme');
   }
 }
+/* 「跟隨系統」模式下,使用者可能在不關掉這個網頁的情況下切換作業系統/瀏覽器的深色模式,
+   CSS 本身會自動反應,但記事卡片的分類色是用 JS 判斷後寫進 inline style,不會自動更新,
+   所以額外監聽系統色彩偏好變化,若目前停在記事本分頁就重繪一次。 */
+if(window.matchMedia){
+  const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const onSystemThemeChange = ()=>{
+    if(currentPage==='notes' && typeof renderNotesList==='function'){
+      try{ renderNotesList(); }catch(e){ /* 頁面尚未初始化時忽略 */ }
+    }
+  };
+  if(darkModeQuery.addEventListener) darkModeQuery.addEventListener('change', onSystemThemeChange);
+  else if(darkModeQuery.addListener) darkModeQuery.addListener(onSystemThemeChange); // 舊版瀏覽器相容
+}
 function applyDisplaySettings(){
   const d = (SETTINGS && SETTINGS.display) || DEFAULT_SETTINGS.display;
   document.body.classList.toggle('sidebar-collapsed', !!d.sidebarCollapsedDefault);
@@ -2120,7 +2140,7 @@ function computeUpcomingExpiring(monthsAhead=3){
     const info = getProjectExpiryInfo(p);
     return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
   }).filter(p=>{
-    if(!p._expiryDate || p.terminated) return false;
+    if(!p._expiryDate || p.terminated || p.renewalDone) return false;
     const d = new Date(p._expiryDate+'T00:00:00');
     return d>=now && d<=future;
   }).sort((a,b)=> (a.code||'').localeCompare(b.code||'', undefined, {numeric:true, sensitivity:'base'}));
@@ -2150,6 +2170,19 @@ function computeExpiringPageList(monthsAhead=3){
     map.set(p.id, Object.assign({}, p, { _isOverdue: d < now }));
   });
   return Array.from(map.values());
+}
+
+/* 「已完成」子分頁用:曾經有到期日概念(保固/合約)、已經標記完成的專案,
+   依「完成日期」新到舊排序;沒有完成日期(舊資料/例外情況)的排在最後面。 */
+function computeCompletedExpiring(){
+  return DATA.projects.filter(p=>{
+    if(!p.renewalDone) return false;
+    const info = getProjectExpiryInfo(p);
+    return !!info.date;
+  }).map(p=>{
+    const info = getProjectExpiryInfo(p);
+    return Object.assign({}, p, { _expiryDate: info.date, _expiryLabel: info.label });
+  }).sort((a,b)=> (b.renewalHandledAt||'').localeCompare(a.renewalHandledAt||''));
 }
 
 /* ============================================================
@@ -2753,10 +2786,10 @@ function exportExpiringExcel(){
   const d = new Date();
   const stamp = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
   const bucketLabel = expiringFilter === 'all' ? '全部' : expiringFilter==='overdue' ? '已逾期' : `未來第${Number(expiringFilter)+1}個月`;
-  const headers = ['來源','客戶','合約名稱','專案代碼','專案經理','到期日','是否逾期','已完成'];
+  const headers = ['來源','客戶','合約名稱','專案代碼','專案經理','到期日','是否逾期'];
   const rows = list.map(p=> [
     isMaintenanceProject(p) ? '維護專案' : '進行中專案',
-    p.client, p.name, p.code, p.pm, p._expiryDate, p._isOverdue?'是':'否', p.renewalDone?'是':'否',
+    p.client, p.name, p.code, p.pm, p._expiryDate, p._isOverdue?'是':'否',
   ]);
   exportRowsToExcel(`即將到期專案_${bucketLabel}_${stamp}.xlsx`, bucketLabel, headers, rows);
   toast('已匯出 Excel 檔案');
@@ -2767,14 +2800,22 @@ function exportExpiringExcel(){
    EXPIRING PROJECTS PAGE (即將到期專案)
    ============================================================ */
 function expiringTpl(){
+  const doneCount = computeCompletedExpiring().length;
+  const exportBtnHtml = expiringTab==='active'
+    ? `<button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:var(--heading);border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>`
+    : '';
   return `
   <div class="page active" id="page-expiring">
-    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案', `<button class="btn btn-ghost btn-sm" id="expExportBtn" style="color:var(--heading);border-color:${PAGE_THEME.expiring.bg};">${ICONS.upload}匯出 Excel</button>`)}
+    ${pageHeaderHtml('expiring', ICONS.calendar, '即將到期專案', '已逾期尚未處理,以及近三個月內即將到期(結案)的專案', exportBtnHtml)}
+    <div class="seg" id="expiringTabSeg" style="margin-bottom:14px;">
+      <button data-v="active" class="${expiringTab==='active'?'active':''}">進行中</button>
+      <button data-v="done" class="${expiringTab==='done'?'active':''}">已完成${doneCount?`(${doneCount})`:''}</button>
+    </div>
     <div id="expExportReminder"></div>
-    <div class="stat-grid" id="expiringStatGrid"></div>
+    <div class="stat-grid" id="expiringStatGrid" style="${expiringTab==='done'?'display:none;':''}"></div>
     <div class="card panel">
       <div class="panel-title">
-        <span>即將到期專案清單</span>
+        <span>${expiringTab==='done'?'已完成清單':'即將到期專案清單'}</span>
         <span class="tag" id="expiringTotalTag" style="background:${PAGE_THEME.expiring.bg};color:${PAGE_THEME.expiring.color};"></span>
       </div>
       <div id="expiringList"></div>
@@ -2783,12 +2824,21 @@ function expiringTpl(){
 }
 
 let expiringFilter = 'all';
+let expiringTab = 'active'; // 'active' (進行中) | 'done' (已完成)
 
 function afterExpiringRender(){
   expiringFilter = 'all';
   renderExpiringContent();
-  document.getElementById('expExportBtn').addEventListener('click', exportExpiringExcel);
+  const expExportBtn = document.getElementById('expExportBtn');
+  if(expExportBtn) expExportBtn.addEventListener('click', exportExpiringExcel);
   renderExportReminder('expExportReminder', 'expiring', '即將到期專案');
+  document.querySelectorAll('#expiringTabSeg button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(btn.dataset.v===expiringTab) return;
+      expiringTab = btn.dataset.v;
+      renderPage();
+    });
+  });
 }
 
 function computeFilteredExpiringList(){
@@ -2805,6 +2855,44 @@ function computeFilteredExpiringList(){
 }
 
 function renderExpiringContent(){
+  const totalTag = document.getElementById('expiringTotalTag');
+  const el = document.getElementById('expiringList');
+
+  if(expiringTab==='done'){
+    const list = computeCompletedExpiring();
+    totalTag.textContent = `共 ${list.length} 個專案`;
+    if(!list.length){
+      el.innerHTML = emptyState('目前沒有已完成的項目', ICONS.check);
+      return;
+    }
+    el.innerHTML = `<table><thead><tr><th>來源</th><th>客戶</th><th>合約名稱</th><th>專案代碼</th><th>專案經理</th><th>原到期日</th><th>完成日期</th><th></th></tr></thead><tbody>
+      ${list.map(p=>{
+        const srcBadge = isMaintenanceProject(p)
+          ? `<span class="badge badge-gray">維護專案</span>`
+          : `<span class="badge badge-blue">進行中專案</span>`;
+        return `<tr>
+        <td>${srcBadge}</td>
+        <td>${esc(p.client)}</td><td><b>${esc(p.name)}</b></td><td class="cell-muted">${esc(p.code)}</td>
+        <td>${esc(p.pm)}</td>
+        <td class="cell-muted">${esc(p._expiryDate)}</td>
+        <td class="cell-muted">${esc(p.renewalHandledAt||'-')}</td>
+        <td><button class="icon-btn" data-restore="${p.id}" title="取消完成,移回進行中清單" aria-label="取消「${esc(p.name)}」的完成標記,移回進行中清單">${ICONS.undo}</button></td>
+      </tr>`;}).join('')}
+    </tbody></table>`;
+    el.querySelectorAll('[data-restore]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const proj = DATA.projects.find(x=>x.id===b.dataset.restore);
+        if(!proj) return;
+        proj.renewalDone = false;
+        proj.renewalHandledAt = '';
+        persist('projects');
+        renderPage(); // 連分頁籤上的「已完成(N)」筆數一起更新
+        toast('已取消完成標記,移回進行中清單');
+      });
+    });
+    return;
+  }
+
   const combined = computeExpiringPageList(3);
   const now = new Date(); now.setHours(0,0,0,0);
   const bucketLabels = [];
@@ -2843,14 +2931,12 @@ function renderExpiringContent(){
 
   const filtered = computeFilteredExpiringList();
 
-  document.getElementById('expiringTotalTag').textContent = `共 ${filtered.length} 個專案`;
-  const el = document.getElementById('expiringList');
+  totalTag.textContent = `共 ${filtered.length} 個專案`;
   if(!filtered.length){
     el.innerHTML = emptyState('此範圍內沒有即將到期或逾期的專案', ICONS.calendar);
   } else {
     const sortedFiltered = filtered.slice().sort((a,b)=>{
       if(!!a._isOverdue !== !!b._isOverdue) return a._isOverdue ? -1 : 1;
-      if(!!a.renewalDone !== !!b.renewalDone) return a.renewalDone ? 1 : -1;
       return (a._expiryDate||'').localeCompare(b._expiryDate||'');
     });
     el.innerHTML = `<table><thead><tr><th></th><th>來源</th><th>客戶</th><th>合約名稱</th><th>專案代碼</th><th>專案經理</th><th>到期日</th><th></th></tr></thead><tbody>
@@ -2858,8 +2944,8 @@ function renderExpiringContent(){
         const srcBadge = isMaintenanceProject(p)
           ? `<span class="badge badge-gray">維護專案</span>`
           : `<span class="badge badge-blue">進行中專案</span>`;
-        return `<tr style="${p.renewalDone?'opacity:.55;':''}">
-        <td><label style="display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;"><input type="checkbox" class="exp-check" data-pid="${p.id}" ${p.renewalDone?'checked':''} style="width:18px;height:18px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成" aria-label="標記 ${esc(p.name)} 為已完成"></label></td>
+        return `<tr>
+        <td><label style="display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;"><input type="checkbox" class="exp-check" data-pid="${p.id}" style="width:18px;height:18px;accent-color:${PAGE_THEME.expiring.color};cursor:pointer;" title="標記為已完成" aria-label="標記 ${esc(p.name)} 為已完成"></label></td>
         <td>${srcBadge}</td>
         <td>${esc(p.client)}</td><td><b>${esc(p.name)}</b></td><td class="cell-muted">${esc(p.code)}</td>
         <td>${esc(p.pm)}</td>
@@ -2869,12 +2955,13 @@ function renderExpiringContent(){
     </tbody></table>`;
     el.querySelectorAll('.exp-check').forEach(cb=>{
       cb.addEventListener('change', e=>{
+        // 勾選框只負責「發起」標記完成的流程,實際是否標記完成、要不要續約,
+        // 一律由 openExpiringRenewalDialog() 裡的按鈕決定;這裡先不寫入也不存檔,
+        // 使用者按下對話框的「叉叉」取消時,畫面重繪後勾選框會自動還原成未勾選。
+        if(!e.target.checked) return;
         const proj = DATA.projects.find(x=>x.id===e.target.dataset.pid);
         if(!proj) return;
-        proj.renewalDone = e.target.checked;
-        persist('projects');
-        if(e.target.checked) openExpiringRenewalDialog(proj);
-        renderExpiringContent();
+        openExpiringRenewalDialog(proj);
       });
     });
     el.querySelectorAll('[data-addtodo]').forEach(b=>{
@@ -2893,19 +2980,37 @@ function renderExpiringContent(){
   }
 }
 
+/* 把某個專案標記為「已完成」:蓋上完成日期、存檔,並回到即將到期專案頁面重繪
+   (統一交給 renderPage() 而不是只重繪清單,才能一併更新分頁籤上的「已完成(N)」筆數)。 */
+function markExpiringDone(proj){
+  proj.renewalDone = true;
+  proj.renewalHandledAt = todayISO();
+  persist('projects');
+  if(currentPage==='expiring') renderPage();
+}
+
 function openExpiringRenewalDialog(proj){
   const box = document.getElementById('modalBox');
   box.className = 'modal';
 
+  // 注意:勾選框本身「不會」在這裡就把 renewalDone 寫入資料,一定要等使用者在下面
+  // 三個按鈕裡做出選擇後才真正決定——「叉叉」取消(維持未完成)、「不用,謝謝」標記完成、
+  // 「續約/建立維護專案」也會標記完成(並接著處理續約)。按「叉叉」不需要額外動作,
+  // 因為畫面重繪(closeAndRefresh)時勾選框會自動還原成未勾選。
+  const closeAndRefresh = ()=>{
+    closeModal();
+    if(currentPage==='expiring') renderExpiringContent();
+  };
+
   if(isMaintenanceProject(proj)){
     box.innerHTML = `
       <div class="modal-head">
-        <div class="modal-title">已標記為完成</div>
+        <div class="modal-title">標記為完成?</div>
         <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
       </div>
       <div class="modal-body">
         <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-          已將「<b>${esc(proj.name)}</b>」標記為完成。這份維護合約是否要續約?選擇續約會直接開啟這筆專案的編輯視窗,方便您更新金額、代碼與新的起訖日,<b>不會另外產生新的專案</b>。
+          這份維護合約「<b>${esc(proj.name)}</b>」是否要續約?選擇續約會直接開啟這筆專案的編輯視窗,方便您更新金額、代碼與新的起訖日,<b>不會另外產生新的專案</b>;若不續約,會將這筆標記為完成並移到「已完成」分頁。
         </div>
       </div>
       <div class="modal-foot">
@@ -2914,13 +3019,14 @@ function openExpiringRenewalDialog(proj){
       </div>
     `;
     openModalOverlay();
-    document.getElementById('mClose').addEventListener('click', closeModal);
-    document.getElementById('mNo').addEventListener('click', closeModal);
+    document.getElementById('mClose').addEventListener('click', closeAndRefresh);
+    document.getElementById('mNo').addEventListener('click', ()=>{
+      closeModal();
+      markExpiringDone(proj);
+      toast(`已將「${proj.name}」標記為完成`);
+    });
     document.getElementById('mRenew').addEventListener('click', ()=>{
       closeModal();
-      proj.renewalDone = false;
-      persist('projects');
-      if(currentPage==='expiring') renderExpiringContent();
       openMaintenanceProjectModal(proj, true);
     });
     return;
@@ -2928,12 +3034,12 @@ function openExpiringRenewalDialog(proj){
 
   box.innerHTML = `
     <div class="modal-head">
-      <div class="modal-title">已標記為完成</div>
+      <div class="modal-title">標記為完成?</div>
       <button class="modal-close" id="mClose" aria-label="關閉視窗">${ICONS.close}</button>
     </div>
     <div class="modal-body">
       <div style="font-size:13.5px;color:var(--text);line-height:1.7;">
-        已將「<b>${esc(proj.name)}</b>」標記為完成,是否需要為這個專案建立「維護專案」合約?
+        是否需要為「<b>${esc(proj.name)}</b>」建立「維護專案」合約續約?選擇建立的話,這筆原本的專案會標記為完成並移到「已完成」分頁,同時開啟新維護專案的編輯視窗;若不需要,單純標記為完成即可。
       </div>
     </div>
     <div class="modal-foot">
@@ -2942,10 +3048,15 @@ function openExpiringRenewalDialog(proj){
     </div>
   `;
   openModalOverlay();
-  document.getElementById('mClose').addEventListener('click', closeModal);
-  document.getElementById('mNo').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', closeAndRefresh);
+  document.getElementById('mNo').addEventListener('click', ()=>{
+    closeModal();
+    markExpiringDone(proj);
+    toast(`已將「${proj.name}」標記為完成`);
+  });
   document.getElementById('mYes').addEventListener('click', ()=>{
     closeModal();
+    markExpiringDone(proj);
     const prefill = {
       id: uid(), projType:'maintenance', client:proj.client, code:'', name:proj.name, contractAmount:0,
       maintenanceRate:proj.maintenanceRate||'', startDate:todayISO(), endDate:'', modHours:0, modUnitPrice:0, sourceCode:'',
@@ -3701,6 +3812,7 @@ function openMaintenanceProjectModal(existing, editing){
       invoiceNote: document.getElementById('f_invoiceNote').value.trim(),
       installments: finalInstallments,
       renewalDone: p.renewalDone || false,
+      renewalHandledAt: p.renewalHandledAt || '',
       reminderEnabled,
       reminderCycle: document.getElementById('f_reminderCycle').value,
       reminderCycleMonths: Number(document.getElementById('f_reminderCycleMonths').value)||3,
@@ -3874,6 +3986,7 @@ function openInProgressProjectModal(existing, editing){
       contact: document.getElementById('f_contact').value.trim(),
       terminated: document.getElementById('f_terminated').checked, note: document.getElementById('f_note').value.trim(),
       renewalDone: p.renewalDone || false,
+      renewalHandledAt: p.renewalHandledAt || '',
     };
     ensureClient(client);
     const idx = DATA.projects.findIndex(x=>x.id===p.id);
@@ -4749,15 +4862,26 @@ function openContactModal(id){
 /* ============================================================
    NOTES PAGE (記事本)
    ============================================================ */
+/* 淺色模式維持原本的粉彩色卡背景(bg);深色模式改用 bgDark 這組另外調過的深色版,
+   避免淺色卡片背景在深色模式下配上會反白的標題/內文文字變成看不到字。
+   border(分類重點色)兩種模式共用同一組,不需要跟著反轉。 */
 const NOTE_COLORS = [
-  {id:'yellow', label:'黃', bg:'#FDF3D8', border:'#E4C15B'},
-  {id:'blue',   label:'藍', bg:'#E4EEF4', border:'#7FA8BF'},
-  {id:'green',  label:'綠', bg:'#E7EFE6', border:'#8CAE85'},
-  {id:'pink',   label:'粉', bg:'#F6E6E6', border:'#CE9797'},
-  {id:'gray',   label:'灰', bg:'#EFEDEA', border:'#B7B0A6'},
+  {id:'yellow', label:'黃', bg:'#FDF3D8', bgDark:'#3A3320', border:'#E4C15B'},
+  {id:'blue',   label:'藍', bg:'#E4EEF4', bgDark:'#28333D', border:'#7FA8BF'},
+  {id:'green',  label:'綠', bg:'#E7EFE6', bgDark:'#2A3428', border:'#8CAE85'},
+  {id:'pink',   label:'粉', bg:'#F6E6E6', bgDark:'#392C2C', border:'#CE9797'},
+  {id:'gray',   label:'灰', bg:'#EFEDEA', bgDark:'#2E2C29', border:'#B7B0A6'},
 ];
 function noteColorInfo(id){
   return NOTE_COLORS.find(c=>c.id===id) || NOTE_COLORS[0];
+}
+/* 判斷目前實際生效的是不是深色模式:手動選 light/dark 時以選擇為準,
+   選「跟隨系統」(未手動設定)時則看瀏覽器目前的 prefers-color-scheme。 */
+function isDarkModeActive(){
+  const explicit = document.documentElement.getAttribute('data-theme');
+  if(explicit==='dark') return true;
+  if(explicit==='light') return false;
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 }
 
 function notesTpl(){
@@ -4811,6 +4935,7 @@ function renderNotesList(){
     root.innerHTML = `<div class="card">${emptyState('目前沒有符合條件的記事,點選左側「新增」開始記錄吧', ICONS.notes)}</div>`;
     return;
   }
+  const notesDark = isDarkModeActive();
   root.innerHTML = `<div class="notes-grid">
     ${list.map(n=>{
       const c = noteColorInfo(n.color);
@@ -4819,7 +4944,7 @@ function renderNotesList(){
       if(n.client) metaBits.push(esc(n.client));
       if(proj) metaBits.push(`關聯:${esc(proj.name)}`);
       if(n.category) metaBits.push(esc(n.category));
-      return `<div class="card note-card" style="background:${c.bg};border-left-color:${c.border};" data-open="${n.id}">
+      return `<div class="card note-card" style="background:${notesDark?c.bgDark:c.bg};border-left-color:${c.border};" data-open="${n.id}">
         <div class="note-actions">
           <button class="icon-btn" data-pin="${n.id}" title="${n.pinned?'取消釘選':'釘選'}" aria-label="${n.pinned?'取消釘選':'釘選'}記事「${esc(n.title||'')}」">${n.pinned?ICONS.pinFilled:ICONS.pin}</button>
           <button class="icon-btn danger" data-del="${n.id}" title="刪除記事" aria-label="刪除記事「${esc(n.title||'')}」">${ICONS.trash}</button>
