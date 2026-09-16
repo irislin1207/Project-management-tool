@@ -705,6 +705,228 @@
   @media (prefers-reduced-motion: reduce){
     #loginGateChecking .lg-spinner{ animation:none; border-top-color:var(--blue-200); }
   }
+/* ============================================================
+   手機版版面優化 Patch
+   ------------------------------------------------------------
+   使用方式:整段貼在原檔案 style 區塊的最後面(也就是 style 結尾標籤的正上方)。
+   不需要刪除任何既有規則,本區塊在後面,會自動覆蓋衝突的部分。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. iOS 安全區域(瀏海 / 底部 Home Indicator)
+   全螢幕手機的底部橫條會蓋住頁尾內容與 Modal 的按鈕列,
+   這裡預留 env(safe-area-inset-*) 的空間。
+   ------------------------------------------------------------ */
+.page{ padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.sidenav{ padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+.toast{ bottom: calc(26px + env(safe-area-inset-bottom)); }
+
+/* 以「加入主畫面」的 PWA 方式開啟時,頂端列要自己讓開狀態列的高度 */
+@media (display-mode: standalone){
+  .topbar{
+    height: calc(var(--topbar-h) + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+  }
+  .sidenav,
+  .sidenav-backdrop,
+  .topbar-search-mobile{ top: calc(var(--topbar-h) + env(safe-area-inset-top)); }
+  #pages{ margin-top: calc(var(--topbar-h) + env(safe-area-inset-top)); }
+}
+
+/* Modal 在手機上由下往上滑出,比縮放彈跳更符合手機操作習慣 */
+@keyframes sheetUp{
+  from{ transform: translateY(16px); opacity:0; }
+  to  { transform: none;             opacity:1; }
+}
+
+@media (max-width: 760px){
+
+  /* ----------------------------------------------------------
+     2. 表單字級 16px:避免 iOS Safari 聚焦輸入框時整頁自動放大
+     (iOS 只要字級小於 16px 就會強制 zoom,放大後版面會跑掉且不會自動縮回)
+     ---------------------------------------------------------- */
+  .form-field input,
+  .form-field select,
+  .form-field textarea,
+  .filter-bar input[type=text],
+  .filter-bar select,
+  .install-row input,
+  #importText,
+  .topbar-search input{ font-size:16px; }
+
+  /* ----------------------------------------------------------
+     3. 篩選列與分頁籤:改成可橫向滑動,不再換行把版面越撐越高
+     ---------------------------------------------------------- */
+  .filter-bar{ padding:10px; gap:8px; }
+  .filter-bar > .seg{ width:100%; }
+  .filter-spacer{ display:none; }
+  .filter-bar select{ flex:1 1 140px; min-width:0; }
+
+  .seg{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    max-width:100%;
+  }
+  .seg::-webkit-scrollbar{ display:none; }
+  .seg button{ white-space:nowrap; flex:none; padding:8px 12px; }
+
+  /* ----------------------------------------------------------
+     4. 表格卡片化(本次最主要的改動)
+     原本 8~11 欄的表格在手機上只能左右滑動,一次看不到一筆完整資料。
+     這裡把每一列(tr)變成一張卡片、每一格(td)變成「欄位名稱 + 值」一行,
+     欄位名稱由 JS patch 自動從 <thead> 取得寫進 data-label,不必改任何 render 函式。
+     只作用在 #pages 內,Modal 裡的預覽小表格(收款期數)維持原本表格樣式。
+     ---------------------------------------------------------- */
+  #pages .table-wrap{ background:none; overflow-x:visible; }
+  #pages table{ display:block; }
+  #pages thead{ display:none; }
+  #pages tbody{ display:block; }
+
+  #pages tbody tr{
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:2px 0;
+    margin-bottom:10px;
+  }
+  #pages tbody tr:hover{ background:var(--card); }
+
+  #pages tbody td{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:7px 12px;
+    border-bottom:1px solid var(--blue-050);
+    white-space:normal;
+    text-align:right;
+    max-width:none !important;
+  }
+  #pages tbody tr td:last-child{ border-bottom:none; }
+  /* 沒有內容的欄位直接不佔空間(例如沒填備註的那一列) */
+  #pages tbody td:empty{ display:none; }
+
+  #pages tbody td::before{
+    content:attr(data-label);
+    flex:none;
+    max-width:42%;
+    font-size:12px;
+    font-weight:700;
+    color:var(--text-muted);
+    text-align:left;
+    line-height:1.4;
+  }
+
+  /* 主要名稱欄(合約名稱 / 項目名稱 / 專案名稱,原始碼中一律以 <b> 包住)
+     移到卡片最上面當標題,放大並左對齊,不需要再顯示欄位名稱 */
+  #pages tbody td:has(> b){
+    order:-1;
+    justify-content:flex-start;
+    text-align:left;
+    font-size:15px;
+    padding:11px 12px 9px;
+    border-bottom:1px solid var(--border);
+  }
+  #pages tbody td:has(> b)::before{ display:none; }
+  /* 該列有勾選框時,標題右側讓出空間給右上角的勾選框 */
+  #pages tbody tr:has(> td[data-label=""]:first-child) td:has(> b){ padding-right:52px; }
+
+  /* 沒有欄位標題的格子(勾選框、操作按鈕)不顯示標籤 */
+  #pages tbody td:not([data-label])::before,
+  #pages tbody td[data-label=""]::before{ display:none; }
+  #pages tbody td[data-label=""]{ justify-content:flex-end; }
+
+  /* 勾選框浮到卡片右上角,不再自己佔掉一整行 */
+  #pages tbody td[data-label=""]:first-child{
+    position:absolute;
+    top:7px; right:8px;
+    width:40px; height:40px;
+    padding:0;
+    border:none;
+    justify-content:center;
+  }
+  #pages tbody td[data-label=""]:first-child > label{ justify-content:center !important; }
+
+  #pages tbody td .row-actions{ justify-content:flex-end; }
+  #pages tbody td > label{ padding:0 !important; }
+
+  /* 卡片模式下的操作鈕放大到易點擊尺寸,不受「緊湊密度」設定壓縮 */
+  #pages tbody .icon-btn,
+  body.density-compact #pages tbody .icon-btn{ width:40px; height:40px; }
+  #pages tbody input[type=checkbox]{ width:22px !important; height:22px !important; }
+
+  /* 空狀態那一列不要被包成卡片 */
+  #pages tbody tr:has(.empty-state){ border:none; background:transparent; padding:0; margin:0; }
+  #pages tbody td:has(.empty-state){ display:block; padding:0; border:none; text-align:center; }
+
+  /* ----------------------------------------------------------
+     5. Modal 改為底部彈出式面板(bottom sheet)
+     手機上置中的小視窗上下都被切掉,底部面板可以用滿高度,
+     按鈕列固定在最下面,長表單捲動時也不用捲回底部才能按儲存。
+     ---------------------------------------------------------- */
+  .modal-overlay{ padding:0; align-items:flex-end; }
+  .modal,
+  .modal.wide{
+    width:100%;
+    max-width:100%;
+    max-height:92vh;
+    max-height:92dvh;
+    border-radius:18px 18px 0 0;
+    animation: sheetUp .2s ease;
+  }
+  .modal-head{ border-radius:18px 18px 0 0; padding:14px 16px; }
+  .modal-body{ padding:16px; }
+  .modal-foot{
+    position:sticky;
+    bottom:0;
+    z-index:2;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:var(--card);
+    flex-wrap:wrap;
+  }
+  .modal-foot .btn{ flex:1 1 auto; justify-content:center; }
+
+  /* ----------------------------------------------------------
+     6. 頁首動作按鈕、卡片操作鈕
+     ---------------------------------------------------------- */
+  .page-head .btn{ flex:1 1 auto; justify-content:center; }
+  /* 觸控裝置沒有 hover,卡片上的操作鈕一律顯示 */
+  .contact-actions,
+  .note-card .note-actions{ opacity:1; }
+
+  /* 觸控目標至少 40px,符合行動裝置可點擊區域建議 */
+  .icon-btn{ min-width:40px; min-height:40px; }
+}
+
+/* ------------------------------------------------------------
+   7. 收款期數輸入列:窄螢幕改成兩行排列,欄位不再被擠到看不清楚
+   ------------------------------------------------------------ */
+@media (max-width: 560px){
+  .install-row{
+    grid-template-columns: 22px 1fr 1fr 34px;
+    grid-template-areas:
+      "idx year  month del"
+      "idx amt   amt   del";
+    row-gap:6px;
+    align-items:center;
+  }
+  /* grid 項目預設 min-width:auto,input 會用自己的固有寬度把欄位撐爆並溢出面板,
+     所以這裡必須明確把最小寬度歸零 */
+  .install-row input{ min-width:0; width:100%; }
+  .install-row .idx      { grid-area:idx;   align-self:center; }
+  .install-row .inst-year { grid-area:year; }
+  .install-row .inst-month{ grid-area:month; }
+  .install-row .inst-amt  { grid-area:amt; }
+  .install-row .inst-del  { grid-area:del;  align-self:center; }
+
+  /* 新增精靈:四個類別在窄螢幕改成 2×2,不要擠成四條細長條 */
+  .add-wizard-group{ flex-wrap:wrap; }
+  .add-wizard-option{ flex:1 1 calc(50% - 5px); }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -5231,6 +5453,7 @@ async function init(){
   renderPage();
   renderNotifications();
   updateUrlHash();
+  setupMobileTableLabels();
   setupForegroundPushHandler();
 
   const collapseBtn = document.getElementById('collapseBtn');
@@ -5427,6 +5650,67 @@ fbAuth.onAuthStateChanged(async (user)=>{
       : '');
   }
 });
+
+/* ============================================================
+   手機版版面優化 Patch(JavaScript 部分)
+   ------------------------------------------------------------
+   使用方式:
+   (1) 把下面「A. 新增函式」整段貼在原檔案主程式 script 區塊的最後面
+       (也就是 script 結尾標籤的正上方)。
+   (2) 在 init() 函式裡,renderNotifications(); 那一行的下方,
+       加上一行: setupMobileTableLabels();
+   ============================================================ */
+
+
+/* ============================================================
+   A. 新增函式
+   ============================================================ */
+
+/* 手機版表格卡片化的配套:自動幫每個 <td> 補上對應的欄位標題。
+
+   CSS 會把每一列變成一張卡片,每一格用 td::before { content: attr(data-label) }
+   顯示欄位名稱。這裡不逐一去改 renderTodosTable / renderMaintenanceTable /
+   renderReceivablesMonthList … 等十幾個 render 函式,而是統一在這裡,
+   依照同一個 <table> 的 <thead> 欄位順序,把標題寫進每個 <td> 的 data-label。
+
+   好處是往後新增/調整表格欄位時,不需要再同步維護一份標題清單。 */
+function applyMobileTableLabels(root){
+  if(!root) return;
+  root.querySelectorAll('table').forEach(table=>{
+    const heads = Array.from(table.querySelectorAll('thead th')).map(th=> th.textContent.trim());
+    if(!heads.length) return;
+    table.querySelectorAll('tbody tr').forEach(tr=>{
+      const cells = tr.children;
+      // 欄數對不上的列(例如用 colspan 撐滿的「無資料」空狀態列)直接略過
+      if(cells.length !== heads.length) return;
+      for(let i=0; i<cells.length; i++){
+        cells[i].setAttribute('data-label', heads[i] || '');
+      }
+    });
+  });
+}
+
+/* 監看 #pages 的內容變化,只要有頁面或表格重繪就重新補標題。
+
+   註:MutationObserver 這裡只觀察 childList(節點增減),
+   applyMobileTableLabels() 只做 setAttribute(屬性變更),
+   兩者不重疊,所以不會觸發無窮迴圈。 */
+function setupMobileTableLabels(){
+  const pagesEl = document.getElementById('pages');
+  if(!pagesEl || typeof MutationObserver === 'undefined') return;
+  applyMobileTableLabels(pagesEl);
+  const observer = new MutationObserver(()=> applyMobileTableLabels(pagesEl));
+  observer.observe(pagesEl, { childList:true, subtree:true });
+
+  // 手機抽屜選單開著時轉成橫向/放大視窗,會變回桌機版側邊欄,
+  // 此時要把抽屜狀態關掉,否則 body 會一直停在 overflow:hidden 捲不動。
+  window.addEventListener('resize', ()=>{
+    if(window.innerWidth > 760 && document.body.classList.contains('mobile-nav-open')){
+      setMobileNavOpen(false);
+    }
+  });
+}
+
 </script>
 </body>
 </html>
