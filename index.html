@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>專案管理工作台</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#2F4156">
@@ -175,8 +175,8 @@
   }
   .search-result-item:hover, .search-result-item:focus-visible{ background:var(--blue-050); outline:none; }
   .search-result-item .sr-title{ font-size:13.5px; font-weight:700; color:var(--heading); }
-  .search-result-item .sr-meta{ font-size:11.5px; color:var(--text-muted); }
-  .search-results-more{ font-size:11.5px; color:var(--text-faint); padding:6px 10px 4px; }
+  .search-result-item .sr-meta{ font-size:12px; color:var(--text-muted); }
+  .search-results-more{ font-size:12px; color:var(--text-faint); padding:6px 10px 4px; }
   .search-results-empty{ padding:24px 12px; text-align:center; color:var(--text-muted); font-size:12.5px; }
   .search-results-hint{ padding:24px 12px; text-align:center; color:var(--text-faint); font-size:12.5px; }
 
@@ -249,7 +249,7 @@
   .hmenu-item.danger svg{ color:var(--red); }
   .hmenu-item.danger:hover{ background:var(--red-bg); }
   .hmenu-sep{ height:1px; background:var(--border); margin:6px 4px; }
-  .hmenu-label{ font-size:11.5px; font-weight:800; color:var(--text-muted); padding:8px 12px 2px; }
+  .hmenu-label{ font-size:12px; font-weight:800; color:var(--text-muted); padding:8px 12px 2px; }
   .notif-badge{
     position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; padding:0 4px;
     border-radius:20px; background:var(--danger-solid); color:#fff; font-size:10px; font-weight:800;
@@ -265,7 +265,7 @@
   }
   .notif-item:hover{ background:var(--blue-050); }
   .notif-item .nt{ font-size:13px; font-weight:700; color:var(--heading); }
-  .notif-item .nm{ font-size:11.5px; color:var(--text-muted); }
+  .notif-item .nm{ font-size:12px; color:var(--text-muted); }
   .notif-item.is-overdue .nt{ color:var(--red); }
   .notif-item.is-overdue .nm{ color:var(--red); }
   .notif-empty{ padding:22px 10px; text-align:center; color:var(--text-muted); font-size:12.5px; }
@@ -335,7 +335,7 @@
   }
   .nav-group-title:first-child{ padding-top:2px; }
   body.sidebar-collapsed .nav-group-title{ display:none; }
-  .nav-meta{ font-size:11.5px; color:var(--text-muted); white-space:nowrap; padding:10px 12px 4px; display:flex; align-items:center; }
+  .nav-meta{ font-size:12px; color:var(--text-muted); white-space:nowrap; padding:10px 12px 4px; display:flex; align-items:center; }
   .sync-dot{
     width:7px;height:7px;border-radius:50%; display:inline-block; margin-right:6px; flex:none;
     background:var(--teal); box-shadow:0 0 0 3px rgba(86,124,141,0.2);
@@ -415,7 +415,7 @@
   .chart-row{ display:grid; grid-template-columns:var(--chart-cols,1.1fr 1.4fr); gap:16px; margin-bottom:16px; }
   .panel{ padding:20px 20px 14px; }
   .panel-title{ font-size:14.5px; font-weight:700; color:var(--heading); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;}
-  .panel-title .tag{ font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--blue-050); padding:3px 9px; border-radius:20px;}
+  .panel-title .tag{ font-size:12px; font-weight:600; color:var(--text-muted); background:var(--blue-050); padding:3px 9px; border-radius:20px;}
 
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
@@ -518,13 +518,13 @@
   .form-field textarea{ resize:vertical; min-height:60px; font-family:inherit; }
   .preview-value{ font-size:14px; color:var(--text); padding:9px 12px; background:var(--blue-050); border-radius:9px; min-height:20px; line-height:1.5; word-break:break-word; }
   .preview-value.empty{ color:var(--text-faint); }
-  .form-hint{ font-size:11.5px; color:var(--text-faint); }
+  .form-hint{ font-size:12px; color:var(--text-faint); }
 
   .installment-box{ background:var(--blue-050); border:1px solid var(--border); border-radius:12px; padding:14px; grid-column:1/-1; }
   .installment-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .installment-head .lbl{ font-size:12.5px; font-weight:700; color:var(--heading); }
   .checkbox-row{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); font-weight:600; cursor:pointer; user-select:none;}
-  .checkbox-row input{ width:15px;height:15px; accent-color:var(--blue-700); cursor:pointer;}
+  .checkbox-row input{ width:18px;height:18px; accent-color:var(--blue-700); cursor:pointer;}
   .install-rows{ display:flex; flex-direction:column; gap:8px; }
   .install-row{ display:grid; grid-template-columns:24px 84px 84px 1fr 36px; gap:8px; align-items:center; }
   .install-row .idx{ font-size:12px; font-weight:800; color:var(--accent-ink); text-align:center; }
@@ -536,7 +536,7 @@
 
   .contact-group{ margin-bottom:24px; }
   .contact-group-title{ font-size:13.5px; font-weight:800; color:var(--heading); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
-  .contact-group-title .n{ font-size:11.5px; font-weight:700; color:var(--text-muted); background:var(--blue-100); padding:2px 9px; border-radius:20px;}
+  .contact-group-title .n{ font-size:12px; font-weight:700; color:var(--text-muted); background:var(--blue-100); padding:2px 9px; border-radius:20px;}
   .contact-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .contact-card{ padding:15px 16px; position:relative; }
   .contact-name{ font-size:14.5px; font-weight:800; color:var(--heading); }
@@ -1097,6 +1097,38 @@
   .mcard-toggle svg{ width:14px; height:14px; transition:transform .18s ease; }
   .mcard-toggle[aria-expanded="true"] svg{ transform:rotate(180deg); }
 }
+
+/* ============================================================
+   手機版調整(依實機回饋)
+   ============================================================ */
+@media (max-width: 760px){
+  /* 1. 移除左上角的選單鈕:右下角「更多」開的是同一個抽屜,重複了 */
+  .mobile-nav-toggle-btn{ display:none; }
+
+  /* 2. 搜尋修正:手機版有一條 .topbar-search{display:none},
+        連帶把「搜尋列裡面」那個輸入框也藏掉,
+        所以按下搜尋只看得到一顆關閉鈕,沒有地方可以打字。 */
+  .topbar-search-mobile .topbar-search{ display:flex; }
+
+  /* 3. 底部導覽:加高、按鈕加大、與手機底緣保持距離。
+        max() 是為了在沒有安全區域的機型上也至少留 10px,不會貼齊邊框。 */
+  .bottom-nav{ padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .bn-item{ min-height:62px; gap:4px; padding:10px 2px; }
+  .bn-ico{ width:24px; height:24px; }
+  .bn-label{ font-size:12px; }
+
+  /* 4. 按下時整格反白,讓觸控有明確回饋 */
+  .bn-item:active{ background:var(--blue-700); color:#fff; }
+  .bn-item.is-active{ color:var(--accent-ink); }
+  .bn-add-circle{ width:52px; height:52px; margin-top:-16px; }
+  .bn-add-circle svg{ width:25px; height:25px; }
+  .bn-item[data-act="add"]:active{ background:transparent; }
+  .bn-item[data-act="add"]:active .bn-add-circle{ background:var(--blue-900); transform:scale(.94); }
+
+  /* 導覽列變高,內容與 Toast 的留白要跟著加大 */
+  .page{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+  .toast{ bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1188,20 +1220,11 @@
       </div>
     </div>
     <div class="hamburger-wrap" id="hamburgerWrap">
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="更多選單" aria-haspopup="true" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="設定與帳號" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
       <div class="hamburger-menu" id="hamburgerMenu">
         <div class="hmenu-label" id="loggedInAsLabel">已登入</div>
-        <button class="hmenu-item" id="exportBackupBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
-          匯出備份檔
-        </button>
-        <button class="hmenu-item" id="importBackupBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V8"/><path d="m6 14 6-6 6 6"/><path d="M4 4h16"/></svg>
-          還原備份檔
-        </button>
-        <div class="hmenu-sep"></div>
         <button class="hmenu-item" id="settingsBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           設定
@@ -1619,6 +1642,7 @@ const SETTINGS_TABS = [
   { id:'notifications', label:'通知提醒' },
   { id:'lists', label:'自訂清單' },
   { id:'display', label:'顯示偏好' },
+  { id:'backup', label:'資料備份' },
 ];
 let settingsActiveTab = 'notifications';
 let settingsDraft = null;
@@ -1737,6 +1761,44 @@ function renderSettingsTabContent(){
   else if(settingsActiveTab==='display'){
     body.innerHTML = renderDisplayTabHtml();
     bindDisplayTabEvents();
+  }
+  else if(settingsActiveTab==='backup'){
+    body.innerHTML = renderBackupTabHtml();
+    bindBackupTabEvents();
+  }
+}
+
+function renderBackupTabHtml(){
+  return `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>匯出備份檔</label>
+        <div><button type="button" class="btn btn-primary btn-sm" id="set_exportBackup">下載備份檔</button></div>
+        <div class="form-hint">把目前所有專案、待辦事項、聯絡人、記事匯出成一個 JSON 檔存到本機。建議定期匯出,尤其在大量修改資料之前。</div>
+      </div>
+      <div class="form-field full" style="margin-top:14px;">
+        <label>還原備份檔</label>
+        <div><button type="button" class="btn btn-ghost btn-sm" id="set_importBackup">選擇備份檔還原</button></div>
+        <div class="form-hint" style="color:var(--red);font-weight:700;">還原會覆蓋目前畫面上的所有資料,且無法復原。建議先匯出一份目前的資料再進行還原。</div>
+        <div class="form-hint">請選擇本系統匯出的 JSON 備份檔;按下後會離開設定視窗並跳出確認提示。</div>
+      </div>
+    </div>`;
+}
+
+function bindBackupTabEvents(){
+  const exportBtn = document.getElementById('set_exportBackup');
+  if(exportBtn) exportBtn.addEventListener('click', exportBackup);
+  const importBtn = document.getElementById('set_importBackup');
+  const fileInput = document.getElementById('importBackupFile');
+  if(importBtn && fileInput){
+    importBtn.addEventListener('click', ()=>{
+      // 還原流程會用到確認視窗,而確認視窗跟設定視窗共用同一個 Modal 容器,
+      // 所以必須先收掉設定視窗,否則兩者會互相覆蓋。
+      if(modalDirty && !window.confirm('您有尚未儲存的設定變更,繼續還原會放棄這些變更,要繼續嗎?')) return;
+      modalDirty = false;
+      closeModal();
+      fileInput.click();
+    });
   }
 }
 
@@ -2189,7 +2251,7 @@ function markFieldError(inputEl, msg){
     if(!errEl){
       errEl = document.createElement('div');
       errEl.className = 'field-error';
-      errEl.style.cssText = 'font-size:11.5px;color:var(--red);font-weight:700;';
+      errEl.style.cssText = 'font-size:12px;color:var(--red);font-weight:700;';
       field.appendChild(errEl);
     }
     errEl.textContent = msg;
@@ -3893,7 +3955,7 @@ function pvRelatedSectionHtml(title, icon, items, type, projectId){
     : `<div class="form-hint" style="padding:8px 2px;">目前沒有關聯的${type==='todo'?'待辦事項':'記事'}</div>`;
   return `<div class="form-field full" style="margin-top:6px;">
     <label style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-flex;width:16px;height:16px;color:var(--blue-700);">${icon}</span>${title}${items.length?`<span style="font-size:11.5px;font-weight:600;color:var(--text-muted);background:var(--blue-100);padding:2px 9px;border-radius:20px;">${items.length}</span>`:''}</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-flex;width:16px;height:16px;color:var(--blue-700);">${icon}</span>${title}${items.length?`<span style="font-size:12px;font-weight:600;color:var(--text-muted);background:var(--blue-100);padding:2px 9px;border-radius:20px;">${items.length}</span>`:''}</span>
       <button type="button" class="btn btn-ghost btn-sm pv-related-add" data-type="${type}" data-pid="${esc(projectId)}">＋ 新增</button>
     </label>
     <div style="background:var(--blue-050);border:1px solid var(--border);border-radius:10px;padding:4px;">${listHtml}</div>
@@ -5682,12 +5744,10 @@ async function init(){
   setupGlobalSearch('globalSearchInput', 'searchResultsDesktop');
   setupGlobalSearch('globalSearchInputMobile', 'searchResultsMobile');
 
-  const exportBtn = document.getElementById('exportBackupBtn');
-  if(exportBtn) exportBtn.addEventListener('click', exportBackup);
-  const importBtn = document.getElementById('importBackupBtn');
+  // 匯出/還原已移到「設定 → 資料備份」。這裡只負責綁定檔案選擇器的 change 事件,
+  // 它必須獨立於任何按鈕存在與否——設定分頁裡的還原鈕就是靠這個監聽器完成還原的。
   const importFileInput = document.getElementById('importBackupFile');
-  if(importBtn && importFileInput){
-    importBtn.addEventListener('click', ()=> importFileInput.click());
+  if(importFileInput){
     importFileInput.addEventListener('change', e=>{
       const file = e.target.files && e.target.files[0];
       if(file) importBackupFromFile(file);
@@ -5923,6 +5983,28 @@ function setupBottomNav(){
    因為多一個 <td> 會讓桌機版的表格多出一欄、跟表頭對不齊。 */
 const ICON_CHEVRON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;
 
+/* 表格列原本只綁 click,鍵盤使用者完全無法開啟明細。
+   這裡不把整列變成 Tab 停留點(資料一多會按不完),
+   只讓「名稱」那一格可聚焦,按 Enter 或空白鍵等同點擊該列。 */
+function applyRowKeyboardAccess(root){
+  if(!root) return;
+  root.querySelectorAll('tbody tr[data-preview]').forEach(tr=>{
+    const bold = tr.querySelector('td > b');
+    if(!bold) return;
+    const cell = bold.parentElement;
+    if(cell.hasAttribute('tabindex')) return;
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('aria-label', (bold.textContent || '').trim() + ',開啟明細');
+    cell.addEventListener('keydown', e=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        tr.click();
+      }
+    });
+  });
+}
+
 function applyMobileCardCollapse(root){
   if(!root) return;
   root.querySelectorAll('tbody tr').forEach(tr=>{
@@ -5948,7 +6030,7 @@ function applyMobileCardCollapse(root){
 function setupMobileTableLabels(){
   const pagesEl = document.getElementById('pages');
   if(!pagesEl || typeof MutationObserver === 'undefined') return;
-  const refresh = ()=>{ applyMobileTableLabels(pagesEl); applyMobileCardCollapse(pagesEl); };
+  const refresh = ()=>{ applyMobileTableLabels(pagesEl); applyMobileCardCollapse(pagesEl); applyRowKeyboardAccess(pagesEl); };
   refresh();
   const observer = new MutationObserver(refresh);
   observer.observe(pagesEl, { childList:true, subtree:true });
