@@ -42,6 +42,18 @@
        否則會跟軌道背景太接近,選取狀態看不清楚。 */
     --seg-active-bg:var(--card);
     --sidebar-w:196px;
+    /* 以下幾組是「會隨深淺模式反轉的語意色」,與品牌固定色分開管理:
+       --stat-ink / --stat-ink-bg  統計卡圖示的前景與底色
+       --accent-ink                卡片上的強調文字與小圖示(連結、釘選、期數編號等)
+       --ok-ink / --ok-ink-bg      正向狀態標籤(如「保固中」)
+       --danger-solid              實心紅底(通知紅點),兩種模式都固定,因為上面是白字
+       淺色模式的值等同原本的顏色,所以淺色外觀不會有任何改變。 */
+    --stat-ink:var(--navy);
+    --stat-ink-bg:var(--blue-100);
+    --accent-ink:var(--teal);
+    --ok-ink:var(--teal);
+    --ok-ink-bg:rgba(86,124,141,0.14);
+    --danger-solid:#B15C52;
     --topbar-h:64px;
     --shadow: 0 2px 10px rgba(47,65,86,0.08), 0 1px 2px rgba(47,65,86,0.06);
   }
@@ -52,6 +64,12 @@
      按鈕等視覺識別在兩種模式下都一致。 */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
+      --red:#E2948A;
+      --stat-ink:#BBD8EA;
+      --stat-ink-bg:rgba(150,190,215,0.22);
+      --accent-ink:#A9CDE0;
+      --ok-ink:#A8CFC2;
+      --ok-ink-bg:rgba(86,124,141,0.18);
       --bg:#16202C;
       --sidebar-bg:#1B2733;
       --card:#212F3D;
@@ -67,6 +85,12 @@
     }
   }
   :root[data-theme="dark"]{
+    --red:#E2948A;
+    --stat-ink:#BBD8EA;
+    --stat-ink-bg:rgba(150,190,215,0.22);
+    --accent-ink:#A9CDE0;
+    --ok-ink:#A8CFC2;
+    --ok-ink-bg:rgba(86,124,141,0.18);
     --bg:#16202C;
     --sidebar-bg:#1B2733;
     --card:#212F3D;
@@ -217,7 +241,7 @@
     font-size:13.5px; font-weight:600; color:var(--heading); padding:10px 12px; border-radius:9px;
   }
   .hmenu-item:hover{ background:var(--blue-050); }
-  .hmenu-item svg{ width:16px; height:16px; color:var(--blue-700); flex:none; }
+  .hmenu-item svg{ width:16px; height:16px; color:var(--accent-ink); flex:none; }
   .hmenu-item:disabled{ color:var(--text-faint); cursor:not-allowed; }
   .hmenu-item:disabled svg{ color:var(--text-faint); }
   .hmenu-item:disabled:hover{ background:transparent; }
@@ -228,7 +252,7 @@
   .hmenu-label{ font-size:11.5px; font-weight:800; color:var(--text-muted); padding:8px 12px 2px; }
   .notif-badge{
     position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; padding:0 4px;
-    border-radius:20px; background:var(--red); color:#fff; font-size:10px; font-weight:800;
+    border-radius:20px; background:var(--danger-solid); color:#fff; font-size:10px; font-weight:800;
     display:flex; align-items:center; justify-content:center; line-height:1;
     box-shadow:0 0 0 2px var(--blue-800);
   }
@@ -385,7 +409,7 @@
   .mini-stat-row{ display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 0 4px; }
   .mini-stat-num{ font-size:38px; font-weight:800; color:var(--heading); line-height:1; }
   .mini-stat-suffix{ font-size:14px; font-weight:700; color:var(--text-muted); }
-  .mini-stat-link{ text-align:center; font-size:12px; font-weight:700; color:var(--blue-700); margin-top:8px; }
+  .mini-stat-link{ text-align:center; font-size:12px; font-weight:700; color:var(--accent-ink); margin-top:8px; }
   .mini-stat-sub{ text-align:center; font-size:12px; color:var(--text-muted); margin-top:2px; }
 
   .chart-row{ display:grid; grid-template-columns:var(--chart-cols,1.1fr 1.4fr); gap:16px; margin-bottom:16px; }
@@ -431,7 +455,7 @@
   .badge{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
   .badge-blue{ background:var(--blue-100); color:var(--heading); }
   .badge-red{ background:var(--red-bg); color:var(--red); }
-  .badge-green{ background:rgba(86,124,141,0.14); color:var(--ok); }
+  .badge-green{ background:var(--ok-ink-bg); color:var(--ok-ink); }
   .badge-gray{ background:var(--beige); color:var(--navy); }
   .badge-dot{ width:6px;height:6px;border-radius:50%; background:currentColor; }
 
@@ -503,7 +527,7 @@
   .checkbox-row input{ width:15px;height:15px; accent-color:var(--blue-700); cursor:pointer;}
   .install-rows{ display:flex; flex-direction:column; gap:8px; }
   .install-row{ display:grid; grid-template-columns:24px 84px 84px 1fr 36px; gap:8px; align-items:center; }
-  .install-row .idx{ font-size:12px; font-weight:800; color:var(--blue-500); text-align:center; }
+  .install-row .idx{ font-size:12px; font-weight:800; color:var(--accent-ink); text-align:center; }
   .install-row input{ font-family:inherit; font-size:13px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); }
   .install-row input:disabled{ background:var(--blue-100); color:var(--text-muted); }
   .install-row .inst-del{ width:32px; height:32px; }
@@ -518,7 +542,7 @@
   .contact-name{ font-size:14.5px; font-weight:800; color:var(--heading); }
   .contact-role{ font-size:12px; color:var(--text-muted); margin-top:1px; }
   .contact-line{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); margin-top:8px; }
-  .contact-line svg{ width:13px;height:13px; color:var(--blue-500); flex:none; }
+  .contact-line svg{ width:13px;height:13px; color:var(--accent-ink); flex:none; }
   .contact-actions{ position:absolute; top:14px; right:14px; display:flex; gap:5px; }
 
   .notes-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
@@ -529,7 +553,7 @@
   .note-card:hover{ box-shadow:0 8px 20px rgba(62,90,112,0.14); transform:translateY(-2px); transition:.18s ease; }
   .note-card .note-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
   .note-card .note-title{ font-size:14.5px; font-weight:800; color:var(--heading); word-break:break-word; }
-  .note-card .note-pin{ flex:none; color:var(--blue-500); }
+  .note-card .note-pin{ flex:none; color:var(--accent-ink); }
   .note-card .note-pin.is-pinned{ color:var(--red); }
   .note-card .note-content{
     font-size:12.5px; color:var(--text-muted); line-height:1.6; flex:1;
@@ -958,6 +982,121 @@
   .hamburger-btn{ width:44px; height:44px; }
   .topbar-right{ gap:4px; }
 }
+
+/* ============================================================
+   鍵盤操作的可見焦點(WCAG 2.4.7)
+   ------------------------------------------------------------
+   原本表單輸入框都設了 outline:none,只靠邊框變色提示焦點,
+   對比不足且按鈕完全沒有焦點樣式,純鍵盤操作時會不知道游標在哪。
+   :focus-visible 只在「鍵盤操作」時出現,滑鼠點擊不會顯示,
+   所以不會影響原本用滑鼠的視覺體驗。
+   ============================================================ */
+:focus-visible{
+  outline:2px solid var(--accent-ink);
+  outline-offset:2px;
+}
+.form-field input:focus-visible,
+.form-field select:focus-visible,
+.form-field textarea:focus-visible,
+.filter-bar input:focus-visible,
+.filter-bar select:focus-visible,
+.install-row input:focus-visible{
+  outline:2px solid var(--accent-ink);
+  outline-offset:1px;
+}
+/* 頂端列是深藍底,焦點框改用白色才看得見 */
+.topbar-search input:focus-visible,
+.topbar .hamburger-btn:focus-visible,
+.topbar-user .name:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:2px;
+}
+
+/* ============================================================
+   手機版底部導覽列
+   ------------------------------------------------------------
+   桌機維持原本的側邊欄,這一列只在 760px 以下出現。
+   五格:儀表板／待辦／新增／專案／更多。
+   「更多」開的就是原本的抽屜選單,所以 8 個頁面一個都不會少;
+   「新增」原本埋在抽屜裡要兩步,移到中央後變一步。
+   內容區與 Toast 的底部留白會一起加大,避免被這一列蓋住。
+   ============================================================ */
+.bottom-nav{ display:none; }
+
+@media (max-width: 760px){
+  .bottom-nav{
+    display:flex;
+    position:fixed; left:0; right:0; bottom:0; z-index:55;
+    background:var(--card);
+    border-top:1px solid var(--border);
+    padding-bottom:env(safe-area-inset-bottom);
+    box-shadow:0 -2px 12px rgba(47,65,86,0.10);
+  }
+  .bn-item{
+    flex:1; appearance:none; border:none; background:transparent; cursor:pointer;
+    font-family:inherit; color:var(--text-muted);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    padding:8px 2px 7px; min-height:56px;
+  }
+  .bn-ico{ display:flex; width:21px; height:21px; }
+  .bn-ico svg{ width:100%; height:100%; }
+  .bn-label{ font-size:11px; font-weight:700; letter-spacing:.2px; }
+  .bn-item.is-active{ color:var(--accent-ink); }
+  .bn-item:active{ background:var(--blue-050); }
+  /* 中央新增鈕:凸出於列外,是拇指最好按到的位置 */
+  .bn-add-circle{
+    width:46px; height:46px; border-radius:50%; margin-top:-14px;
+    background:var(--blue-700); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 12px rgba(47,65,86,0.28);
+  }
+  .bn-add-circle svg{ width:22px; height:22px; }
+  /* 固定列不可以蓋住內容(sticky nav 必須補等高的留白) */
+  .page{ padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .toast{ bottom: calc(80px + env(safe-area-inset-bottom)); }
+}
+
+/* ============================================================
+   按鈕內圖示尺寸(修正既有問題)
+   ------------------------------------------------------------
+   .btn 一直沒有規範內部 SVG 的尺寸,而 ICONS 裡的 svg 只有 viewBox、
+   沒有 width/height,在 flex 容器中會撐滿整個按鈕。
+   受影響:應收帳款與即將到期專案的「匯出 Excel」、「批次匯入」按鈕。
+   ============================================================ */
+.btn svg{ width:16px; height:16px; flex:none; }
+
+/* ============================================================
+   手機版卡片:預設收合,只留「標題 + 勾選框」
+   ------------------------------------------------------------
+   清單筆數一多,每張卡片 7~8 行會讓人捲不完。收合後一筆只佔兩行,
+   點「查看明細」就地展開其餘欄位,不會跳離清單。
+   桌機不受影響(整個區塊都在 760px 以下才生效,切換鈕也只在手機顯示)。
+   注意:只對「有主要名稱欄(以 <b> 標示)」的列套用收合,
+   否則像空狀態那種列會整列被藏起來。
+   ============================================================ */
+.mcard-toggle{ display:none; }
+
+@media (max-width: 760px){
+  #pages tbody tr:has(td > b):not(.is-expanded) td{ display:none; }
+  #pages tbody tr:has(td > b):not(.is-expanded) td:has(> b){
+    display:flex; border-bottom:none;
+  }
+  /* 勾選框那一格是絕對定位在右上角,收合時仍要顯示 */
+  #pages tbody tr:has(td > b):not(.is-expanded) td[data-label=""]:first-child{ display:flex; }
+
+  /* 標題欄改為直式,讓「查看明細」排在標題下方 */
+  #pages tbody td:has(> b){
+    flex-direction:column; align-items:flex-start; gap:6px;
+  }
+  .mcard-toggle{
+    display:inline-flex; align-items:center; gap:4px;
+    appearance:none; border:none; background:transparent; cursor:pointer;
+    font-family:inherit; font-size:12px; font-weight:700; color:var(--accent-ink);
+    padding:4px 0; margin:0;
+  }
+  .mcard-toggle svg{ width:14px; height:14px; transition:transform .18s ease; }
+  .mcard-toggle[aria-expanded="true"] svg{ transform:rotate(180deg); }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1110,6 +1249,8 @@
 <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
 
 <div id="pages"></div>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="主要導覽"></nav>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
@@ -2112,6 +2253,7 @@ function renderNav(){
     if(homeActive) homeBtn.setAttribute('aria-current', 'page');
     else homeBtn.removeAttribute('aria-current');
   }
+  renderBottomNav();
 }
 
 function toggleSidebar(){
@@ -2632,9 +2774,9 @@ function gaugeSVG(pct, color, size){
 function afterDashboardRender(){
   const s = computeStats();
   document.getElementById('statGrid').innerHTML = [
-    statCardHtml({label:'待辦事項總數', value:s.totalOpen, icon:ICONS.inbox, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:all'}),
-    statCardHtml({label:'本週待完成', value:s.weekOpen, icon:ICONS.clock, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:thisWeek'}),
-    statCardHtml({label:'本月待完成', value:s.monthOpen, icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)', onClick:'todos:thisMonth'}),
+    statCardHtml({label:'待辦事項總數', value:s.totalOpen, icon:ICONS.inbox, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)', onClick:'todos:all'}),
+    statCardHtml({label:'本週待完成', value:s.weekOpen, icon:ICONS.clock, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)', onClick:'todos:thisWeek'}),
+    statCardHtml({label:'本月待完成', value:s.monthOpen, icon:ICONS.calendar, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)', onClick:'todos:thisMonth'}),
     statCardHtml({label:'逾期事項', value:s.overdue, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)', onClick:'todos:overdue'}),
   ].join('');
 
@@ -3164,9 +3306,9 @@ function renderExpiringContent(){
 
   const cardDefs = [
     {bucket:'overdue', label:'已逾期', value:overdueCount, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
-    {bucket:0, label:`${bucketLabels[0]}到期`, value:buckets[0], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
-    {bucket:1, label:`${bucketLabels[1]}到期`, value:buckets[1], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
-    {bucket:2, label:`${bucketLabels[2]}到期`, value:buckets[2], icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
+    {bucket:0, label:`${bucketLabels[0]}到期`, value:buckets[0], icon:ICONS.calendar, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)'},
+    {bucket:1, label:`${bucketLabels[1]}到期`, value:buckets[1], icon:ICONS.calendar, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)'},
+    {bucket:2, label:`${bucketLabels[2]}到期`, value:buckets[2], icon:ICONS.calendar, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-500)'},
   ];
   document.getElementById('expiringStatGrid').innerHTML = cardDefs.map(c=>{
     const isActive = expiringFilter===c.bucket;
@@ -3359,9 +3501,9 @@ function renderMaintRemindersContent(){
   const soonCount = all.filter(r=>r._isSoon).length;
 
   const cardDefs = [
-    {bucket:'all', label:'已啟用提醒的專案', value:all.length, icon:ICONS.mail, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-700)'},
+    {bucket:'all', label:'已啟用提醒的專案', value:all.length, icon:ICONS.mail, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-700)'},
     {bucket:'overdue', label:'已逾期未發送', value:overdueCount, icon:ICONS.alert, color:'var(--red)', bg:'var(--red-bg)', accent:'var(--red)'},
-    {bucket:'soon', label:'即將提醒(依各專案設定天數)', value:soonCount, icon:ICONS.calendar, color:'var(--blue-800)', bg:'var(--blue-100)', accent:'var(--blue-500)'},
+    {bucket:'soon', label:'即將提醒(依各專案設定天數)', value:soonCount, icon:ICONS.calendar, color:'var(--stat-ink)', bg:'var(--stat-ink-bg)', accent:'var(--blue-500)'},
   ];
   document.getElementById('mrStatGrid').innerHTML = cardDefs.map(c=>{
     const isActive = mrFilter===c.bucket;
@@ -4263,6 +4405,14 @@ function openModalOverlay(){
   }
   overlay.classList.add('show');
   const box = document.getElementById('modalBox');
+  // 讓螢幕閱讀器在開啟時唸得出這個視窗的名稱(對應 role="dialog")
+  const titleEl = box.querySelector('.modal-title');
+  if(titleEl){
+    if(!titleEl.id) titleEl.id = 'modalTitleLabel';
+    box.setAttribute('aria-labelledby', titleEl.id);
+  } else {
+    box.removeAttribute('aria-labelledby');
+  }
   const firstField = box.querySelector('input, select, textarea');
   const firstFocusable = firstField || box.querySelector('button, [href], [tabindex]:not([tabindex="-1"])');
   if(firstFocusable) firstFocusable.focus();
@@ -5485,6 +5635,7 @@ async function init(){
   renderNotifications();
   updateUrlHash();
   setupMobileTableLabels();
+  setupBottomNav();
   setupForegroundPushHandler();
 
   const collapseBtn = document.getElementById('collapseBtn');
@@ -5726,11 +5877,80 @@ function applyMobileTableLabels(root){
    註:MutationObserver 這裡只觀察 childList(節點增減),
    applyMobileTableLabels() 只做 setAttribute(屬性變更),
    兩者不重疊,所以不會觸發無窮迴圈。 */
+
+/* 底部導覽:內容依目前頁面重繪,事件用委派只綁一次 */
+const ICON_MENU = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`;
+
+function renderBottomNav(){
+  const el = document.getElementById('bottomNav');
+  if(!el) return;
+  const pages = [
+    {id:'dashboard', label:'儀表板', icon:ICONS.dashboard},
+    {id:'todos',     label:'待辦',   icon:ICONS.todos},
+  ];
+  const pages2 = [
+    {id:'projects',  label:'專案',   icon:ICONS.projects},
+  ];
+  const pageBtn = it=>{
+    const active = currentPage===it.id;
+    return `<button class="bn-item${active?' is-active':''}" data-page="${it.id}" ${active?'aria-current="page"':''}>
+      <span class="bn-ico">${it.icon}</span><span class="bn-label">${it.label}</span></button>`;
+  };
+  el.innerHTML =
+    pages.map(pageBtn).join('') +
+    `<button class="bn-item" data-act="add" aria-label="新增資料"><span class="bn-add-circle">${ICONS.plus}</span></button>` +
+    pages2.map(pageBtn).join('') +
+    `<button class="bn-item" data-act="more" aria-label="更多頁面"><span class="bn-ico">${ICON_MENU}</span><span class="bn-label">更多</span></button>`;
+}
+
+function setupBottomNav(){
+  const el = document.getElementById('bottomNav');
+  if(!el) return;
+  el.addEventListener('click', e=>{
+    const btn = e.target.closest('.bn-item');
+    if(!btn) return;
+    if(btn.dataset.act === 'add'){ setMobileNavOpen(false); openAddWizard(); return; }
+    if(btn.dataset.act === 'more'){ toggleMobileNav(); return; }
+    if(btn.dataset.page){ goPage(btn.dataset.page); setMobileNavOpen(false); }
+  });
+  renderBottomNav();
+}
+
+
+/* 手機版卡片的收合／展開:在主要名稱欄後面加一顆「查看明細」。
+
+   刻意把按鈕塞進既有的欄位裡,而不是新增一個 <td>,
+   因為多一個 <td> 會讓桌機版的表格多出一欄、跟表頭對不齊。 */
+const ICON_CHEVRON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;
+
+function applyMobileCardCollapse(root){
+  if(!root) return;
+  root.querySelectorAll('tbody tr').forEach(tr=>{
+    const titleBold = tr.querySelector('td > b');
+    if(!titleBold) return;                               // 沒有主要名稱欄的列(例如空狀態)不處理
+    const titleCell = titleBold.parentElement;
+    if(titleCell.querySelector('.mcard-toggle')) return; // 已經加過就跳過,避免重複
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mcard-toggle';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span class="mcard-toggle-label">查看明細</span>' + ICON_CHEVRON;
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();                               // 不要順便觸發整列的「開啟預覽視窗」
+      const open = tr.classList.toggle('is-expanded');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.querySelector('.mcard-toggle-label').textContent = open ? '收合' : '查看明細';
+    });
+    titleCell.appendChild(btn);
+  });
+}
+
 function setupMobileTableLabels(){
   const pagesEl = document.getElementById('pages');
   if(!pagesEl || typeof MutationObserver === 'undefined') return;
-  applyMobileTableLabels(pagesEl);
-  const observer = new MutationObserver(()=> applyMobileTableLabels(pagesEl));
+  const refresh = ()=>{ applyMobileTableLabels(pagesEl); applyMobileCardCollapse(pagesEl); };
+  refresh();
+  const observer = new MutationObserver(refresh);
   observer.observe(pagesEl, { childList:true, subtree:true });
 
   // 手機抽屜選單開著時轉成橫向/放大視窗,會變回桌機版側邊欄,
