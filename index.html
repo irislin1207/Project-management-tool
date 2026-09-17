@@ -927,6 +927,37 @@
   .add-wizard-group{ flex-wrap:wrap; }
   .add-wizard-option{ flex:1 1 calc(50% - 5px); }
 }
+
+/* ============================================================
+   手機版頂端列微調(可自行調整比例)
+   ------------------------------------------------------------
+   想讓頂端列更高或更矮,只要改下面 --topbar-h 這一個數字就好。
+   側邊欄、內容區、搜尋列的位置都是依這個變數推算的,會一起跟著調整,
+   不需要另外改其他地方。建議不要低於 56px,否則按鈕會變得不好點。
+   ============================================================ */
+@media (max-width: 760px){
+  :root{ --topbar-h:64px; }          /* ← 想再粗一點就改這裡,例如 72px */
+
+  .topbar{ padding:0 12px; }
+
+  /* 選單、搜尋、通知鈴鐺:放大到 44px,符合行動裝置最小可點擊尺寸建議 */
+  .hamburger-btn{ width:44px; height:44px; }
+  .hamburger-btn svg{ width:18px; height:18px; }
+
+  .topbar-title .main{ font-size:17px; }
+  .topbar-logo{ display:flex; width:34px; height:34px; border-radius:10px; font-size:13px; }
+  .topbar-user .avatar{ width:34px; height:34px; font-size:13px; }
+  .notif-badge{ min-width:17px; height:17px; font-size:10.5px; }
+}
+
+@media (max-width: 480px){
+  /* 極窄螢幕:標誌讓位給標題,但按鈕維持 44px 不縮水 */
+  .topbar{ padding:0 10px; }
+  .topbar-logo{ display:none; }
+  .topbar-title .main{ font-size:16px; }
+  .hamburger-btn{ width:44px; height:44px; }
+  .topbar-right{ gap:4px; }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
