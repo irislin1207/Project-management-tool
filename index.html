@@ -278,7 +278,7 @@
   }
   .topbar-user .avatar img{ width:100%;height:100%;object-fit:cover; }
   .topbar-user .info{ display:flex; flex-direction:column; line-height:1.35; text-align:right; }
-  .topbar-user .name{ font-size:13.5px; font-weight:700; color:#fff; outline:none; cursor:text; border-radius:5px; padding:1px 4px; margin:-1px -4px; }
+  .topbar-user .name{ font-size:13.5px; font-weight:700; color:#fff; outline:none; cursor:default; border-radius:5px; padding:1px 4px; margin:-1px -4px; }
   .topbar-user .name:hover{ background:rgba(255,255,255,0.12); }
   .topbar-user .name:focus{ background:rgba(255,255,255,0.18); box-shadow:0 0 0 1.5px rgba(255,255,255,0.4); }
   .topbar-user .time{ font-size:11px; color:rgba(255,255,255,0.62); }
@@ -501,6 +501,7 @@
   @keyframes pop{ from{ transform:scale(.96) translateY(6px); opacity:0;} to{transform:scale(1) translateY(0); opacity:1;} }
   .modal-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--card); border-radius:18px 18px 0 0;}
   .modal-title{ font-size:16.5px; font-weight:800; color:var(--heading); }
+  .modal-close svg{ width:18px; height:18px; flex:none; }
   .modal-close{ width:40px;height:40px; border-radius:11px; border:none; background:var(--blue-050); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center;}
   .modal-close:hover{ background:var(--red-bg); color:var(--red); }
   .modal-body{ padding:20px 22px; }
@@ -1129,6 +1130,27 @@
   .page{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
   .toast{ bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
+
+/* ============================================================
+   手機版:「側邊欄預設收合」不應影響抽屜選單
+   ------------------------------------------------------------
+   桌機的收合是把側邊欄縮成一排圖示;但手機版側邊欄是固定 240px 的抽屜,
+   套用同一組樣式會讓抽屜裡只剩圖示、選單文字全部消失。
+   這裡在手機尺寸下把那些規則還原,深淺色模式都適用。
+   ============================================================ */
+@media (max-width: 760px){
+  body.sidebar-collapsed .nav-tab span.label,
+  body.sidebar-collapsed .nav-meta span.label,
+  body.sidebar-collapsed .sidenav-add-btn span.label{ display:inline-block; }
+  body.sidebar-collapsed .nav-group-title{ display:block; }
+  body.sidebar-collapsed .nav-soon-badge{ display:inline-block; }
+  body.sidebar-collapsed .nav-tab{ justify-content:flex-start; padding:11px 12px; }
+  body.sidebar-collapsed .nav-tabs{
+    padding-left:12px; border-left:2px solid var(--blue-100); margin-left:6px;
+  }
+  body.sidebar-collapsed .nav-meta{ justify-content:flex-start; padding:10px 12px 4px; }
+  body.sidebar-collapsed .nav-meta .sync-dot{ margin-right:6px; }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1224,7 +1246,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
       <div class="hamburger-menu" id="hamburgerMenu">
-        <div class="hmenu-label" id="loggedInAsLabel">已登入</div>
         <button class="hmenu-item" id="settingsBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           設定
@@ -1335,6 +1356,7 @@ let modalDraftKey = null; // 目前表單對應的草稿 localStorage key;僅「
    資料存放路徑:users/{Google帳號UID}/appData/{key}
    ---------------------------------------------------------------- */
 let currentUid = null;
+let currentUser = null;   // 目前登入者,設定頁的「個人資料設定」會用到
 async function fbStorageGet(key){
   if(!currentUid) return null;
   const snap = await fbDb.collection('users').doc(currentUid).collection('appData').doc(key).get();
@@ -1565,7 +1587,10 @@ function isProjectCodeDuplicate(code, excludeId){
 }
 
 function applyGoogleIdentity(user){
-  const name = user.displayName || user.email || 'User';
+  currentUser = user;
+  // 主頁顯示名稱可在「設定 → 個人資料設定」自訂,留空才用 Google 帳號名稱
+  const custom = ((SETTINGS && SETTINGS.profile && SETTINGS.profile.displayName) || '').trim();
+  const name = custom || user.displayName || user.email || 'User';
   const nameEl = document.getElementById('topbarUser');
   const avatarEl = document.getElementById('topbarAvatar');
   if(nameEl) nameEl.textContent = name;
@@ -1594,6 +1619,9 @@ const DEFAULT_SETTINGS = {
     noteCategories: ['會議記錄','客戶溝通','一般'],
     todoProgressOptions: ['待處理','內部進行中','客戶進行中'],
     departments: ['WM','AM'],
+  },
+  profile: {
+    displayName: '',
   },
   display: {
     defaultWorkspace: 'dashboard',
@@ -1643,6 +1671,7 @@ const SETTINGS_TABS = [
   { id:'lists', label:'自訂清單' },
   { id:'display', label:'顯示偏好' },
   { id:'backup', label:'資料備份' },
+  { id:'profile', label:'個人資料設定' },
 ];
 let settingsActiveTab = 'notifications';
 let settingsDraft = null;
@@ -1766,6 +1795,52 @@ function renderSettingsTabContent(){
     body.innerHTML = renderBackupTabHtml();
     bindBackupTabEvents();
   }
+  else if(settingsActiveTab==='profile'){
+    body.innerHTML = renderProfileTabHtml();
+    bindProfileTabEvents();
+  }
+}
+
+function renderProfileTabHtml(){
+  const u = currentUser || {};
+  const p = settingsDraft.profile || {};
+  return `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>目前登入的帳號</label>
+        <div class="preview-value">${esc(u.email || '(未取得帳號資訊)')}</div>
+        <div class="form-hint">以 Google 帳號登入,無法在此變更。要換帳號請先登出,再用另一個 Google 帳號登入。</div>
+      </div>
+      <div class="form-field full">
+        <label>Google 帳號名稱</label>
+        <div class="preview-value">${esc(u.displayName || '(Google 未提供名稱)')}</div>
+      </div>
+      <div class="form-field full">
+        <label>主頁顯示名稱</label>
+        <input type="text" id="set_profileDisplayName" maxlength="30"
+               value="${esc(p.displayName || '')}"
+               placeholder="${esc(u.displayName || '輸入想顯示的名稱')}">
+        <div class="form-hint">顯示在右上角的名稱。留空就沿用上面的 Google 帳號名稱。</div>
+      </div>
+      <div class="form-field full" style="margin-top:18px;border-top:1px solid var(--border);padding-top:16px;">
+        <div><button type="button" class="btn btn-danger btn-sm" id="set_signOut">登出</button></div>
+        <div class="form-hint">登出後會回到登入畫面,資料仍保存在雲端,下次以同一個 Google 帳號登入即可看到。</div>
+      </div>
+    </div>`;
+}
+
+function bindProfileTabEvents(){
+  const nameInput = document.getElementById('set_profileDisplayName');
+  if(nameInput) nameInput.addEventListener('input', e=>{
+    settingsDraft.profile.displayName = e.target.value;
+  });
+  const signOutBtn = document.getElementById('set_signOut');
+  if(signOutBtn) signOutBtn.addEventListener('click', ()=>{
+    if(modalDirty && !window.confirm('您有尚未儲存的設定變更,登出會放棄這些變更,確定要登出嗎?')) return;
+    modalDirty = false;
+    closeModal();
+    fbAuth.signOut();
+  });
 }
 
 function renderBackupTabHtml(){
@@ -2078,6 +2153,7 @@ function openSettingsModal(){
     closeModal();
     if(ok){
       applyDisplaySettings();
+      if(currentUser) applyGoogleIdentity(currentUser);
       renderNotifications();
       renderPage();
     }
@@ -5680,6 +5756,7 @@ async function init(){
   const [, meta] = await Promise.all([loadAll(), loadExportMeta(), loadSettings()]);
   exportMeta = meta || {};
   applyDisplaySettings();
+  if(currentUser) applyGoogleIdentity(currentUser);   // 設定載入後重新套用自訂顯示名稱
 
   const fromHash = parseUrlHash();
   const rememberLastPage = SETTINGS.display.rememberLastPage !== false;
@@ -5874,8 +5951,6 @@ fbAuth.onAuthStateChanged(async (user)=>{
     gate.style.display = 'none';
     root.style.display = '';
     applyGoogleIdentity(user);
-    const loggedInLabel = document.getElementById('loggedInAsLabel');
-    if(loggedInLabel) loggedInLabel.textContent = '已登入:' + (user.email || user.displayName || '');
     if(!appInitialized){
       appInitialized = true;
       init();
